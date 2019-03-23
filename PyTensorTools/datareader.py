@@ -21,8 +21,8 @@ class MatlabDataReader(BaseDataReader):
     def __init__(self, matlab_file_path, tensor_name, classes_name=None):
         super().__init__()
         self.file_path = matlab_file_path
-        self._tensor = loadmat(matlab_file_path, variable_names=[tensor_name])
+        self._tensor = loadmat(matlab_file_path, variable_names=[tensor_name])[tensor_name]
 
         if classes_name is not None:
-            self._classes = loadmat(matlab_file_path, variable_names=[classes_name])
+            self._classes = loadmat(matlab_file_path, variable_names=[classes_name])[classes_name]
         
