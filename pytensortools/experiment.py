@@ -6,18 +6,95 @@ from pytensor.decomposition import cp
 from pytensor.decomposition import parafac2
 import pytensor
 from pathlib import Path
+import json
 
+import numpy as np
 class Experiment(ABC):
     def __init__(self, experiment_params, data_reader_params, decomposition_params, log_params):
         self.experiment_params = experiment_params
         self.data_reader_params = data_reader_params
         self.decomposition_params = decomposition_params
-        self.log_params = log_params
-
+        self.log_params = log_params 
         self.data_reader = self.generate_data_reader()
-        self.checkpoint_path = experiment_params['save_path']
+       
+        self.create_experiment_directories()
 
+    def create_experiment_directories(self):
+        experiment_path = Path(self.experiment_params['save_path'])
+
+        self.checkpoint_path = experiment_path / 'checkpoints'
+        self.parameter_path = experiment_path / 'parameters'
+        self.summary_path = experiment_path / 'summaries'
+
+        for path in [self.checkpoint_path, self.parameter_path, self.summary_path]:
+            if not Path.is_dir(path):
+                path.mkdir(parents=True)
+
+    def copy_parameter_files(self):
+
+        with (self.parameter_path / 'experiment_params.json').open('w') as f:
+            json.dump(self.experiment_params, f)
+
+        with (self.parameter_path / 'data_reader_params.json').open('w') as f:
+            json.dump(self.data_reader_params, f)
+
+        with (self.parameter_path / 'decomposition_params.json').open('w') as f:
+            json.dump(self.decomposition_params, f)
+
+        with (self.parameter_path / 'log_params.json').open('w') as f:
+            json.dump(self.log_params, f)
+
+    def get_experiment_statistics(self):
+        # TODO: This can load the list of decompositions
+        model_type = getattr(pytensor.decomposition, self.decomposition_params['type'])
+        model_rank = self.decomposition_params['arguments']['rank']
+
+        best_run = ''
+        best_fit = -1
+
+        losses = []
+        fits = []
+
+        for file_name in self.checkpoint_path.glob('run*.h5'):
+            decomposer = model_type(rank=model_rank, init_scheme='from_checkpoint')
+            decomposer._init_fit(self.data_reader.tensor, initial_decomposition=file_name)
+
+            losses.append(decomposer.loss())
+            fits.append(decomposer.fit)
+            if decomposer.fit > best_fit:
+                best_run = file_name
+                best_fit = decomposer.fit
+                best_loss = decomposer.loss()
+
+        std_loss = np.std(losses)
+        std_fit = np.std(fits)
+
+        return {
+            'best_run': best_run,
+            'best_fit': best_fit,
+            'best_loss': best_loss,
+            'std_loss': std_loss,
+            'std_fit': std_fit
+        }
+
+
+    def create_summary(self):
+        self.summary = {}
+
+        self.summary['dataset_path'] = self.data_reader['arguments']['file_path']
+        self.summary['dataset_path'] = self.data_reader['arguments']['file_path']
+
+        self.summary = {**self.summary, **self.get_experiment_statistics()}        # finne beste run
+
+        return self.summary
     
+    def save_summary(self):
+        summary = self.create_summary()
+        summary_path = path(self.experiment_params['save_path']) / 'summary.json'
+
+        with summary_path.open('w') as f:
+            json.dump(summary, f)
+
     def generate_data_reader(self):
         DataReader = getattr(datareader, self.data_reader_params['type'])
         return DataReader(**self.data_reader_params['arguments'])
@@ -57,7 +134,13 @@ class Experiment(ABC):
             # return [self.run_single_experiment(i) for i in range(num_experiments)]
             return p.map(self.run_single_experiment, range(num_experiments))
 
+    
+
     def run_experiments(self):
-        return self.run_many_experiments(self.experiment_params.get('num_runs', 10))
+        self.copy_parameter_files()
+        decomposers = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
+        self.save_summary()
+
+        return decomposers
         
 
