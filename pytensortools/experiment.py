@@ -90,7 +90,7 @@ class Experiment(ABC):
     
     def save_summary(self):
         summary = self.create_summary()
-        summary_path = path(self.experiment_params['save_path']) / 'summary.json'
+        summary_path = self.summary_path / 'summary.json'
 
         with summary_path.open('w') as f:
             json.dump(summary, f)
