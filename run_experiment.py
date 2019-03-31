@@ -12,7 +12,7 @@ if __name__ == "__main__":
     data_reader_params = {
         'type': 'MatlabDataReader',
         'arguments': {
-            'matlab_file_path': 'x.mat',
+            'file_path': 'x.mat',
             'tensor_name': 'X'
         }
     }
