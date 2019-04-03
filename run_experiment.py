@@ -25,22 +25,22 @@ if __name__ == "__main__":
 
     experiment_params = {
         'num_runs': 10,
-        'save_path': 'test_result'
+        'save_path': 'test_result_for_evaluation_test'
     }
 
     decomposer_params = {
         'type': 'CP_ALS',
         'arguments': {
             'rank': 4,
-            'max_its': 1000,
-            'checkpoint_period': 2
+            'max_its': 10,
+            'checkpoint_frequency': 2
         },
         'fit_params': {
 
         }
 
     }
-    ktensor = pytensor.base.KruskalTensor.random_init((100, 2000, 300), rank=4)
+    ktensor = pytensor.base.KruskalTensor.random_init((100, 20, 300), rank=4)
     ktensor.store('ktensor.h5')
     X = ktensor.construct_tensor()
     savemat('x.mat', {'X': X})
@@ -48,7 +48,9 @@ if __name__ == "__main__":
     experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params)
     runs = experiment.run_experiments()
     for run in runs:
-        print(run.MSE)
+        print(run.loss())
+    
+
 
     #parametere jeg vil gi:
     # - Rank

@@ -1,12 +1,12 @@
 import multiprocessing
 from abc import ABC, abstractproperty, abstractmethod
+import json
 
 from . import datareader
 from pytensor.decomposition import cp
 from pytensor.decomposition import parafac2
 import pytensor
 from pathlib import Path
-import json
 
 import numpy as np
 class Experiment(ABC):
@@ -56,14 +56,14 @@ class Experiment(ABC):
         fits = []
 
         for file_name in self.checkpoint_path.glob('run*.h5'):
-            decomposer = model_type(rank=model_rank, init_scheme='from_checkpoint')
-            decomposer._init_fit(self.data_reader.tensor, initial_decomposition=file_name)
+            decomposer = model_type(rank=model_rank, max_its=-1, init='from_checkpoint')
+            decomposer._init_fit(self.data_reader.tensor, max_its=None, initial_decomposition=file_name)
 
             losses.append(decomposer.loss())
-            fits.append(decomposer.fit)
-            if decomposer.fit > best_fit:
-                best_run = file_name
-                best_fit = decomposer.fit
+            fits.append(decomposer.explained_variance)
+            if decomposer.explained_variance > best_fit:
+                best_run = file_name.name
+                best_fit = decomposer.explained_variance
                 best_loss = decomposer.loss()
 
         std_loss = np.std(losses)
@@ -81,8 +81,9 @@ class Experiment(ABC):
     def create_summary(self):
         self.summary = {}
 
-        self.summary['dataset_path'] = self.data_reader['arguments']['file_path']
-        self.summary['dataset_path'] = self.data_reader['arguments']['file_path']
+        self.summary['dataset_path'] = self.data_reader_params['arguments']['file_path']
+        self.summary['model_type'] = self.decomposition_params['type']
+        self.summary['model_rank'] = self.decomposition_params['arguments']['rank']
 
         self.summary = {**self.summary, **self.get_experiment_statistics()}        # finne beste run
 
@@ -111,7 +112,8 @@ class Experiment(ABC):
         Decomposer = getattr(pytensor.decomposition, self.decomposition_params['type'])
         return Decomposer(**self.decomposition_params['arguments'], loggers=self.generate_loggers(), checkpoint_path=checkpoint_path)
     
-    def run_single_experiment(self, run_num=None):
+    def run_single_experiment(self, run_num=None, seed=None):
+        np.random.seed(seed)
         checkpoint_path = None
 
         if run_num is not None:
