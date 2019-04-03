@@ -24,8 +24,9 @@ class FinalLoss(BaseSingleRunEvaluator):
         return h5['LossLogger/values'][-1]
 
 class ExplainedVariance(BaseSingleRunEvaluator):
+    #TODO: maybe create a decomposer to not rely on logging
     _name = 'Explained Variance'
-    def _evaluate(self, h5):
+    def _evaluate(self, data_reader, h5):
         return h5['ExplainedVarianceLogger/values'][-1]
 
 class PValue(BaseSingleRunEvaluator):
@@ -33,14 +34,19 @@ class PValue(BaseSingleRunEvaluator):
     def __init__(self, mode, decomposer_type, rank):
         self.mode = mode
         self._name = f'Best P value for mode {mode}'
-        self.decomposer_type = decomposer_type
+        decomposition_type = getattr(pytensor.decomposition,decomposer_type).DecompositionType
+        self.decomposition_type = decomposition_type
+        #self.decomposer_type = decomposer_type
         self.rank = rank
+        #self.decomposition_type = None
+        #decomposition = self.decomposer_type.load_from_hdf5_group()
 
     def _evaluate(self, data_reader, h5):
          
-        decomposer = getattr(pytensor.decomposition, self.decomposer_type)(rank=self.rank)
-        decomposer.load_from_hdf5_group(h5)
-        factors = decomposer.decomposition.factor_matrices[self.mode]
+        #decomposer = getattr(pytensor.decomposition, self.decomposer_type)(rank=self.rank,max_its=1000)
+        #decomposer.decomposition.load_from_hdf5_group(h5)
+        decomposition = self.decomposition_type.load_from_hdf5_group(h5)
+        factors = decomposition.factor_matrices[self.mode]
 
         classes = data_reader.classes
 

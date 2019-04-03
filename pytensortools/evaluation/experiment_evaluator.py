@@ -21,7 +21,8 @@ class ExperimentEvaluator:
         evaluators = []
         for evaluator in evaluator_params:
             Evaluator = getattr(evaluation, evaluator['type'])
-            evaluators.append(Evaluator(**evaluator['arguments']))
+            arg = evaluator.get('arguments', {})
+            evaluators.append(Evaluator(**arg))
         
         return evaluators
 

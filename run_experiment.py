@@ -3,9 +3,7 @@ from scipy.io import savemat
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
 import pytensor.base
 from pytensortools.experiment import Experiment
-
-
-
+import numpy as np
 
 if __name__ == "__main__":
 
@@ -13,14 +11,20 @@ if __name__ == "__main__":
         'type': 'MatlabDataReader',
         'arguments': {
             'file_path': 'x.mat',
-            'tensor_name': 'X'
+            'tensor_name': 'X',
+            'classes_name': 'classes'
         }
     }
 
     logger_params = [
         {
             'type': 'LossLogger',
+        },
+        {
+            'type': 'ExplainedVarianceLogger',
         }
+        
+
     ]
 
     experiment_params = {
@@ -43,7 +47,8 @@ if __name__ == "__main__":
     ktensor = pytensor.base.KruskalTensor.random_init((100, 20, 300), rank=4)
     ktensor.store('ktensor.h5')
     X = ktensor.construct_tensor()
-    savemat('x.mat', {'X': X})
+    c = np.random.randint(0,1, size=(100,))
+    savemat('x.mat', {'X': X, 'classes':c})
     print('Starting dataset')
     experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params)
     runs = experiment.run_experiments()

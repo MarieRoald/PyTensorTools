@@ -8,6 +8,14 @@ from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
 if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
+        {'type': 'ExplainedVariance', 'arguments': {}},
+        {'type': 'PValue', 
+         'arguments': {
+             'mode': 0,
+             'decomposer_type': 'CP_ALS',
+             'rank': 4
+         }
+        }
     ]
 
     evaluator = ExperimentEvaluator(single_run_evaluators)
