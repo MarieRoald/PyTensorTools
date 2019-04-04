@@ -24,5 +24,5 @@ class MatlabDataReader(BaseDataReader):
         self._tensor = loadmat(file_path, variable_names=[tensor_name])[tensor_name]
 
         if classes_name is not None:
-            self._classes = loadmat(file_path, variable_names=[classes_name])[classes_name]
+            self._classes = loadmat(file_path, variable_names=[classes_name])[classes_name].squeeze()
         
