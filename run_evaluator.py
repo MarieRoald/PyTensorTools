@@ -13,7 +13,11 @@ if __name__ == '__main__':
          'arguments': {
              'mode': 0,
              'decomposer_type': 'CP_ALS',
-             'rank': 4
+         }
+        },
+        {'type': 'WorstDegeneracy', 
+         'arguments': {
+             'decomposer_type': 'CP_ALS',
          }
         }
     ]
