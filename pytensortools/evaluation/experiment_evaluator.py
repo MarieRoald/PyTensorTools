@@ -39,11 +39,11 @@ class ExperimentEvaluator:
         summary : dict,
         data_reader : datareader.BaseDataReader
     ) -> dict:
+        # TODO: maybe have the possibility of evaluating other run than best run?
         checkpoint_path = experiment_path / 'checkpoints'/ summary['best_run']
 
         #decomposer = model_type(rank=model_rank, init_scheme='from_checkpoint')
         #decomposer._init_fit(data_reader.tensor, initial_decomposition=checkpoint_path)
-        # Evaluate the shit out of it
         results = {}
         with h5py.File(checkpoint_path) as h5:
             for run_evaluator in self.single_run_evaluators:
