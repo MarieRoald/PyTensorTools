@@ -1,0 +1,1 @@
+{"type": "CP_ALS", "arguments": {"rank": 4, "max_its": 10, "checkpoint_frequency": 2}, "fit_params": {}}
