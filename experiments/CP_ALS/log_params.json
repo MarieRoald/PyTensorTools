@@ -1,1 +1,4 @@
-[{"type": "LossLogger"}, {"type": "ExplainedVarianceLogger"}]
+[
+    {"type": "LossLogger"},
+    {"type": "ExplainedVarianceLogger"}
+]

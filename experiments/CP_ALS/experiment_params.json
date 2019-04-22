@@ -1,1 +1,3 @@
-{"num_runs": 10, "save_path": "test_result_for_evaluation_test"}
+{
+    "save_path": "/home/mariero/experiment_logs/MCIC/WRONG_DATASET/"
+}
