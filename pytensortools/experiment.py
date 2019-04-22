@@ -21,10 +21,10 @@ class Experiment(ABC):
 
     def create_experiment_directories(self):
         num = 0
-        self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:2d}')
+        self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:02d}')
         while self.experiment_path.is_dir():
             num += 1
-            self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:2d}')
+            self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:02d}')
 
         self.checkpoint_path = self.experiment_path / 'checkpoints'
         self.parameter_path = self.experiment_path / 'parameters'
