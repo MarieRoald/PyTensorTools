@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--save_path', 
         help="The location to store the experiment results, default='.'", 
         type=str,
-        default='.'
+        default=None
     )
     parser.add_argument(
         '-r',
@@ -55,6 +55,16 @@ if __name__ == "__main__":
         logger_params = json.load(f)
     with (experiment_path/'decomposition_params.json').open() as f:
         decomposition_params = json.load(f)
+
+    if args.save_path is not None:
+        save_path = args.save_path
+    else:
+        with (experiment_path/'save_path.json').open() as f:
+            save_path = json.load(f)
+            if 'save_path' in save_path:
+                save_path = save_path['save_path']
+            else:
+                save_path = '.'
     
     if args.rank is not None:
         decomposition_params['arguments']['rank'] = args.rank
@@ -68,7 +78,7 @@ if __name__ == "__main__":
     decomposition_type = decomposition_params['type']
     rank = decomposition_params['arguments']['rank']
     experiment_name = f'{decomposition_type}_rank_{rank}'
-    experiment_path = Path(args.save_path)/experiment_name
+    experiment_path = Path(save_path)/experiment_name
     experiment_params = {
         'num_runs':args.num_runs,
         'save_path': str(experiment_path)
