@@ -20,11 +20,15 @@ class Experiment(ABC):
         self.create_experiment_directories()
 
     def create_experiment_directories(self):
-        experiment_path = Path(self.experiment_params['save_path'])
+        num = 0
+        self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:2d}')
+        while self.experiment_path.is_dir():
+            num += 1
+            self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:2d}')
 
-        self.checkpoint_path = experiment_path / 'checkpoints'
-        self.parameter_path = experiment_path / 'parameters'
-        self.summary_path = experiment_path / 'summaries'
+        self.checkpoint_path = self.experiment_path / 'checkpoints'
+        self.parameter_path = self.experiment_path / 'parameters'
+        self.summary_path = self.experiment_path / 'summaries'
 
         for path in [self.checkpoint_path, self.parameter_path, self.summary_path]:
             if not Path.is_dir(path):
@@ -120,7 +124,7 @@ class Experiment(ABC):
             checkpoint_path = Path(self.checkpoint_path)
             if not checkpoint_path.is_dir():
                 checkpoint_path.mkdir(parents=True)
-            checkpoint_path = str(checkpoint_path/f'run_{run_num}.h5')
+            checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
 
         decomposer = self.generate_decomposer(checkpoint_path)
         X = self.data_reader.tensor
