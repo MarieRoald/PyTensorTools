@@ -1,5 +1,6 @@
 from scipy.io import savemat
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
+sys.path.append('../PyTensor/')
 import pytensor.base
 from pytensortools.experiment import Experiment
 import numpy as np

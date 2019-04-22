@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
+sys.path.append('../PyTensor/')
 from pytensortools.experiment import Experiment
 
 
