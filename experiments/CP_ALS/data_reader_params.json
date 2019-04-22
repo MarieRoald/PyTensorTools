@@ -1,1 +1,1 @@
-{"type": "MatlabDataReader", "arguments": {"file_path": "/home/mariero/datasets/MCIC/fALFFmap_all_downsampled.mat", "tensor_name": "fALFF"}}
+{"type": "MatlabDataReader", "arguments": {"file_path": "/home/mariero/datasets/MCIC/fALFFmap_all_downsampled.mat", "tensor_name": "fALFF_downsampled"}}
