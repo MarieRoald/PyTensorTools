@@ -1,0 +1,18 @@
+function [max_acc] = run_kmeans_acc_from_python(log_file_name, group_name, factor_name)
+
+    log_path = sprintf('%s%s', log_folder_name, log_file_name);
+
+    best_run_group_name = 'best_run';
+    factor_name = 'factor_mode_2';
+
+    group_name = sprintf('/%s/%s', best_run_group_name, factor_name);
+
+    subject_factor = h5read(log_path,group_name);
+
+    load('subject_classes.mat');
+
+    [acc, sen, spec, d, nmi, fscore, pp] = return_kmeans_additionalmetrics(class', subject_factor');
+
+    max_acc = max(acc(:));
+    
+end

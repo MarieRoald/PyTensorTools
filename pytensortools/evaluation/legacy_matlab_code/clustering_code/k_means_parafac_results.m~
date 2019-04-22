@@ -1,0 +1,29 @@
+%log_file_name = "/home/marie/Dropbox/Programming/Simula/fALFFmaps/windowedfALFFmaps-20181127T074821Z-001/windowedfALFFmaps/preprocessed_downsampled_results/fALFF_preprocessed_downsampled_cp_opt_r4_maxit2000_3.h5";
+
+log_folder_name =  "/home/marie/Dropbox/Programming/Simula/fALFFmaps/windowedfALFFmaps-20181127T074821Z-001/windowedfALFFmaps/"
+log_file_name = "fALFF_downsampled_cp_opt_r2_200its_2.h5"
+log_file_name = "fALFF_downsampled_cp_opt_r3_1000its.h5"
+log_file_name = "fALFF_downsampled_cp_opt_r4_200its.h5"
+log_file_name = "fALFF_downsampled_cp_opt_r5_200its.h5"
+
+log_folder_name = "/home/marie/Dropbox/Programming/Simula/fALFFmaps/windowedfALFFmaps-20181127T074821Z-001/windowedfALFFmaps/preprocessed_downsampled_results/"
+
+
+log_folder_name = "/home/marie/Dropbox/Programming/Simula/fALFFmaps/windowedfALFFmaps-20181127T074821Z-001/windowedfALFFmaps/preprocessed_downsampled_results/"
+
+log_file_name = "fALFF_preprocessed_downsampled_cp_opt_r4_maxit2000_3.h5"
+
+log_path = sprintf('%s%s', log_folder_name, log_file_name)
+
+best_run_group_name = 'best_run';
+factor_name = 'factor_mode_2';
+
+group_name = sprintf('/%s/%s', best_run_group_name, factor_name)
+
+subject_factor = h5read(log_path,group_name);
+
+load('subject_classes.mat')
+
+[acc, sen, spec, d, nmi, fscore, pp] = return_kmeans_additionalmetrics(class', subject_factor')
+
+max_acc = max(acc(:))
