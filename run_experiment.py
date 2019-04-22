@@ -14,9 +14,18 @@ if __name__ == "__main__":
         help='Path to a folder containing the following files:\n'
              '\tdata_reader_params.json\n'
              '\tlog_params.json\n'
-             '\tdecomposition_params.json\n'
-             '\texperiment_params.json\n',
+             '\tdecomposition_params.json\n',
         type=str
+    )
+    parser.add_argument('-n', '--num_runs', 
+        help="The number of runs to perform, default=60", 
+        type=int,
+        default=60
+    )
+    parser.add_argument('-s', '--save_path', 
+        help="The location to store the experiment results, default='.'", 
+        type=str,
+        default='.'
     )
     parser.add_argument(
         '-r',
@@ -26,11 +35,16 @@ if __name__ == "__main__":
         default=None
     )
     parser.add_argument(
-        '-s',
-        '--save_path',
-        help='The path to store the experiment output',
-        type=str,
+        '--tol',
+        help='The convergence tolerance',
+        type=float,
         default=None
+    )
+    parser.add_argument(
+        '--max_its',
+        help='The maximum number of iterations to run.',
+        default=None,
+        type=int
     )
     args = parser.parse_args()
     experiment_path = Path(args.experiment_path)
@@ -40,15 +54,25 @@ if __name__ == "__main__":
     with (experiment_path/'log_params.json').open() as f:
         logger_params = json.load(f)
     with (experiment_path/'decomposition_params.json').open() as f:
-        decompostion_params = json.load(f)
-    with (experiment_path/'experiment_params.json').open() as f:
-        experiment_params = json.load(f)
+        decomposition_params = json.load(f)
     
     if args.rank is not None:
         decomposition_params['arguments']['rank'] = args.rank
     
-    if args.save_path is not None:
-        experiment_params['save_path'] = args.savepath
+    if args.max_its is not None:
+        decomposition_params['arguments']['max_its'] = args.max_its
 
-    experiment = Experiment(experiment_params, data_reader_params, decompostion_params, logger_params)
+    if args.tol is not None:
+        decomposition_params['arguments']['tol'] = args.tol
+
+    decomposition_type = decomposition_params['type']
+    rank = decomposition_params['arguments']['rank']
+    experiment_name = f'{decomposition_type}_rank_{rank}'
+    experiment_path = Path(args.save_path)/experiment_name
+    experiment_params = {
+        'num_runs':args.num_runs,
+        'save_path': str(experiment_path)
+    }
+
+    experiment = Experiment(experiment_params, data_reader_params, decomposition_params, logger_params)
     runs = experiment.run_experiments()
