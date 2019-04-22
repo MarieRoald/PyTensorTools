@@ -74,7 +74,7 @@ if __name__ == "__main__":
         decomposition_params['arguments']['max_its'] = args.max_its
 
     if args.tol is not None:
-        decomposition_params['arguments']['tol'] = args.tol
+        decomposition_params['arguments']['convergence_tol'] = args.tol
 
     decomposition_type = decomposition_params['type']
     rank = decomposition_params['arguments']['rank']

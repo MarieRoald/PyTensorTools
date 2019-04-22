@@ -1,5 +1,5 @@
 {
     "type": "CP_ALS", 
-    "arguments": {"rank": 4, "max_its": 10000, "checkpoint_frequency": 500, "tol": 1e-8},
+    "arguments": {"rank": 4, "max_its": 10000, "checkpoint_frequency": 500, "convergence_tol": 1e-8},
     "fit_params": {}
 }
