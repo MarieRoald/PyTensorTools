@@ -81,8 +81,8 @@ class Uniqueness(BaseMultipleEvaluator):
             results['SSE_difference'].append(self._SSE_difference(best_decomposition, decomposition))
             results['fms'].append(self._factor_match_score(best_decomposition.factor_matrices, decomposition.factor_matrices))
 
-        results['name'] = _sort_by(results['name'], results['SSE_difference'])
-        results['fms'] = _sort_by(results['fms'], results['SSE_difference'])
-        results['SSE_difference'] = sorted(results['SSE_difference'])
+        results['name'] = _sort_by(results['name'], np.abs(results['SSE_difference']))
+        results['fms'] = _sort_by(results['fms'], np.abs(results['SSE_difference']))
+        results['SSE_difference'] = sorted(results['SSE_difference'], key=abs)
         
         return results
