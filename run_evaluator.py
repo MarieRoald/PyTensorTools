@@ -18,16 +18,16 @@ if __name__ == '__main__':
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
-        {'type': 'CoreConsistency',
-          'arguments': {}
-        },
-        #{'type': 'MaxKMeansAcc', 
-        # 'arguments': {
-        #     'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-        #     'mode': 0
+        #{'type': 'CoreConsistency',
+        #  'arguments': {}
+        #},
+        {'type': 'MaxKMeansAcc', 
+         'arguments': {
+             'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
+             'mode': 0
 
-        # }
-        #}
+         }
+        }
     ]
     multi_run_evaluators = [
       {'type': 'Uniqueness', 'arguments': {}}
@@ -51,6 +51,14 @@ if __name__ == '__main__':
                 'log_name': 'ExplainedVariance',
                 'logger_name': 'ExplainedVarianceLogger',
                 'filename': 'explained_variance'
+            }
+        },
+        {
+            'type': 'LogPlotter',
+            'arguments': {
+                'log_name': 'Loss',
+                'logger_name': 'LossLogger',
+                'filename': 'loss'
             }
         }
     ]
