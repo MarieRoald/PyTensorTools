@@ -45,7 +45,7 @@ if __name__ == "__main__":
     ktensor = pytensor.base.KruskalTensor.random_init((100, 20, 300), rank=4)
     ktensor.store('ktensor.h5')
     X = ktensor.construct_tensor()
-    c = np.random.randint(0,2, size=(100,))
+    c = np.random.randint(0, 2, size=(100,))
     print(c)
     savemat('x.mat', {'X': X, 'classes':c})
     print('Starting dataset')
