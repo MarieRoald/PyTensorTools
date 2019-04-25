@@ -1,5 +1,6 @@
 from pathlib import Path
 import h5py
+import xlsxwriter
 
 import json
 import pytensor
@@ -48,10 +49,10 @@ class ExperimentEvaluator:
         #decomposer._init_fit(data_reader.tensor, initial_decomposition=checkpoint_path)
         single_run_evaluators = create_evaluators(self.single_run_evaluator_params, summary)
 
-        results = {}
+        results = []
         with h5py.File(checkpoint_path) as h5:
             for run_evaluator in single_run_evaluators:
-                results[run_evaluator.name] = run_evaluator._evaluate(data_reader, h5)
+                results.append(run_evaluator._evaluate(data_reader, h5))
         # return the results as dict
         return results
 
@@ -100,6 +101,49 @@ class ExperimentEvaluator:
         
         return results
 
+    def create_spreadsheet(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations):
+        book = xlsxwriter.Workbook(experiment_path/'evaluation.xslx')
+        sheet = book.add_worksheet()
+
+        row = 0
+        sheet.write(row, 0, 'Summary: ')
+        row += 1
+        for key, value in summary.items():
+            sheet.write(row, 1, key)
+            sheet.write(row, 2, value)
+            row += 1
+        row += 1
+        
+        sheet.write(row, 0, 'Best run metrics:')
+        row += 1
+        for evaluation in best_run_evaluations:
+            for metric_name, metric in evaluation.items():
+                sheet.write(row, 1, metric_name)
+                sheet.write(row, 2, metric)
+                row += 1
+        
+        row += 5
+        for eval_name, evaluations in multi_run_evaluations.items():
+            sheet.write(row, 0, eval_name)
+            row += 1
+            col = 1
+            for col_name, col_values in evaluations.items():
+                sheet.write(row, col, col_name)
+                row_modifier = 1
+                for value in col_values:
+                    sheet.write(row + row_modifier, col, value)
+                    row_modifier += 1
+                
+                col += 1
+            
+            row += row_modifier + 2
+
+        row = 0
+        fig_sheet = book.add_worksheet('Figures')
+        for figure in (experiment_path/'visualizations').glob('*.png'):
+            fig_sheet.insert_image(row, 0, figure)
+            row += 40
+
     def evaluate_experiment(self, experiment_path):
         experiment_path = Path(experiment_path)
         # last inn summary fil
@@ -118,6 +162,9 @@ class ExperimentEvaluator:
         print(multi_run_evaluations)
         # Last inn all runs???
         
+        self.create_spreadsheet(
+            experiment_path, summary, best_run_evaluations, multi_run_evaluations
+        )
         
 
         # kjør multi_run_evaluators på alle?
