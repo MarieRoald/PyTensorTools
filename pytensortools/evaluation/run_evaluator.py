@@ -26,7 +26,7 @@ class BaseSingleRunEvaluator(BaseEvaluator):
 class FinalLoss(BaseSingleRunEvaluator):
     _name = 'Final loss'
     def _evaluate(self, data_reader, h5):
-        return h5['LossLogger/values'][-1]
+        return {self.name: h5['LossLogger/values'][-1]}
 
 class ExplainedVariance(BaseSingleRunEvaluator):
     #TODO: maybe create a decomposer to not rely on logging
