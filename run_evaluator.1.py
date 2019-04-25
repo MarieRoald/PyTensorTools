@@ -10,11 +10,11 @@ if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
         {'type': 'ExplainedVariance', 'arguments': {}},
-        {'type': 'PValue', 
-         'arguments': {
-             'mode': 0
-         }
-        },
+        #{'type': 'PValue', 
+        # 'arguments': {
+        #     'mode': 0
+        # }
+        #},
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
