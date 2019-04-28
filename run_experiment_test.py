@@ -1,4 +1,5 @@
 from scipy.io import savemat
+import sys
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
 sys.path.append('../PyTensor/')
 import pytensor.base
@@ -13,6 +14,13 @@ if __name__ == "__main__":
             'file_path': 'x.mat',
             'tensor_name': 'X',
             'classes_name': 'classes'
+        }
+    }
+
+    preprocessor_params = {
+        'type': 'Center',
+        'arguments': {
+            'center_across': 0
         }
     }
 
@@ -49,7 +57,8 @@ if __name__ == "__main__":
     print(c)
     savemat('x.mat', {'X': X, 'classes':c})
     print('Starting dataset')
-    experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params)
+    experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params, preprocessor_params=preprocessor_params)
+    from pdb import set_trace; set_trace()
     runs = experiment.run_experiments()
     for run in runs:
         print(run.loss())
