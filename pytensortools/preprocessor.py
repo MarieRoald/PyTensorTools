@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import numpy as np
 
 
 def get_preprocessor(preprocessor):
@@ -68,14 +69,22 @@ class Standardize(BasePreprocessor):
         scaled_dataset = Scale(centered_dataset, self.scale_within)
         return scaled_dataset.tensor, scaled_dataset.classes
 
-
-class PreprocessorPipeline(BasePreprocessor):
-    def __init__(self, data_reader, preprocessors):
-        self.preprocessors = preprocessors
+class RemoveOutliers(BasePreprocessor):
+    # TODO: this only works if classes match the mode we remove outliers from!
+    def __init__(self, data_reader, mode, outlier_idx, remove_from_classes=True):
+        self.outlier_idx = outlier_idx
+        self.mode = mode
+        self.remove_from_classes = remove_from_classes
         super().__init__(data_reader)
-    
+
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
-        for preprocessor in self.preprocessors:
-            preprocessor = get_preprocessor(preprocessor)
-            tensor = preprocessor.preprocess(tensor)
+        classes = data_reader.classes
+
+        processed_tensor = np.delete(tensor, self.outlier_idx, axis=self.mode)
+        if data_reader.classes is not None and self.remove_from_classes:
+            processed_classes = np.delete(classes, self.outlier_idx)
+        else:
+            processed_classes = classes
+        
+        return processed_tensor, processed_classes

@@ -66,23 +66,39 @@ class Uniqueness(BaseMultipleEvaluator):
             decomposition = self.load_final_checkpoint(best_run)
         return decomposition
 
-    def _SSE_difference(self, decomposition1, decomposition2):
-        return np.sum(decomposition1.construct_tensor() - decomposition2.construct_tensor())
+    def _SSE(self, data_reader, decomposition):
+        return np.sum((decomposition1.construct_tensor() - data_reader.tensor)**2)
+
+    def _SSE_difference(self, data_reader, decomposition1, decomposition2):
+        SSE1 = self.SSE(data_reader, decomposition1)
+        SSE2 = self.SSE(data_reader, decomposition2)
+        return SSE2 - SSE1
+    
+    def _fit_difference(self, data_reader, decomposition1, decomposition2):
+        Xvar = np.sum(data_reader.construct_tensor()**2)
+        SSE1 = self.SSE(data_reader, decomposition1)
+        fit1 = 1 - SSE1/Xvar
+        SSE2 = self.SSE(data_reader, decomposition2)
+        fit2 = 1 - SSE2/Xvar
+
+        return fit1 - fit2
 
     def _factor_match_score(self, decomposition1, decomposition2):
         return pytensor.metrics.factor_match_score(decomposition1, decomposition2)[0]
 
     def _evaluate(self, data_reader, checkpoint_path):
         best_decomposition = self._get_best_run(checkpoint_path)
-        results = {'name': [], 'SSE_difference': [], 'fms': []}
+        results = {'name': [], 'SSE_difference': [], 'fit_difference': [], 'fms': []}
 
         for name, decomposition in self.load_final_checkpoints(checkpoint_path):
             results['name'].append(name)
-            results['SSE_difference'].append(self._SSE_difference(best_decomposition, decomposition))
+            results['SSE_difference'].append(self._SSE_difference(data_reader, best_decomposition, decomposition))
+            results['fit_difference'].append(self._fit_difference(data_reader, best_decomposition, decomposition))
             results['fms'].append(self._factor_match_score(best_decomposition.factor_matrices, decomposition.factor_matrices))
 
-        results['name'] = _sort_by(results['name'], np.abs(results['SSE_difference']))
-        results['fms'] = _sort_by(results['fms'], np.abs(results['SSE_difference']))
-        results['SSE_difference'] = sorted(results['SSE_difference'], key=abs)
+        results['name'] = _sort_by(results['name'], results['SSE_difference'])
+        results['fms'] = _sort_by(results['fms'], results['SSE_difference'])
+        results['fit_difference'] = _sort_by(results['fit_difference'], results['SSE_difference'])
+        results['SSE_difference'] = sorted(results['SSE_difference'])
         
         return results
