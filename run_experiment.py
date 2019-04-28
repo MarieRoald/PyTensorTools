@@ -56,6 +56,10 @@ if __name__ == "__main__":
         logger_params = json.load(f)
     with (experiment_path/'decomposition_params.json').open() as f:
         decomposition_params = json.load(f)
+    preprocessor_params = None
+    if (experiment_path/'preprocessor_params.json').is_file():
+        with (experiment_path/'preprocessor_params.json').open() as f:
+            preprocessor_params = json.load(f)
 
     if args.save_path is not None:
         save_path = args.save_path
@@ -85,5 +89,5 @@ if __name__ == "__main__":
         'save_path': str(experiment_path)
     }
 
-    experiment = Experiment(experiment_params, data_reader_params, decomposition_params, logger_params)
+    experiment = Experiment(experiment_params, data_reader_params, decomposition_params, logger_params, preprocessor_params=preprocessor_params)
     runs = experiment.run_experiments()
