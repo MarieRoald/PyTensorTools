@@ -1,1 +1,0 @@
-{"dataset_path": "x.mat", "model_type": "CP_ALS", "model_rank": 4, "best_run": "run_000.h5", "best_fit": 0.9999999999999697, "best_loss": 1.2137166649081356e-13, "std_loss": 0.06311895981868196, "std_fit": 0.015743657720387154}
