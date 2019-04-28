@@ -68,7 +68,7 @@ class ExperimentEvaluator:
         single_run_visualisers = create_visualisers(self.single_run_visualiser_params, summary)
 
         results = {}
-        figure_path = experiment_path/'summary'/'visualizations'
+        figure_path = experiment_path/'summaries'/'visualizations'
         if not figure_path.is_dir():
             figure_path.mkdir()
     
@@ -102,8 +102,8 @@ class ExperimentEvaluator:
         return results
 
     def create_spreadsheet(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations):
-        print("Storing summary sheet in: ", experiment_path/'summary'/'evaluation.xslx')
-        book = xlsxwriter.Workbook(experiment_path/'summary'/'evaluation.xslx')
+        print("Storing summary sheet in: ", experiment_path/'summaries'/'evaluation.xslx')
+        book = xlsxwriter.Workbook(experiment_path/'summaries'/'evaluation.xslx')
         sheet = book.add_worksheet()
 
         row = 0
@@ -141,7 +141,7 @@ class ExperimentEvaluator:
 
         row = 0
         fig_sheet = book.add_worksheet('Figures')
-        for figure in (experiment_path/'summary'/'visualizations').glob('*.png'):
+        for figure in (experiment_path/'summaries'/'visualizations').glob('*.png'):
             fig_sheet.insert_image(row, 0, figure)
             row += 40
         book.close()
