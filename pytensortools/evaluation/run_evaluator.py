@@ -129,6 +129,12 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
             savemat(str(tmp_matlab_classes_file), {'classes': classes})
             savemat(str(tmp_matlab_factor_file), {'factormatrix': factor_matrix})            
 
+            num_classes_elements = classes.shape[0]
+            num_samples = factor_matrix.shape[0]
+            assert num_classes_elements == num_samples,\
+                   f"Length of classes vector ({num_classes_elements}) "\
+                   f"differs from number of samples ({num_samples}). "
+
             command = [f"load('{tmp_matlab_factor_file}');\
                             load('{tmp_matlab_classes_file}'); \
                             addpath(genpath('{self.matlab_scripts_path}'));\
