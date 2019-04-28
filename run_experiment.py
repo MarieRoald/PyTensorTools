@@ -7,6 +7,7 @@ sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/
 sys.path.append('../PyTensor/')
 from pytensortools.experiment import Experiment
 
+#TODO: Add argument to assert that decomposer params is set
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
