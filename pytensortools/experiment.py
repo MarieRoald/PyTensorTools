@@ -1,8 +1,10 @@
 import multiprocessing
 from abc import ABC, abstractproperty, abstractmethod
 import json
+from typing import Dict
 
 from . import datareader
+from . import preprocessor
 from pytensor.decomposition import cp
 from pytensor.decomposition import parafac2
 import pytensor
@@ -10,12 +12,15 @@ from pathlib import Path
 
 import numpy as np
 class Experiment(ABC):
-    def __init__(self, experiment_params, data_reader_params, decomposition_params, log_params):
+    def __init__(self, experiment_params, data_reader_params, decomposition_params, log_params, preprocessor_params=None):
         self.experiment_params = experiment_params
         self.data_reader_params = data_reader_params
+        self.preprocessor_params = preprocessor_params
         self.decomposition_params = decomposition_params
         self.log_params = log_params 
         self.data_reader = self.generate_data_reader()
+        if self.preprocessor_params is not None:
+            self.data_reader = self.preprocess_data(self.data_reader)
        
         self.create_experiment_directories()
 
@@ -35,7 +40,6 @@ class Experiment(ABC):
                 path.mkdir(parents=True)
 
     def copy_parameter_files(self):
-
         with (self.parameter_path / 'experiment_params.json').open('w') as f:
             json.dump(self.experiment_params, f)
 
@@ -47,6 +51,11 @@ class Experiment(ABC):
 
         with (self.parameter_path / 'log_params.json').open('w') as f:
             json.dump(self.log_params, f)
+        
+        if self.preprocessor_params is not None:
+            with (self.parameter_path / 'preprocessor_params.json').open('w') as f:
+                json.dump(self.preprocessor_params, f)
+            
 
     def get_experiment_statistics(self):
         # TODO: This can load the list of decompositions
@@ -102,7 +111,20 @@ class Experiment(ABC):
 
     def generate_data_reader(self):
         DataReader = getattr(datareader, self.data_reader_params['type'])
-        return DataReader(**self.data_reader_params['arguments'])
+        args = self.data_reader_params.get('arguments', {})
+        return DataReader(**args)
+
+    def preprocess_data(self, data_reader):
+        if isinstance(self.data_reader_params, Dict):
+            self.preprocessor_params = [self.preprocessor_params]
+        
+        preprocessed = data_reader
+        for preprocessor_params in self.preprocessor_params:
+            Preprocessor = getattr(preprocessor, preprocessor_params['type'])
+            args = preprocessor_params.get('arguments', {})
+            preprocessed = Preprocessor(data_reader=preprocessed, **args)
+        
+        return preprocessed
 
     def generate_loggers(self):
         loggers = []
