@@ -84,12 +84,34 @@ class ExperimentEvaluator:
         data_reader_path = experiment_path / 'parameters' / 'data_reader_params.json'
         with data_reader_path.open() as f:
             data_reader_params = json.load(f)
-        return data_reader_params
+
+        preprocessor_params = None
+        preprocessor_params_path = experiment_path / 'parameters' / 'preprocessor_params.json'
+
+        if preprocessor_params_path.is_file()
+            with preprocessor_params_path.open() as f:
+                preprocessor_params = json.load(f)
+        return data_reader_params, preprocessor_params
         
-    def generate_data_reader(self, data_reader_params):
+    def preprocess_data(self, data_reader, preprocessor_params):
+        # This should not be a method inside a class... a copy
+        if preprocessor_params is not None:
+            if isinstance(preprocessor_params, Dict):
+                preprocessor_params = [preprocessor_params]
+            
+            for preprocessor_params in preprocessor_params:
+                Preprocessor = getattr(preprocessor, preprocessor_params['type'])
+                args = preprocessor_params.get('arguments', {})
+                data_reader = Preprocessor(data_reader=data_reader, **args)
+        return data_reader
+
+    def generate_data_reader(self, data_reader_params, preprocessor_params):
         # TODO: This is copy-paste from experiment, should probably move somewhere else
         DataReader = getattr(datareader, data_reader_params['type'])
-        return DataReader(**data_reader_params['arguments'])
+        data_reader = DataReader(**data_reader_params['arguments'])
+        data_reader = self.preprocess_data(data_reader)
+
+        return data_reader
     
     def evaluate_multiple_runs(self, experiment_path, summary, data_reader):
         checkpoint_path = Path(experiment_path)/'checkpoints'
@@ -151,8 +173,9 @@ class ExperimentEvaluator:
         # last inn summary fil
         summary = self.load_experiment_summary(experiment_path)
         
-        data_reader_params = self.load_data_reader_params(experiment_path)
+        data_reader_params, preprocessor_params = self.load_data_reader_params(experiment_path)
         data_reader = self.generate_data_reader(data_reader_params)
+
 
         best_run = summary['best_run']
         best_run_evaluations = self.evaluate_single_run(experiment_path, summary, data_reader)
