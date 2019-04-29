@@ -174,7 +174,7 @@ class ExperimentEvaluator:
         summary = self.load_experiment_summary(experiment_path)
         
         data_reader_params, preprocessor_params = self.load_data_reader_params(experiment_path)
-        data_reader = self.generate_data_reader(data_reader_params)
+        data_reader = self.generate_data_reader(data_reader_params, preprocessor_params)
 
 
         best_run = summary['best_run']
