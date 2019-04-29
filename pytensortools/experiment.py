@@ -115,7 +115,7 @@ class Experiment(ABC):
         return DataReader(**args)
 
     def preprocess_data(self, data_reader):
-        if isinstance(self.data_reader_params, Dict):
+        if isinstance(self.preprocessor_params, Dict):
             self.preprocessor_params = [self.preprocessor_params]
         
         preprocessed = data_reader
