@@ -109,7 +109,7 @@ class ExperimentEvaluator:
         # TODO: This is copy-paste from experiment, should probably move somewhere else
         DataReader = getattr(datareader, data_reader_params['type'])
         data_reader = DataReader(**data_reader_params['arguments'])
-        data_reader = self.preprocess_data(data_reader)
+        data_reader = self.preprocess_data(data_reader, preprocessor_params)
 
         return data_reader
     
