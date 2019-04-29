@@ -98,8 +98,8 @@ class CoreConsistency(BaseSingleRunEvaluator):
 
         # FIX:
         weights = decomposition.weights
-        r = factor_matrices[0].shape[-1]
-        factor_matrices = [fm*weights**(1/r) for fm in factor_matrices]
+        d = len(factor_matrices)
+        factor_matrices = [fm*weights**(1/d) for fm in factor_matrices]
         # ENDFIX
 
         cc = pytensor.metrics.core_consistency(data_reader.tensor, *factor_matrices)
