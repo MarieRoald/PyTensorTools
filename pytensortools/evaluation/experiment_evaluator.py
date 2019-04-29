@@ -88,7 +88,7 @@ class ExperimentEvaluator:
         preprocessor_params = None
         preprocessor_params_path = experiment_path / 'parameters' / 'preprocessor_params.json'
 
-        if preprocessor_params_path.is_file()
+        if preprocessor_params_path.is_file():
             with preprocessor_params_path.open() as f:
                 preprocessor_params = json.load(f)
         return data_reader_params, preprocessor_params
