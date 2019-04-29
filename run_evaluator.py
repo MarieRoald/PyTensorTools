@@ -4,6 +4,7 @@ sys.path.append('../PyTensor')
 import pytensor.base
 from pytensortools.experiment import Experiment
 from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
+import argparse
 
 
 if __name__ == '__main__':
@@ -62,10 +63,14 @@ if __name__ == '__main__':
             }
         }
     ]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path', type=str)
+    args = parser.parse_args()
 
     evaluator = ExperimentEvaluator(
         single_run_evaluator_params=single_run_evaluators,
         multi_run_evaluator_params=multi_run_evaluators,
         single_run_visualiser_params=single_run_visualisers,
     )
-    evaluator.evaluate_experiment('/home/mariero/experiment_logs/MCIC/CP_ALS/CP_ALS_rank_4_00')
+# '/home/mariero/experiment_logs/MCIC/CP_ALS/CP_ALS_rank_2_01'
+    evaluator.evaluate_experiment(args.path)
