@@ -67,18 +67,18 @@ class Uniqueness(BaseMultipleEvaluator):
         return decomposition
 
     def _SSE(self, data_reader, decomposition):
-        return np.sum((decomposition1.construct_tensor() - data_reader.tensor)**2)
+        return np.sum((decomposition.construct_tensor() - data_reader.tensor)**2)
 
     def _SSE_difference(self, data_reader, decomposition1, decomposition2):
-        SSE1 = self.SSE(data_reader, decomposition1)
-        SSE2 = self.SSE(data_reader, decomposition2)
+        SSE1 = self._SSE(data_reader, decomposition1)
+        SSE2 = self._SSE(data_reader, decomposition2)
         return SSE2 - SSE1
     
     def _fit_difference(self, data_reader, decomposition1, decomposition2):
-        Xvar = np.sum(data_reader.construct_tensor()**2)
-        SSE1 = self.SSE(data_reader, decomposition1)
+        Xvar = np.sum(data_reader.tensor**2)
+        SSE1 = self._SSE(data_reader, decomposition1)
         fit1 = 1 - SSE1/Xvar
-        SSE2 = self.SSE(data_reader, decomposition2)
+        SSE2 = self._SSE(data_reader, decomposition2)
         fit2 = 1 - SSE2/Xvar
 
         return fit1 - fit2
