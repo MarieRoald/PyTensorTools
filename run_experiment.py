@@ -48,6 +48,13 @@ if __name__ == "__main__":
         default=None,
         type=int
     )
+    parser.add_argument(
+        '--suffix',
+        help='The suffix of the experiment name',
+        default="",
+        type=str
+    )
+
     args = parser.parse_args()
     experiment_path = Path(args.experiment_path)
 
@@ -84,7 +91,7 @@ if __name__ == "__main__":
     decomposition_type = decomposition_params['type']
     rank = decomposition_params['arguments']['rank']
     experiment_name = f'{decomposition_type}_rank_{rank}'
-    experiment_path = Path(save_path)/experiment_name
+    experiment_path = Path(save_path)/(experiment_name+args.suffix)
     experiment_params = {
         'num_runs':args.num_runs,
         'save_path': str(experiment_path)
