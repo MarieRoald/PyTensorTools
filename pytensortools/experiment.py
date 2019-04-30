@@ -63,7 +63,7 @@ class Experiment(ABC):
         model_rank = self.decomposition_params['arguments']['rank']
 
         best_run = ''
-        best_fit = -1
+        best_fit = -np.inf
 
         losses = []
         fits = []
