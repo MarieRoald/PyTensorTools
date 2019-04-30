@@ -96,6 +96,12 @@ class CoreConsistency(BaseSingleRunEvaluator):
         decomposition = self.load_final_checkpoint(h5)
         factor_matrices = decomposition.factor_matrices
 
+        # FIX:
+        weights = decomposition.weights
+        d = len(factor_matrices)
+        factor_matrices = [fm*weights**(1/d) for fm in factor_matrices]
+        # ENDFIX
+
         cc = pytensor.metrics.core_consistency(data_reader.tensor, *factor_matrices)
         return {self.name: np.asscalar(cc)}
 
