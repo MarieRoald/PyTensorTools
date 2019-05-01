@@ -88,3 +88,12 @@ class RemoveOutliers(BasePreprocessor):
             processed_classes = classes
         
         return processed_tensor, processed_classes
+
+def Transpose(BasePreprocessor):
+    def __init__(self, data_reader, permutation):
+        self.permutation = permutation
+        super().__init__(data_reader)
+
+    def preprocess(self, data_reader):
+        return np.transpose(data_reader.tensor, self.permutation), data_reader.classes
+
