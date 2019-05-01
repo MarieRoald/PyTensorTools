@@ -91,6 +91,8 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
 
 class CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
+
+    _name = "Core Consistency"
     
     def _evaluate(self, data_reader, h5):
         decomposition = self.load_final_checkpoint(h5)
@@ -103,6 +105,24 @@ class CoreConsistency(BaseSingleRunEvaluator):
         # ENDFIX
 
         cc = pytensor.metrics.core_consistency(data_reader.tensor, *factor_matrices)
+        return {self.name: np.asscalar(cc)}
+
+class Parafac2CoreConsistency(BaseSingleRunEvaluator):
+    # Only works with three modes
+
+    _name = "Parafac2 Core Consistency"
+
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+
+        P_k = decomposition.projection_matrices
+        F = decomposition.blueprint_B
+        A = decomposition.A
+        D_k = decomposition.D
+        rank = decomposition.rank
+
+        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor, P_k, F, A, D_k, rank)
+
         return {self.name: np.asscalar(cc)}
 
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
