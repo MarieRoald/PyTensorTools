@@ -1,1 +1,0 @@
-{"type": "MatlabDataReader", "arguments": {"file_path": "x.mat", "tensor_name": "X", "classes_name": "classes"}}
