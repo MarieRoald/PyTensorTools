@@ -121,7 +121,7 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         D_k = decomposition.D
         rank = decomposition.rank
 
-        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor, P_k, F, A, D_k, rank)
+        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 1, 0), P_k, F, A, D_k, rank)
 
         return {self.name: np.asscalar(cc)}
 
