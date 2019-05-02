@@ -12,6 +12,8 @@ from .. import preprocessor
 from .base_evaluator import create_evaluators
 from ..visualization.base_visualiser import create_visualisers
 
+from collections import ChainMap
+
 
 class ExperimentEvaluator:
     def __init__(
@@ -173,8 +175,12 @@ class ExperimentEvaluator:
     def create_csv(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations, csvpath=None):
         rank = summary['model_rank']
         model_type = summary['model_type']
+
+        best_run_evaluations = dict(ChainMap(*best_run_evaluations))
         
         core_consistency = best_run_evaluations.get('CoreConsistency', '-')
+        if core_consistency == '-':
+            core_consistency = best_run_evaluations.get('Parafac2 Core Consistency', '-')
         if isinstance(core_consistency, float) or isinstance(core_consistency, int):
             if core_consistency < 0:
                 core_consistency = '<0'
@@ -182,6 +188,8 @@ class ExperimentEvaluator:
                 core_consistency = f'{core_consistency:d}'
         
         pval = best_run_evaluations.get('Best P value for mode 0', '-')
+        if pval == '-':
+            pval = best_run_evaluations.get('Best P value for mode 2', '-')
         if isinstance(pval, float) or isinstance(pval, int):
             pval = f'{pval:2g}'
         
