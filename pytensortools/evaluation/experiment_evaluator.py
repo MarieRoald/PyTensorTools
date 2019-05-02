@@ -239,6 +239,9 @@ class ExperimentEvaluator:
         self.create_spreadsheet(
             experiment_path, summary, best_run_evaluations, multi_run_evaluations
         )
+        self.create_csv(
+            experiment_path, summary, best_run_evaluations, multi_run_evaluations
+        )
         
 
         # kjør multi_run_evaluators på alle?
