@@ -169,6 +169,53 @@ class ExperimentEvaluator:
             fig_sheet.insert_image(row, 0, figure)
             row += 40
         book.close()
+    
+    def create_csv(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations, csvpath=None):
+        rank = summary['model_rank']
+        model_type = summary['model_type']
+        
+        core_consistency = best_run_evaluations.get('CoreConsistency', '-')
+        if isinstance(core_consistency, float) or isinstance(core_consistency, int):
+            if core_consistency < 0:
+                core_consistency = '<0'
+            else:
+                core_consistency = f'{core_consistency:d}'
+        
+        pval = best_run_evaluations.get('Best P value for mode 0', '-')
+        if isinstance(pval, float) or isinstance(pval, int):
+            pval = f'{pval:2g}'
+        
+        explained = best_run_evaluations.get('Explained variance', '-')
+        if isinstance(explained, float) or isinstance(explained, int):
+            explained = f'{explained:2d}%'
+        
+        clustering = best_run_evaluations.get('Max Kmeans clustering accuracy', '-')
+        if isinstance(clustering, float) or isinstance(clustering, int):
+            clustering = f'{clustering:2d}%'
+        
+        if csvpath is None:
+            csvpath = experiment_path.parent/'slide.csv'
+        isfile = csvpath.is_file()
+
+        with csvpath.open('a') as f:
+            writer = csv.DictWriter(f, fieldnames=[
+                'Model Type', 'Number of Components', 'Core Consistency', r'% Explained',
+                'Significant Factors (p-values)', 'Clustering (max acc)'
+            ])
+            if not isfile:
+                writer.writeheader()
+            writer.writerow(
+                {
+                    'Model Type': model_type,
+                    'Number of Components': rank,
+                    'Core Consistency': core_consistency,
+                    r'% Explained': explained,
+                    'Significant Factors (p-values)': pval,
+                    'Clustering (max acc)': clustering
+                }
+            )
+
+
 
     def evaluate_experiment(self, experiment_path):
         experiment_path = Path(experiment_path)
