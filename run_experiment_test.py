@@ -35,7 +35,8 @@ if __name__ == "__main__":
 
     experiment_params = {
         'num_runs': 10,
-        'save_path': 'test_result_for_evaluation_test'
+        'save_path': 'logs',
+        'experiment_name': 'test_run'
     }
 
     decomposer_params = {
@@ -58,7 +59,6 @@ if __name__ == "__main__":
     savemat('x.mat', {'X': X, 'classes':c})
     print('Starting dataset')
     experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params, preprocessor_params=preprocessor_params)
-    from pdb import set_trace; set_trace()
     runs = experiment.run_experiments()
     for run in runs:
         print(run.loss())

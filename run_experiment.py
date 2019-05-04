@@ -90,12 +90,17 @@ if __name__ == "__main__":
 
     decomposition_type = decomposition_params['type']
     rank = decomposition_params['arguments']['rank']
-    experiment_name = f'{decomposition_type}_rank_{rank}'
-    experiment_path = Path(save_path)/(experiment_name+args.suffix)
     experiment_params = {
-        'num_runs':args.num_runs,
-        'save_path': str(experiment_path)
+        'num_runs': args.num_runs,
+        'save_path': str(save_path)
+        'experiment_name': experiment_path.name
     }
 
-    experiment = Experiment(experiment_params, data_reader_params, decomposition_params, logger_params, preprocessor_params=preprocessor_params)
+    experiment = Experiment(
+        experiment_params,
+        data_reader_params,
+        decomposition_params,
+        logger_params,
+        preprocessor_params=preprocessor_params
+    )
     runs = experiment.run_experiments()

@@ -11,6 +11,8 @@ import pytensor
 from pathlib import Path
 
 import numpy as np
+
+
 class Experiment(ABC):
     def __init__(self, experiment_params, data_reader_params, decomposition_params, log_params, preprocessor_params=None):
         self.experiment_params = experiment_params
@@ -22,15 +24,28 @@ class Experiment(ABC):
         if self.preprocessor_params is not None:
             self.data_reader = self.preprocess_data(self.data_reader)
        
+        self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
 
-    def create_experiment_directories(self):
-        num = 0
-        self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:02d}')
-        while self.experiment_path.is_dir():
-            num += 1
-            self.experiment_path = Path(f'{self.experiment_params["save_path"]}_{num:02d}')
+    def get_experiment_directory(self):
+        # For easy access, create variables from dict
+        save_path = Path(self.experiment_params["save_path"])
+        experiment_name = self.experiment_params["experiment_name"]
 
+        # Set parent dir and experiment name        
+        parent = save_path/experiment_name
+        name = f'{experiment_name}_rank_{self.decomposition_params["arguments"]["rank"]:02d}'
+
+        # Give unique folder to current experiment
+        num = 0
+        experiment_path = Path(f'{parent/name}_{num:02d}')
+        while experiment_path.is_dir():
+            num += 1
+            experiment_path = Path(f'{parent/name}_{num:02d}')
+        
+        return experiment_path
+
+    def create_experiment_directories(self):
         self.checkpoint_path = self.experiment_path / 'checkpoints'
         self.parameter_path = self.experiment_path / 'parameters'
         self.summary_path = self.experiment_path / 'summaries'
@@ -168,6 +183,7 @@ class Experiment(ABC):
         self.copy_parameter_files()
         decomposers = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
         self.save_summary()
+        print(f'Stored summaries in {self.experiment_path}')
 
         return decomposers
         
