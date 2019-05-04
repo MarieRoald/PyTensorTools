@@ -76,8 +76,8 @@ class MarylandPreprocess(BasePreprocessor):
         super().__init__(data_reader)
     
     def preprocess(self, data_reader):
-        centered = data_reader.tensor - data_reader.tensor.mean(self.mode)
-        scaled = centered/np.linalg.norm(centered, axis=self.mode)
+        centered = data_reader.tensor - data_reader.tensor.mean(self.mode, keepdims=True)
+        scaled = centered/np.linalg.norm(centered, axis=self.mode, keepdims=True)
         return scaled, data_reader.classes
 
 class RemoveOutliers(BasePreprocessor):
