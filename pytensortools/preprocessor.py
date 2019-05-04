@@ -69,6 +69,17 @@ class Standardize(BasePreprocessor):
         scaled_dataset = Scale(centered_dataset, self.scale_within)
         return scaled_dataset.tensor, scaled_dataset.classes
 
+
+class MarylandPreprocess(BasePreprocessor):
+    def __init__(self, data_reader, mode):
+        self.mode = mode
+        super().__init__(data_reader)
+    
+    def preprocess(self, data_reader):
+        centered = data_reader.tensor -= data_reader.tensor.mean(self.mode)
+        scaled = centered/np.linalg.norm(centered, axis=self.mode)
+        return scaled, data_reader.classes
+
 class RemoveOutliers(BasePreprocessor):
     # TODO: this only works if classes match the mode we remove outliers from!
     def __init__(self, data_reader, mode, outlier_idx, remove_from_classes=True):
