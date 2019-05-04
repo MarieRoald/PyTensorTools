@@ -76,7 +76,7 @@ class MarylandPreprocess(BasePreprocessor):
         super().__init__(data_reader)
     
     def preprocess(self, data_reader):
-        centered = data_reader.tensor -= data_reader.tensor.mean(self.mode)
+        centered = data_reader.tensor - data_reader.tensor.mean(self.mode)
         scaled = centered/np.linalg.norm(centered, axis=self.mode)
         return scaled, data_reader.classes
 
