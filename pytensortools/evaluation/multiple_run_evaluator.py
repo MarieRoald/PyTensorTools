@@ -102,3 +102,6 @@ class Uniqueness(BaseMultipleEvaluator):
         results['SSE_difference'] = sorted(results['SSE_difference'])
         
         return results
+
+class Parafac2Uniqueness(Uniqueness):
+    pass

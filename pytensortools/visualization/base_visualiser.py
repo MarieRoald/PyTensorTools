@@ -72,6 +72,8 @@ class FactorLinePlotter(BaseVisualiser):
 
             ax.plot(factor)
             ax.set_title(f'Mode {mode}')
+            if (data_reader.mode_names is not None) and (len(data_reader.mode_names) > mode):
+                ax.set_title(data_reader.mode_names[mode])
             if self.labels is not None:
                 ax.set_xlabel(self.labels[i])
             
@@ -120,6 +122,8 @@ class FactorScatterPlotter(BaseVisualiser):
             ax.scatter(x_values[classes==class1], factor[classes==class1, r], color='tomato')
             ax.scatter(x_values[classes==class2], factor[classes==class2, r], color='darkslateblue')
             
+            if (data_reader.mode_names is not None) and len(data_reader.mode_names) > self.mode:
+                ax.set_xlabel(data_reader.mode_names[self.mode])
             if self.label is not None:
                 ax.set_xlabel(self.label)
             
@@ -127,6 +131,8 @@ class FactorScatterPlotter(BaseVisualiser):
                 ax.set_ylabel('Factor')
             elif self.common_axis:
                 ax.set_yticks([])
+            
+            ax.set_title(f'Component {r}')
 
             if self.common_axis:
                 fmin = factor.min()
