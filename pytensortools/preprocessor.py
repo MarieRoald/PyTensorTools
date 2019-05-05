@@ -9,6 +9,7 @@ def get_preprocessor(preprocessor):
 class BasePreprocessor(ABC):
     def __init__(self, data_reader):
         self.data_reader = data_reader
+        self.mode_names = data_reader.mode_names
         tensor, classes = self.preprocess(data_reader)
         self._tensor, self._classes = tensor, classes
     
@@ -106,5 +107,6 @@ class Transpose(BasePreprocessor):
         super().__init__(data_reader)
 
     def preprocess(self, data_reader):
+        self.mode_names = [self.mode_names[idx] for idx in self.permutation]
         return np.transpose(data_reader.tensor, self.permutation), data_reader.classes
 

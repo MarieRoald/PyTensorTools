@@ -4,9 +4,10 @@ from scipy.io import loadmat
 
 class BaseDataReader(ABC):
     @abstractmethod
-    def __init__(self):
+    def __init__(self, mode_names=None):
         self._tensor = None
         self._classes = None
+        self.mode_names = mode_names
 
     @property
     def tensor(self):
@@ -18,8 +19,8 @@ class BaseDataReader(ABC):
 
 
 class MatlabDataReader(BaseDataReader):
-    def __init__(self, file_path, tensor_name, classes_name=None):
-        super().__init__()
+    def __init__(self, file_path, tensor_name, classes_name=None, mode_names=None):
+        super().__init__(mode_names=mode_names)
         self.file_path = file_path
         self._tensor = loadmat(file_path, variable_names=[tensor_name])[tensor_name]
 
