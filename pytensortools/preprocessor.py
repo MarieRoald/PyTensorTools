@@ -101,6 +101,27 @@ class RemoveOutliers(BasePreprocessor):
         
         return processed_tensor, processed_classes
 
+class RemoveRangeOfOutliers(BasePreprocessor):
+    def __init__(self, data_reader, mode, start_idx, end_idx, remove_from_classes=True):
+        self.start_idx = start_idx
+        self.end_idx = end_idx
+        self.mode = mode
+        self.remove_from_classes = remove_from_classes
+        super().__init__(data_reader)
+
+    def preprocess(self, data_reader):
+        tensor = data_reader.tensor
+        classes = data_reader.classes
+
+        processed_tensor = np.delete(tensor, range(self.start_idx, self.end_idx), axis=self.mode)
+        if data_reader.classes is not None and self.remove_from_classes:
+            processed_classes = np.delete(classes, range(self.start_idx, self.end_idx))
+        else:
+            processed_classes = classes
+        
+        return processed_tensor, processed_classes
+
+
 class Transpose(BasePreprocessor):
     def __init__(self, data_reader, permutation):
         self.permutation = permutation
