@@ -1,6 +1,11 @@
 from abc import ABC, abstractproperty, abstractmethod
 from scipy.io import loadmat 
 
+# en liste med classes for hver mode?
+# En liste med dictionaries med labelinfo som f.eks. site for hver mode?
+# - kanskje vi kan putte on off som labels her også?
+
+
 
 class BaseDataReader(ABC):
     @abstractmethod
@@ -16,14 +21,20 @@ class BaseDataReader(ABC):
     @property
     def classes(self):
         return self._classes
+        
 
 
 class MatlabDataReader(BaseDataReader):
-    def __init__(self, file_path, tensor_name, classes_name=None, mode_names=None):
+    def __init__(self, file_path, tensor_name, classes=None, mode_names=None):
+        """Example:
+            dataset = MatlabDataReader('./data.mat', 'data', [{}, {'schizophrenia': 'classes'}, {}], ['voxel', 'patient', 'time'])
+        """
         super().__init__(mode_names=mode_names)
         self.file_path = file_path
         self._tensor = loadmat(file_path, variable_names=[tensor_name])[tensor_name]
-
-        if classes_name is not None:
-            self._classes = loadmat(file_path, variable_names=[classes_name])[classes_name].squeeze()
         
+        if classes is not None:
+            self._classes = [{} for _ in self._tensor.shape]
+            for class_dict, mode_classes in zip(self._classes, classes):
+                for name, varname in mode_classes.items():
+                    class_dict[name] = loadmat(file_path, variable_names=[varname])[varname]
