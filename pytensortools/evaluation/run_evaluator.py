@@ -60,7 +60,7 @@ class AllPValues(BaseSingleRunEvaluator):
     def _evaluate(self, data_reader, h5):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
 
-        return {f'p_value_mode{i}': p_value for i, p_value in enumerate(p_values)}
+        return {f'p_value_component{i}': p_value for i, p_value in enumerate(p_values)}
 
 
 class MinPValue(AllPValues):

@@ -72,7 +72,7 @@ class FactorLinePlotter(BaseVisualiser):
         
         if self.show_legend:
             letter = string.ascii_lowercase[mode]
-            ax.legend([f'{letter}{mode}' for i in range(factor.shape[1])], loc='upper right')
+            ax.legend([f'{letter}{i}' for i in range(factor.shape[1])], loc='upper right')
 
 
     def _visualise(self, data_reader, h5):
