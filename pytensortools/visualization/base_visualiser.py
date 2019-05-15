@@ -121,6 +121,52 @@ class ClassLinePlotter(BaseVisualiser):
         return fig
 
 
+# TODO: BaseSingleComponentPlotter
+class SingleComponentLinePlotter(BaseVisualiser):
+    _name = "single_factor_lineplot"
+    def __init__(self, summary, mode, component, normalise=True, common_axis=True, label=None, filename=None, figsize=None):
+        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        self.mode = mode
+        self.normalise = normalise
+        self.label = label
+        self.common_axis = common_axis
+    
+    def _visualise(self, data_reader, h5):
+        fig = self.create_figure()
+        factor = self.load_final_checkpoint(h5)[self.mode]
+        rank = factor.shape[1]
+
+        if self.normalise:
+            factor = factor/np.linalg.norm(factor, axis=0, keepdims=True)
+
+        self.figsize = (self.figsize[0]*rank, self.figsize[1])
+
+
+        for r in range(rank):
+            ax = fig.add_subplot(1, rank, r+1)
+
+            ax.plot(factor[:, r])
+            
+            if (data_reader.mode_names is not None) and len(data_reader.mode_names) > self.mode:
+                ax.set_xlabel(data_reader.mode_names[self.mode])
+            if self.label is not None:
+                ax.set_xlabel(self.label)
+            
+            if r == 0:
+                ax.set_ylabel('Factor')
+            elif self.common_axis:
+                ax.set_yticks([])
+            
+            ax.set_title(f'Component {r}')
+
+            if self.common_axis:
+                fmin = factor.min()
+                fmax = factor.max()
+                df = fmax - fmin
+                ax.set_ylim(fmin - 0.01*df, fmax + 0.01*df)
+
+        return fig
+
 class FactorScatterPlotter(BaseVisualiser):
     """Note: only works for two classes"""
     _name = 'factor_scatterplot'
