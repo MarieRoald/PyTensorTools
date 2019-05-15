@@ -13,6 +13,7 @@ from .base_evaluator import create_evaluators
 from ..visualization.base_visualiser import create_visualisers
 
 from collections import ChainMap
+import csv
 
 
 class ExperimentEvaluator:
@@ -178,28 +179,28 @@ class ExperimentEvaluator:
 
         best_run_evaluations = dict(ChainMap(*best_run_evaluations))
         
-        core_consistency = best_run_evaluations.get('CoreConsistency', '-')
+        core_consistency = best_run_evaluations.get('Core Consistency', '-')
         if core_consistency == '-':
             core_consistency = best_run_evaluations.get('Parafac2 Core Consistency', '-')
         if isinstance(core_consistency, float) or isinstance(core_consistency, int):
             if core_consistency < 0:
                 core_consistency = '<0'
             else:
-                core_consistency = f'{core_consistency:d}'
+                core_consistency = f'{core_consistency:.0f}'
         
         pval = best_run_evaluations.get('Best P value for mode 0', '-')
         if pval == '-':
             pval = best_run_evaluations.get('Best P value for mode 2', '-')
         if isinstance(pval, float) or isinstance(pval, int):
-            pval = f'{pval:2g}'
+            pval = f'{pval:.1e}'
         
         explained = best_run_evaluations.get('Explained variance', '-')
         if isinstance(explained, float) or isinstance(explained, int):
-            explained = f'{explained:2d}%'
+            explained = f'{int(100*explained):2d}%'
         
         clustering = best_run_evaluations.get('Max Kmeans clustering accuracy', '-')
         if isinstance(clustering, float) or isinstance(clustering, int):
-            clustering = f'{clustering:2d}%'
+            clustering = f'{int(100*clustering):2d}%'
         
         if csvpath is None:
             csvpath = experiment_path.parent/'slide.csv'
