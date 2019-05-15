@@ -13,7 +13,8 @@ if __name__ == "__main__":
         'arguments': {
             'file_path': 'x.mat',
             'tensor_name': 'X',
-            'classes_name': 'classes'
+            'classes': [{'test': 'classes'}, {'tast': 'labels'}, {}],
+            'mode_names': ['test', 'tast', 'kronk']
         }
     }
 
@@ -30,7 +31,7 @@ if __name__ == "__main__":
         },
         {
             'type': 'ExplainedVarianceLogger',
-        }
+        },
     ]
 
     experiment_params = {
@@ -55,8 +56,10 @@ if __name__ == "__main__":
     ktensor.store('ktensor.h5')
     X = ktensor.construct_tensor()
     c = np.random.randint(0, 2, size=(100,))
+    labels = ['hei', 'hoi', 'halla', 'heissann']
+    l = sorted([labels[np.random.randint(0, 4)] for _ in range(X.shape[1])])
     print(c)
-    savemat('x.mat', {'X': X, 'classes':c})
+    savemat('x.mat', {'X': X, 'classes':c, 'labels': l})
     print('Starting dataset')
     experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params, preprocessor_params=preprocessor_params)
     runs = experiment.run_experiments()
