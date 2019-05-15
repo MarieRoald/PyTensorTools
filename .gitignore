@@ -4,3 +4,4 @@
 */__pycache__/*
 *.pyc
 test_result_for_evaluation_test/*
+logs/*
