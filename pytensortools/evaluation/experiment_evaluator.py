@@ -179,7 +179,7 @@ class ExperimentEvaluator:
         model_type = summary['model_type']
 
         best_run_evaluations = dict(ChainMap(*best_run_evaluations))
-
+        
         core_consistency = best_run_evaluations.get('Core Consistency', '-')
         if core_consistency == '-':
             core_consistency = best_run_evaluations.get('Parafac2 Core Consistency', '-')
@@ -188,21 +188,21 @@ class ExperimentEvaluator:
                 core_consistency = '<0'
             else:
                 core_consistency = f'{core_consistency:.0f}'
-
+        
         pval = best_run_evaluations.get('Best P value for mode 0', '-')
         if pval == '-':
             pval = best_run_evaluations.get('Best P value for mode 2', '-')
         if isinstance(pval, float) or isinstance(pval, int):
             pval = f'{pval:.1e}'
-
+        
         explained = best_run_evaluations.get('Explained variance', '-')
         if isinstance(explained, float) or isinstance(explained, int):
             explained = f'{int(100*explained):2d}%'
-
+        
         clustering = best_run_evaluations.get('Max Kmeans clustering accuracy', '-')
         if isinstance(clustering, float) or isinstance(clustering, int):
             clustering = f'{int(100*clustering):2d}%'
-
+        
         if csvpath is None:
             csvpath = experiment_path.parent/'slide.csv'
         isfile = csvpath.is_file()
