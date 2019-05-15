@@ -98,7 +98,7 @@ class RemoveOutliers(BasePreprocessor):
             processed_classes = [classes for classes in data_reader.classes]
             processed_classes[self.mode] = {
                 name: np.delete(value, self.outlier_idx) 
-                    for name, value in processed_classes[self.mode].items
+                    for name, value in processed_classes[self.mode].items()
             }
         else:
             processed_classes = classes
@@ -121,7 +121,7 @@ class RemoveRangeOfOutliers(BasePreprocessor):
             processed_classes = [classes for classes in data_reader.classes]
             processed_classes[self.mode] = {
                 name: np.delete(value, range(self.start_idx, self.end_idx)) 
-                    for name, value in processed_classes[self.mode].items
+                    for name, value in processed_classes[self.mode].items()
             }
         else:
             processed_classes = classes
