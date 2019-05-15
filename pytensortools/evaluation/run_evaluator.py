@@ -63,7 +63,7 @@ class AllPValues(BaseSingleRunEvaluator):
         return {f'p_value_mode{i}': p_value for i, p_value in enumerate(p_values)}
 
 
-class PValue(AllPValues):
+class MinPValue(AllPValues):
     _name = 'Best P value'
     def __init__(self, summary, mode, class_name):
         super().__init__(summary, mode, class_name)
