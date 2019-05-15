@@ -1,6 +1,7 @@
 #!/home/marie/anaconda3/bin/python
 import sys
 sys.path.append('../PyTensor')
+sys.path.append('../PyTensor_classification')
 import pytensor.base
 from pytensortools.experiment import Experiment
 from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
@@ -11,11 +12,12 @@ if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
         {'type': 'ExplainedVariance', 'arguments': {}},
-        {'type': 'PValue', 
-         'arguments': {
-           'mode': 2
-        }
-        },
+       #  {'type': 'PValue', 
+       #   'arguments': {
+       #      'mode': 0,
+       #      'class_name': 'test'
+       #   }
+       #  },
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
@@ -25,7 +27,8 @@ if __name__ == '__main__':
         {'type': 'MaxKMeansAcc', 
          'arguments': {
              'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-             'mode': 2
+             'mode': 0,
+             'class_name': 'test'
 
          }
         }
@@ -43,7 +46,15 @@ if __name__ == '__main__':
         {
             'type': 'FactorScatterPlotter', 
             'arguments': {
-                'mode': 2
+                'mode': 0,
+                'class_name': 'test'
+            }
+        },
+        {
+            'type': 'ClassLinePlotter',
+            'arguments': {
+                'mode': 1,
+                'class_name': 'tast'
             }
         },
         {
@@ -72,5 +83,5 @@ if __name__ == '__main__':
         multi_run_evaluator_params=multi_run_evaluators,
         single_run_visualiser_params=single_run_visualisers,
     )
-# '/home/mariero/experiment_logs/MCIC/CP_ALS/CP_ALS_rank_2_01'
+    # '/home/mariero/experiment_logs/MCIC/CP_ALS/CP_ALS_rank_2_01'
     evaluator.evaluate_experiment(args.path)
