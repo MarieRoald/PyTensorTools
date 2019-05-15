@@ -35,15 +35,16 @@ class ExplainedVariance(BaseSingleRunEvaluator):
         return {self.name: h5['ExplainedVarianceLogger/values'][-1]}
 
 
-class PValue(BaseSingleRunEvaluator):
-    _name = 'Best P value'
+class AllPValues(BaseSingleRunEvaluator):
+    _name = 'All P values'
+
     def __init__(self, summary, mode, class_name):
         super().__init__(summary)
         self.mode = mode
-        self._name = f'Best P value for mode {mode}'
+        self._name = f'All P values for mode {mode}'
         self.class_name = class_name
 
-    def _evaluate(self, data_reader, h5):
+    def _calculate_p_values_from_factors(self, data_reader, h5):
         decomposition = self.load_final_checkpoint(h5)
         factors = decomposition.factor_matrices[self.mode]
 
@@ -53,6 +54,23 @@ class PValue(BaseSingleRunEvaluator):
 
         indices = [[i for i, c in enumerate(classes) if c == class_] for class_ in set(classes)]
         p_values = tuple(ttest_ind(factors[indices[0]], factors[indices[1]], equal_var=False).pvalue)
+        return p_values
+
+
+    def _evaluate(self, data_reader, h5):
+        p_values = self._calculate_p_values_from_factors(data_reader, h5)
+
+        return {f'p_value_mode{i}': p_value for i, p_value in enumerate(p_values)}
+
+
+class PValue(AllPValues):
+    _name = 'Best P value'
+    def __init__(self, summary, mode, class_name):
+        super().__init__(summary, mode, class_name)
+        self._name = f'Best P value for mode {mode}'
+
+    def _evaluate(self, data_reader, h5):
+        p_values = self._calculate_p_values_from_factors(data_reader, h5)
         return {self.name: min(p_values), 'component': np.argmin(p_values)}
 
 
