@@ -37,22 +37,23 @@ class ExplainedVariance(BaseSingleRunEvaluator):
 
 class PValue(BaseSingleRunEvaluator):
     _name = 'Best P value'
-    def __init__(self, summary, mode):
+    def __init__(self, summary, mode, class_name):
         super().__init__(summary)
         self.mode = mode
         self._name = f'Best P value for mode {mode}'
+        self.class_name = class_name
 
     def _evaluate(self, data_reader, h5):
         decomposition = self.load_final_checkpoint(h5)
         factors = decomposition.factor_matrices[self.mode]
 
-        classes = data_reader.classes.squeeze()
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
         assert len(set(classes)) == 2
 
         indices = [[i for i, c in enumerate(classes) if c == class_] for class_ in set(classes)]
         p_values = tuple(ttest_ind(factors[indices[0]], factors[indices[1]], equal_var=False).pvalue)
-        return {self.name: min(p_values)}
+        return {self.name: min(p_values), 'component': np.argmin(p_values)}
 
 
 class WorstDegeneracy(BaseSingleRunEvaluator):
@@ -134,15 +135,16 @@ class BaseMatlabEvaluator(BaseSingleRunEvaluator):
 
 class MaxKMeansAcc(BaseMatlabEvaluator):
     _name = 'Max Kmeans clustering accuracy'
-    def __init__(self, summary, matlab_scripts_path, mode):
+    def __init__(self, summary, matlab_scripts_path, mode, class_name):
         self.mode = mode
+        self.class_name = class_name
         super().__init__(summary, matlab_scripts_path)
 
     def _evaluate(self, data_reader, h5):
         decomposition = self.load_final_checkpoint(h5)
         factor_matrix = decomposition.factor_matrices[self.mode]
 
-        classes = data_reader.classes
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
