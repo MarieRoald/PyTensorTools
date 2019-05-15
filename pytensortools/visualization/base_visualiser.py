@@ -124,7 +124,7 @@ class ClassLinePlotter(BaseVisualiser):
 # TODO: BaseSingleComponentPlotter
 class SingleComponentLinePlotter(BaseVisualiser):
     _name = "single_factor_lineplot"
-    def __init__(self, summary, mode, component, normalise=True, common_axis=True, label=None, filename=None, figsize=None):
+    def __init__(self, summary, mode, normalise=True, common_axis=True, label=None, filename=None, figsize=None):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
         self.normalise = normalise
