@@ -58,6 +58,24 @@ class FactorLinePlotter(BaseVisualiser):
         self.show_legend = show_legend
         self.normalise = normalise
 
+    def _visualise_mode(self, data_reader, factor_matrices, ax, mode, label=None,):
+        factor = factor_matrices[mode]
+        
+        if self.normalise:
+            factor = factor/np.linalg.norm(factor, axis=0, keepdims=True)
+
+        ax.plot(factor)
+        ax.set_title(f'Mode {mode}')
+        if (data_reader.mode_names is not None) and (len(data_reader.mode_names) > mode):
+            ax.set_title(data_reader.mode_names[mode])
+
+        ax.set_xlabel(label)
+        
+        if self.show_legend:
+            letter = string.ascii_lowercase[mode]
+            ax.legend([f'{letter}{mode}' for i in range(factor.shape[1])], loc='upper right')
+
+
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
         factor_matrices = self.load_final_checkpoint(h5)
@@ -65,21 +83,12 @@ class FactorLinePlotter(BaseVisualiser):
         num_cols = len(self.modes)
         for i, mode in enumerate(self.modes):
             ax = fig.add_subplot(1, num_cols, i+1)
-            factor = factor_matrices[mode]
-            
-            if self.normalise:
-                factor = factor/np.linalg.norm(factor, axis=0, keepdims=True)
 
-            ax.plot(factor)
-            ax.set_title(f'Mode {mode}')
-            if (data_reader.mode_names is not None) and (len(data_reader.mode_names) > mode):
-                ax.set_title(data_reader.mode_names[mode])
+            label = None
             if self.labels is not None:
-                ax.set_xlabel(self.labels[i])
-            
-            if self.show_legend:
-                letter = string.ascii_lowercase[mode]
-                ax.legend([f'{letter}{i}' for i in range(factor.shape[1])], loc='upper right')
+                label = self.labels[i]
+
+            self._visualise_mode(data_reader, factor_matrices, ax, mode, label=label)
 
         return fig
 
@@ -87,13 +96,14 @@ class FactorLinePlotter(BaseVisualiser):
 class FactorScatterPlotter(BaseVisualiser):
     """Note: only works for two classes"""
     _name = 'factor_scatterplot'
-    def __init__(self, summary, mode, normalise=True, common_axis=True, label=None, legend=None, filename=None, figsize=None):
+    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, filename=None, figsize=None):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
         self.normalise = normalise
         self.label = label
         self.legend = legend
         self.common_axis = common_axis
+        self.class_name = class_name
         self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
 
     def _visualise(self, data_reader, h5):
@@ -108,7 +118,7 @@ class FactorScatterPlotter(BaseVisualiser):
 
         x_values = np.arange(factor.shape[0])
 
-        classes = data_reader.classes
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
         assert len(set(classes)) == 2
 
