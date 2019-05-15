@@ -12,12 +12,12 @@ if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
         {'type': 'ExplainedVariance', 'arguments': {}},
-       #  {'type': 'PValue', 
-       #   'arguments': {
-       #      'mode': 0,
-       #      'class_name': 'test'
-       #   }
-       #  },
+        {'type': 'PValue', 
+         'arguments': {
+            'mode': 2,
+            'class_name': 'schizophrenic'
+         }
+        },
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
@@ -27,8 +27,8 @@ if __name__ == '__main__':
         {'type': 'MaxKMeansAcc', 
          'arguments': {
              'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-             'mode': 0,
-             'class_name': 'test'
+             'mode': 2,
+             'class_name': 'schizophrenic'
 
          }
         }
@@ -46,15 +46,8 @@ if __name__ == '__main__':
         {
             'type': 'FactorScatterPlotter', 
             'arguments': {
-                'mode': 0,
-                'class_name': 'test'
-            }
-        },
-        {
-            'type': 'ClassLinePlotter',
-            'arguments': {
-                'mode': 1,
-                'class_name': 'tast'
+                'mode': 2,
+                'class_name': 'schizophrenic'
             }
         },
         {
