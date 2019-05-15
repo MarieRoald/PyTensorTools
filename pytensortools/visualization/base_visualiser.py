@@ -47,7 +47,6 @@ class BaseVisualiser(BaseEvaluator):
     def create_figure(self, *args, **kwargs):
         return plt.figure(*args, figsize=self.figsize, **kwargs)
 
-
 class FactorLinePlotter(BaseVisualiser):
     _name = 'factor_lineplot'
     def __init__(self, summary, modes, normalise=True, labels=None, show_legend=True, filename=None, figsize=None):
@@ -92,6 +91,35 @@ class FactorLinePlotter(BaseVisualiser):
 
         return fig
 
+class ClassLinePlotter(BaseVisualiser):
+    _name = 'ClassLinePlotter'
+
+    def __init__(self, summary, mode, class_name, filename=None, figsize=None):
+        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        self.mode = mode
+        self.class_name = class_name
+    
+    def _visualise(self, data_reader, h5):
+        fig = self.create_figure()
+        ax = fig.add_subplot(111)
+        factor_matrices = self.load_final_checkpoint(h5)
+
+        ax.plot(factor_matrices[self.mode])
+        ylim = ax.get_ylim()
+
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
+        unique_classes = np.unique(classes)
+        class_id = {c: i for i, c in enumerate(np.unique(classes))}
+        classes = np.array([class_id[c] for c in classes])
+
+        diff = classes[1:] - classes[:-1]
+        for i, di in enumerate(diff):
+            if di != 0:
+                ax.plot([i + 0.5, i + 0.5], ylim, 'r')
+        
+        ax.set_ylim(ylim)
+        return fig
+
 
 class FactorScatterPlotter(BaseVisualiser):
     """Note: only works for two classes"""
@@ -120,17 +148,22 @@ class FactorScatterPlotter(BaseVisualiser):
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
-        assert len(set(classes)) == 2
+        #assert len(set(classes)) == 2
 
         different_classes = np.unique(classes)
         class1 = different_classes[0]
         class2 = different_classes[1]
 
+        
+
         for r in range(rank):
             ax = fig.add_subplot(1, rank, r+1)
 
-            ax.scatter(x_values[classes==class1], factor[classes==class1, r], color='tomato')
-            ax.scatter(x_values[classes==class2], factor[classes==class2, r], color='darkslateblue')
+            for c in different_classes:
+                ax.scatter(x_values[classes==c], factor[classes==c, r], label=c)
+            
+            #ax.scatter(x_values[classes==class1], factor[classes==class1, r], color='tomato')
+            #ax.scatter(x_values[classes==class2], factor[classes==class2, r], color='darkslateblue')
             
             if (data_reader.mode_names is not None) and len(data_reader.mode_names) > self.mode:
                 ax.set_xlabel(data_reader.mode_names[self.mode])
@@ -152,6 +185,8 @@ class FactorScatterPlotter(BaseVisualiser):
 
             if self.legend is not None: 
                 ax.legend(self.legend)
+            else:
+                ax.legend()
 
         return fig
 
