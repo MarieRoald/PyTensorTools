@@ -130,6 +130,7 @@ class SingleComponentLinePlotter(BaseVisualiser):
         self.normalise = normalise
         self.label = label
         self.common_axis = common_axis
+        self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
     
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
@@ -154,16 +155,8 @@ class SingleComponentLinePlotter(BaseVisualiser):
             
             if r == 0:
                 ax.set_ylabel('Factor')
-            elif self.common_axis:
-                ax.set_yticks([])
             
             ax.set_title(f'Component {r}')
-
-            if self.common_axis:
-                fmin = factor.min()
-                fmax = factor.max()
-                df = fmax - fmin
-                ax.set_ylim(fmin - 0.01*df, fmax + 0.01*df)
 
         return fig
 
