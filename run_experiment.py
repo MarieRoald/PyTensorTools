@@ -92,7 +92,7 @@ if __name__ == "__main__":
     rank = decomposition_params['arguments']['rank']
     experiment_params = {
         'num_runs': args.num_runs,
-        'save_path': str(save_path)
+        'save_path': str(save_path),
         'experiment_name': experiment_path.name
     }
 
