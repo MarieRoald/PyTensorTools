@@ -81,23 +81,23 @@ class MarylandPreprocess(BasePreprocessor):
         scaled = centered/np.linalg.norm(centered, axis=self.mode, keepdims=True)
         return scaled, data_reader.classes
 
-class RemoveOutliers(BasePreprocessor):
-    # TODO: this only works if classes match the mode we remove outliers from!
-    def __init__(self, data_reader, mode, outlier_idx, remove_from_classes=True):
-        self.outlier_idx = outlier_idx
+class BaseRemoveOutliers(BasePreprocessor):
+    def __init__(self, data_reader, mode, remove_from_classes=True):
         self.mode = mode
         self.remove_from_classes = remove_from_classes
         super().__init__(data_reader)
 
-    def preprocess(self, data_reader):
+
+    def _delete_idx(self, data_reader, delete_idx):
         tensor = data_reader.tensor
         classes = data_reader.classes
 
-        processed_tensor = np.delete(tensor, self.outlier_idx, axis=self.mode)
+        processed_tensor = np.delete(tensor, delete_idx, axis=self.mode)
+
         if data_reader.classes is not None and self.remove_from_classes:
             processed_classes = [classes for classes in data_reader.classes]
             processed_classes[self.mode] = {
-                name: np.delete(value, self.outlier_idx) 
+                name: np.delete(value, delete_idx, axis=self.mode) 
                     for name, value in processed_classes[self.mode].items()
             }
         else:
@@ -105,28 +105,36 @@ class RemoveOutliers(BasePreprocessor):
         
         return processed_tensor, processed_classes
 
-class RemoveRangeOfOutliers(BasePreprocessor):
-    def __init__(self, data_reader, mode, start_idx, end_idx):
-        self.start_idx = start_idx
-        self.end_idx = end_idx
-        self.mode = mode
-        super().__init__(data_reader)
+
+class RemoveOutliers(BaseRemoveOutliers):
+    def __init__(self, data_reader, mode, outlier_idx, remove_from_classes=True):
+        self.outlier_idx = outlier_idx
+        super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
 
     def preprocess(self, data_reader):
-        tensor = data_reader.tensor
-        classes = data_reader.classes
+        return self._delete_idx(data_reader, self.outlier_idx)
 
-        processed_tensor = np.delete(tensor, range(self.start_idx, self.end_idx), axis=self.mode)
-        if data_reader.classes is not None:
-            processed_classes = [classes for classes in data_reader.classes]
-            processed_classes[self.mode] = {
-                name: np.delete(value, range(self.start_idx, self.end_idx)) 
-                    for name, value in processed_classes[self.mode].items()
-            }
-        else:
-            processed_classes = classes
-        
-        return processed_tensor, processed_classes
+
+class RemoveRangeOfOutliers(BaseRemoveOutliers):
+    def __init__(self, data_reader, mode, start_idx, end_idx, remove_from_classes=True):
+        self.start_idx = start_idx
+        self.end_idx = end_idx
+        super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
+
+    def preprocess(self, data_reader):
+        delete_idx = range(self.start_idx, self.end_idx)
+        return self._delete_idx(data_reader, delete_idx)
+
+
+class RemoveClass(BaseRemoveOutliers):
+    def __init__(self, data_reader, mode, class_name, class_to_remove, remove_from_classes=True):
+        self.class_name = class_name
+        self.class_to_remove = class_to_remove
+        super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
+
+    def preprocess(self, data_reader):
+        delete_idx = np.where(data_reader.classes==self.class_to_remove)
+        return self._delete_idx(data_reader, delete_idx)
 
 
 class Transpose(BasePreprocessor):
