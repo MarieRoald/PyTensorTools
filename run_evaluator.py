@@ -5,33 +5,35 @@ sys.path.append('../PyTensor_classification')
 import pytensor.base
 from pytensortools.experiment import Experiment
 from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
+from pytensortools import summary_writers
 import argparse
+from pathlib import Path
 
 
 if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
         {'type': 'ExplainedVariance', 'arguments': {}},
-        {'type': 'PValue', 
-         'arguments': {
-            'mode': 2,
-            'class_name': 'schizophrenic'
-         }
-        },
+        #{'type': 'MinPValue', 
+        # 'arguments': {
+        #    'mode': 2,
+        #    'class_name': 'schizophrenic'
+        # }
+        #},
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
         {'type': 'CoreConsistency',
           'arguments': {}
         },
-        {'type': 'MaxKMeansAcc', 
-         'arguments': {
-             'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-             'mode': 2,
-             'class_name': 'schizophrenic'
+        #{'type': 'MaxKMeansAcc', 
+        # 'arguments': {
+        #     'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
+        #     'mode': 2,
+        #     'class_name': 'schizophrenic'
 
-         }
-        }
+        # }
+        #}
     ]
     multi_run_evaluators = [
       {'type': 'Uniqueness', 'arguments': {}}
@@ -43,13 +45,13 @@ if __name__ == '__main__':
                 'modes': [0, 1, 2]
             }
         },
-        {
-            'type': 'FactorScatterPlotter', 
-            'arguments': {
-                'mode': 2,
-                'class_name': 'schizophrenic'
-            }
-        },
+        #{
+        #    'type': 'FactorScatterPlotter', 
+        #    'arguments': {
+        #        'mode': 2,
+        #        'class_name': 'schizophrenic'
+        #    }
+        #},
         {
             'type': 'LogPlotter',
             'arguments': {
@@ -68,7 +70,8 @@ if __name__ == '__main__':
         }
     ]
     parser = argparse.ArgumentParser()
-    parser.add_argument('path', type=str)
+    parser.add_argument('result_path', type=str)
+    parser.add_argument('--is_single', type=bool, help='Whether subfolders should be iterated over.', default=False)
     args = parser.parse_args()
 
     evaluator = ExperimentEvaluator(
@@ -77,4 +80,16 @@ if __name__ == '__main__':
         single_run_visualiser_params=single_run_visualisers,
     )
     # '/home/mariero/experiment_logs/MCIC/CP_ALS/CP_ALS_rank_2_01'
-    evaluator.evaluate_experiment(args.path)
+    
+    experiments = sorted(
+        filter(
+            lambda x: x.is_dir(), Path(args.result_path).iterdir()
+        )
+    )
+    for experiment in experiments:
+        evaluator.evaluate_experiment(str(experiment))
+        summary_writers.create_spreadsheet(Path(experiment))
+
+    if not args.is_single:
+        summary_writers.create_csv(Path(args.result_path))
+        summary_writers.create_ppt(Path(args.result_path))
