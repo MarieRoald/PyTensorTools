@@ -71,7 +71,6 @@ class Experiment(ABC):
             with (self.parameter_path / 'preprocessor_params.json').open('w') as f:
                 json.dump(self.preprocessor_params, f)
             
-
     def get_experiment_statistics(self):
         # TODO: This can load the list of decompositions
         model_type = getattr(pytensor.decomposition, self.decomposition_params['type'])
@@ -104,7 +103,6 @@ class Experiment(ABC):
             'std_loss': std_loss,
             'std_fit': std_fit
         }
-
 
     def create_summary(self):
         self.summary = {}
@@ -176,8 +174,6 @@ class Experiment(ABC):
         with multiprocessing.Pool(num_processess) as p:
             # return [self.run_single_experiment(i) for i in range(num_experiments)]
             return p.map(self.run_single_experiment, range(num_experiments))
-
-    
 
     def run_experiments(self):
         self.copy_parameter_files()

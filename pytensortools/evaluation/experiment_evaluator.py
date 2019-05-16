@@ -128,100 +128,6 @@ class ExperimentEvaluator:
         
         return results
 
-    def create_spreadsheet(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations):
-        print("Storing summary sheet in: ", experiment_path/'summaries'/'evaluation.xslx')
-        book = xlsxwriter.Workbook(experiment_path/'summaries'/'evaluation.xslx')
-        sheet = book.add_worksheet()
-
-        row = 0
-        sheet.write(row, 0, 'Summary: ')
-        row += 1
-        for key, value in summary.items():
-            sheet.write(row, 1, key)
-            sheet.write(row, 2, value)
-            row += 1
-        row += 1
-        
-        sheet.write(row, 0, 'Best run metrics:')
-        row += 1
-        for evaluation in best_run_evaluations:
-            for metric_name, metric in evaluation.items():
-                sheet.write(row, 1, metric_name)
-                sheet.write(row, 2, metric)
-                row += 1
-        
-        row += 5
-        for eval_name, evaluations in multi_run_evaluations.items():
-            sheet.write(row, 0, eval_name)
-            row += 1
-            col = 1
-            for col_name, col_values in evaluations.items():
-                sheet.write(row, col, col_name)
-                row_modifier = 1
-                for value in col_values:
-                    sheet.write(row + row_modifier, col, value)
-                    row_modifier += 1
-                
-                col += 1
-            
-            row += row_modifier + 2
-
-        row = 0
-        fig_sheet = book.add_worksheet('Figures')
-        for figure in (experiment_path/'summaries'/'visualizations').glob('*.png'):
-            fig_sheet.insert_image(row, 0, figure)
-            row += 40
-        book.close()
-    
-
-    def create_csv(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations, csvpath=None):
-        rank = summary['model_rank']
-
-        best_run_evaluations = dict(ChainMap(*best_run_evaluations))
-        
-        core_consistency = best_run_evaluations.get('Core Consistency', '-')
-        if core_consistency == '-':
-            core_consistency = best_run_evaluations.get('Parafac2 Core Consistency', '-')
-        if isinstance(core_consistency, float) or isinstance(core_consistency, int):
-            if core_consistency < 0:
-                core_consistency = '<0'
-            else:
-                core_consistency = f'{core_consistency:.0f}'
-        
-        pval = best_run_evaluations.get('Best P value for mode 0', '-')
-        if pval == '-':
-            pval = best_run_evaluations.get('Best P value for mode 2', '-')
-        if isinstance(pval, float) or isinstance(pval, int):
-            pval = f'{pval:.1e}'
-        
-        explained = best_run_evaluations.get('Explained variance', '-')
-        if isinstance(explained, float) or isinstance(explained, int):
-            explained = f'{int(100*explained):2d}%'
-        
-        clustering = best_run_evaluations.get('Max Kmeans clustering accuracy', '-')
-        if isinstance(clustering, float) or isinstance(clustering, int):
-            clustering = f'{int(100*clustering):2d}%'
-        
-        if csvpath is None:
-            csvpath = experiment_path.parent/'slide.csv'
-        isfile = csvpath.is_file()
-
-        with csvpath.open('a') as f:
-            writer = csv.DictWriter(f, fieldnames=[
-                'Number of Components', 'Core Consistency', r'% Explained',
-                'Significant Factors (p-values)', 'Clustering (max acc)'
-            ])
-            if not isfile:
-                writer.writeheader()
-            writer.writerow(
-                {
-                    'Number of Components': rank,
-                    'Core Consistency': core_consistency,
-                    r'% Explained': explained,
-                    'Significant Factors (p-values)': pval,
-                    'Clustering (max acc)': clustering
-                }
-            )
 
     def evaluate_experiment(self, experiment_path):
         experiment_path = Path(experiment_path)
@@ -242,13 +148,8 @@ class ExperimentEvaluator:
         print(multi_run_evaluations)
         # Last inn all runs???
         
-        self.create_spreadsheet(
-            experiment_path, summary, best_run_evaluations, multi_run_evaluations
-        )
-        self.create_csv(
-            experiment_path, summary, best_run_evaluations, multi_run_evaluations
-        )
-        
+        with (experiment_path/'summaries'/'evaluations.json').open('w') as f:
+            json.dump({'best_run_evaluations': best_run_evaluations, 'multi_run_evaluations': multi_run_evaluations}, f)
 
         # kjør multi_run_evaluators på alle?
         
