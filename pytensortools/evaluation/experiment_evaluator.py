@@ -176,7 +176,6 @@ class ExperimentEvaluator:
 
     def create_csv(self, experiment_path, summary, best_run_evaluations, multi_run_evaluations, csvpath=None):
         rank = summary['model_rank']
-        model_type = summary['model_type']
 
         best_run_evaluations = dict(ChainMap(*best_run_evaluations))
         
@@ -209,14 +208,13 @@ class ExperimentEvaluator:
 
         with csvpath.open('a') as f:
             writer = csv.DictWriter(f, fieldnames=[
-                'Model Type', 'Number of Components', 'Core Consistency', r'% Explained',
+                'Number of Components', 'Core Consistency', r'% Explained',
                 'Significant Factors (p-values)', 'Clustering (max acc)'
             ])
             if not isfile:
                 writer.writeheader()
             writer.writerow(
                 {
-                    'Model Type': model_type,
                     'Number of Components': rank,
                     'Core Consistency': core_consistency,
                     r'% Explained': explained,
