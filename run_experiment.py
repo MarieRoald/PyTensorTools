@@ -10,6 +10,7 @@ from pytensortools.experiment import Experiment
 #TODO: Add argument to assert that decomposer params is set
 
 if __name__ == "__main__":
+    # Setup argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'experiment_path',
@@ -49,15 +50,21 @@ if __name__ == "__main__":
         type=int
     )
     parser.add_argument(
-        '--suffix',
-        help='The suffix of the experiment name',
-        default="",
-        type=str
+        '--min_rank',
+        help='The minimum number of components to fit. Cannot be set simultaneously with --rank and requires --max_rank',
+        type=int,
+        default=None
     )
-
+    parser.add_argument(
+        '--max_rank',
+        help='The minimum number of components to fit. Cannot be set simultaneously with --rank and requires --min_rank',
+        type=int,
+        default=None
+    )
     args = parser.parse_args()
-    experiment_path = Path(args.experiment_path)
 
+    # Load experiment params
+    experiment_path = Path(args.experiment_path)
     with (experiment_path/'data_reader_params.json').open() as f:
         data_reader_params = json.load(f)
     with (experiment_path/'log_params.json').open() as f:
@@ -69,6 +76,7 @@ if __name__ == "__main__":
         with (experiment_path/'preprocessor_params.json').open() as f:
             preprocessor_params = json.load(f)
 
+    # Modify experiment params according to input flags
     if args.save_path is not None:
         save_path = args.save_path
     else:
@@ -81,6 +89,12 @@ if __name__ == "__main__":
     
     if args.rank is not None:
         decomposition_params['arguments']['rank'] = args.rank
+        if args.min_rank is not None or args.max_rank is not None:
+            raise ValueError('Cannot set rank and rank-range (min/max_rank) simultaneously.')
+    if args.min_rank is not None and args.max_rank is not None:
+        run_single = False
+    elif args.min_rank is not None or args.max_rank is not None:
+        raise ValueError('Both rank and rank-range must be set')
     
     if args.max_its is not None:
         decomposition_params['arguments']['max_its'] = args.max_its
@@ -89,18 +103,30 @@ if __name__ == "__main__":
         decomposition_params['arguments']['convergence_tol'] = args.tol
 
     decomposition_type = decomposition_params['type']
-    rank = decomposition_params['arguments']['rank']
     experiment_params = {
         'num_runs': args.num_runs,
         'save_path': str(save_path),
         'experiment_name': experiment_path.name
     }
 
-    experiment = Experiment(
-        experiment_params,
-        data_reader_params,
-        decomposition_params,
-        logger_params,
-        preprocessor_params=preprocessor_params
-    )
-    runs = experiment.run_experiments()
+    # Run experiment
+    if run_single:
+        experiment = Experiment(
+            experiment_params,
+            data_reader_params,
+            decomposition_params,
+            logger_params,
+            preprocessor_params=preprocessor_params
+        )
+        runs = experiment.run_experiments()
+    else:
+        for rank in range(args.min_rank, args.max_rank):
+            decomposition_params['arguments']['rank'] = rank
+            experiment = Experiment(
+                experiment_params,
+                data_reader_params,
+                decomposition_params,
+                logger_params,
+                preprocessor_params=preprocessor_params
+            )
+            runs = experiment.run_experiments()
