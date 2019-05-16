@@ -133,7 +133,7 @@ class RemoveClass(BaseRemoveOutliers):
         super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
 
     def preprocess(self, data_reader):
-        delete_idx = np.where(data_reader.classes==self.class_to_remove)
+        delete_idx = np.where(data_reader.classes[self.mode][self.class_name]==self.class_to_remove)
         return self._delete_idx(data_reader, delete_idx)
 
 
