@@ -97,7 +97,7 @@ class BaseRemoveOutliers(BasePreprocessor):
         if data_reader.classes is not None and self.remove_from_classes:
             processed_classes = [classes for classes in data_reader.classes]
             processed_classes[self.mode] = {
-                name: np.delete(value, delete_idx, axis=self.mode) 
+                name: np.delete(value, delete_idx) 
                     for name, value in processed_classes[self.mode].items()
             }
         else:
