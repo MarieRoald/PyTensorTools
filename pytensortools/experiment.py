@@ -43,9 +43,32 @@ def generate_decomposer(decomposition_params, logger_params, checkpoint_path, ru
     )
 
 
-def run_partial_experiment(decomposition_params, logger_params, data_reader_params, checkpoint_path, run_num, seed=None):
+def preprocess_data(data_reader, preprocessors_params):
+    if isinstance(preprocessors_params, Dict):
+        self.preprocessor_params = [preprocessors_params]
+    
+    preprocessed = data_reader
+    for preprocessor_params in preprocessors_params:
+        Preprocessor = getattr(preprocessor, preprocessor_params['type'])
+        args = preprocessor_params.get('arguments', {})
+        preprocessed = Preprocessor(data_reader=preprocessed, **args)
+    
+    return preprocessed
+
+
+
+def run_partial_experiment(
+    decomposition_params,
+    logger_params,
+    data_reader_params,
+    preprocessors_params,
+    checkpoint_path,
+    run_num,
+    seed=None
+):
     np.random.seed(seed)
     data_reader = generate_data_reader(data_reader_params)
+    data_reader = preprocess_data(data_reader, preprocessors_params)
     decomposer = generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num)
 
     X = data_reader.tensor
@@ -223,6 +246,7 @@ class Experiment(ABC):
                 self.decomposition_params,
                 self.log_params,
                 self.data_reader_params,
+                self.preprocessor_params,
                 self.checkpoint_path,
             )
             #return [run_single_experiment(i) for i in range(num_experiments)]
