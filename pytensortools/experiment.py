@@ -10,7 +10,48 @@ from pytensor.decomposition import parafac2
 import pytensor
 from pathlib import Path
 
+from functools import partial
+
 import numpy as np
+
+
+def generate_data_reader(data_reader_params):
+    DataReader = getattr(datareader, data_reader_params['type'])
+    args = data_reader_params.get('arguments', {})
+    return DataReader(**args)
+
+
+def generate_loggers(log_params):
+    loggers = []
+    for logger_params in log_params:
+        Logger = getattr(pytensor.decomposition.logging, logger_params['type'])
+        loggers.append(Logger(**logger_params.get('arguments', {})))
+
+    return loggers
+
+
+def generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num):
+    if not checkpoint_path.is_dir():
+        checkpoint_path.mkdir(parents=True)
+    checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
+
+    Decomposer = getattr(pytensor.decomposition, decomposition_params['type'])
+    return Decomposer(
+        **decomposition_params.get('arguments', {}),
+        loggers=generate_loggers(logger_params),
+        checkpoint_path=checkpoint_path
+    )
+
+
+def run_partial_experiment(decomposition_params, logger_params, data_reader_params, checkpoint_path, run_num, seed=None):
+    np.random.seed(seed)
+    data_reader = generate_data_reader(data_reader_params)
+    decomposer = generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num)
+
+    X = data_reader.tensor
+    fit_params = decomposition_params.get('fit_params', {})
+    decomposer.fit(X, **fit_params)
+    return decomposer
 
 
 class Experiment(ABC):
@@ -149,7 +190,11 @@ class Experiment(ABC):
 
     def generate_decomposer(self, checkpoint_path=None):
         Decomposer = getattr(pytensor.decomposition, self.decomposition_params['type'])
-        return Decomposer(**self.decomposition_params['arguments'], loggers=self.generate_loggers(), checkpoint_path=checkpoint_path)
+        return Decomposer(
+            **self.decomposition_params['arguments'],
+            loggers=self.generate_loggers(),
+            checkpoint_path=checkpoint_path
+        )
     
     def run_single_experiment(self, run_num=None, seed=None):
         np.random.seed(seed)
@@ -173,7 +218,15 @@ class Experiment(ABC):
             num_processess = multiprocessing.cpu_count() - 1
         with multiprocessing.Pool(num_processess) as p:
             # return [self.run_single_experiment(i) for i in range(num_experiments)]
-            return p.map(self.run_single_experiment, range(num_experiments))
+            run_single_experiment = partial(
+                run_partial_experiment,
+                self.decomposition_params,
+                self.log_params,
+                self.data_reader_params,
+                self.checkpoint_path,
+            )
+            #return [run_single_experiment(i) for i in range(num_experiments)]
+            return p.map(run_single_experiment, range(num_experiments))
 
     def run_experiments(self):
         self.copy_parameter_files()
