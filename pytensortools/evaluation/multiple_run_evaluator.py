@@ -5,7 +5,7 @@ import numpy as np
 
 import h5py
 
-from .base_evaluator import BaseEvaluator, create_evaluators
+from .base_evaluator import BaseEvaluator, create_evaluator
 import pytensor
 
 
@@ -45,7 +45,7 @@ class BaseMultipleEvaluator(BaseEvaluator):
 class MultipleSingleRunEvaluators(BaseMultipleEvaluator):
     def __init__(self, summary, single_run_evaluator_params, runs):
         super().__init__(summary, runs)
-        self.single_run_evaluator = create_evaluators(single_run_evaluator_params, summary)
+        self.single_run_evaluator = create_evaluator(single_run_evaluator_params, summary)
         self._name = f'Multiple {self.single_run_evaluator.name}'
     
 
