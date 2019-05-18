@@ -71,7 +71,7 @@ class MinPValue(AllPValues):
 
     def _evaluate(self, data_reader, h5):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
-        return {self.name: min(p_values), 'component': np.argmin(p_values)}
+        return {self.name: min(p_values), 'component': int(np.argmin(p_values))}
 
 
 class WorstDegeneracy(BaseSingleRunEvaluator):
