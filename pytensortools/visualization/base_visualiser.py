@@ -271,6 +271,10 @@ class FactorfMRIImage(BaseVisualiser):
             figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
         self.figsize = figsize
 
+        if tile_plot_kwargs is None:
+            tile_plot_kwargs = {}
+        self.tile_plot_kwargs = tile_plot_kwargs
+
     def _visualise(self, data_reader, h5):
         factor = self.load_final_checkpoint(h5)[self.mode]
 
