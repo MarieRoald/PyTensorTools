@@ -283,6 +283,7 @@ class FactorfMRIImage(BaseVisualiser):
 
         fig, axes = plt.subplots(1, self.summary['model_rank'], figsize=self.figsize)
         for i, ax in enumerate(axes):
+            ax.set_title(f'Component {i}')
             fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, i], mask, axis=0)
             create_fmri_factor_plot(fmri_factor, template, ax=ax, **self.tile_plot_kwargs)
         return fig
