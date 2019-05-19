@@ -14,26 +14,29 @@ if __name__ == '__main__':
     single_run_evaluators = [
         {'type': 'FinalLoss', 'arguments': {}},
         {'type': 'ExplainedVariance', 'arguments': {}},
-        #{'type': 'MinPValue', 
-        # 'arguments': {
-        #    'mode': 2,
-        #    'class_name': 'schizophrenic'
-        # }
-        #},
+        {'type': 'MinPValue', 
+         'arguments': {
+            'mode': 2,
+            'class_name': 'schizophrenic'
+         }
+        },
+	{'type': 'AllPValues',
+	 'arguments': {'mode': 2, 'class_name': 'schizophrenic'}
+	},
         {'type': 'WorstDegeneracy',
           'arguments': {}
         },
         {'type': 'CoreConsistency',
           'arguments': {}
         },
-        #{'type': 'MaxKMeansAcc', 
-        # 'arguments': {
-        #     'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-        #     'mode': 2,
-        #     'class_name': 'schizophrenic'
+        {'type': 'MaxKMeansAcc', 
+         'arguments': {
+             'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
+             'mode': 2,
+             'class_name': 'schizophrenic'
 
-        # }
-        #}
+         }
+        }
     ]
     multi_run_evaluators = [
       {'type': 'Uniqueness', 'arguments': {}}
@@ -45,13 +48,36 @@ if __name__ == '__main__':
                 'modes': [0, 1, 2]
             }
         },
-        #{
-        #    'type': 'FactorScatterPlotter', 
-        #    'arguments': {
-        #        'mode': 2,
-        #        'class_name': 'schizophrenic'
-        #    }
-        #},
+        {
+            'type': 'FactorScatterPlotter', 
+            'arguments': {
+                'mode': 2,
+                'class_name': 'sites',
+		'filename': 'sites_scatter'
+            }
+        },
+        {
+            'type': 'ClassLinePlotter', 
+            'arguments': {
+                'mode': 2,
+                'class_name': 'sites',
+		'filename': 'sites_line'
+            }
+        },
+        {
+            'type': 'FactorScatterPlotter', 
+            'arguments': {
+                'mode': 2,
+                'class_name': 'schizophrenic'
+            }
+        },
+	{
+	    'type': 'SingleComponentLinePlotter',
+            'arguments' : {
+                'mode': 0,
+                'filename': 'time_mode'
+            }
+        },
         {
             'type': 'LogPlotter',
             'arguments': {
@@ -87,6 +113,10 @@ if __name__ == '__main__':
         )
     )
     for experiment in experiments:
+        print(f'Evaluating {experiment}')
+        if not (experiment/'summaries'/'summary.json').is_file():
+            print(f'Skipping {experiment}')
+            continue
         evaluator.evaluate_experiment(str(experiment))
         summary_writers.create_spreadsheet(Path(experiment))
 
