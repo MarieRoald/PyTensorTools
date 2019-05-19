@@ -7,6 +7,8 @@ import numpy as np
 import string
 import matplotlib as mpl
 
+from plottools.fMRI.tile_plots import create_fmri_factor_plot
+import plottools
 
 mpl.rcParams['font.family'] = 'PT Sans'
 
@@ -193,8 +195,6 @@ class FactorScatterPlotter(BaseVisualiser):
         class1 = different_classes[0]
         class2 = different_classes[1]
 
-        
-
         for r in range(rank):
             ax = fig.add_subplot(1, rank, r+1)
 
@@ -249,3 +249,33 @@ class LogPlotter(BaseVisualiser):
         ax.set_title(self.log_name)
 
         return fig
+
+class FactorfMRIImage(BaseVisualiser):
+    def __init__(
+        self, 
+        summary, 
+        mode, 
+        mask_path,
+        template_path,
+        filename=None, 
+        figsize=None, 
+        tile_plot_kwargs=None
+        ):
+
+        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        self.mode = mode
+        self.tile_plot_kwargs = tile_plot_kwargs
+        self.mask_path = mask_path
+        self.template_path = template_path
+
+    def _visualise(self, data_reader, h5):
+        factor = self.load_final_checkpoint(h5)[self.mode]
+
+        mask = plottools.fMRI.base.load_mask(self.mask_path)
+        template = plottools.fMRI.base.load_template(self.template_path)
+
+        fmri_factor = plottools.base.get_fMRI_images(factor, mask, axis=0)
+        fig, ax = create_fmri_factor_plot(fmri_factor, template, figsize=self.figsize, **self.tile_plot_kwargs)
+        return fig
+
+    
