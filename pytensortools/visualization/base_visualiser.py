@@ -277,7 +277,7 @@ class FactorfMRIImage(BaseVisualiser):
         mask = plottools.fMRI.base.load_mask(self.mask_path)
         template = plottools.fMRI.base.load_template(self.template_path)
 
-        fmri_factor = plottools.fmri.base.get_fMRI_images(factor, mask, axis=0)
+        fmri_factor = plottools.fMRI.base.get_fMRI_images(factor, mask, axis=0)
         fig, axes = plt.subplots(1, self.summary['model_rank'], figsize=self.figsize)
         for i, ax in enumerate(axes):
             create_fmri_factor_plot(fmri_factor[:, i], template, ax=ax, **self.tile_plot_kwargs)
