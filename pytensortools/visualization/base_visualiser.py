@@ -288,4 +288,17 @@ class FactorfMRIImage(BaseVisualiser):
             create_fmri_factor_plot(fmri_factor, template, ax=ax, **self.tile_plot_kwargs)
         return fig
 
+class ResidualHistogram(BaseVisualiser):
+    def _visualise(self, data_reader, h5):
+        fig = self.create_figure()
+        factor_matrices = self.load_final_checkpoint(h5)
+        tensor = data_reader.tensor
+        #TODO: will not work for parafac2
+        predicted_tensor = self.DecomposerType(factor_matrices).construct_tensor()
+
+        residuals = tensor.ravel() - predicted_tensor.ravel()
+
+        ax = fig.add_subplot(111)
+        ax.hist(residuals)
+
     
