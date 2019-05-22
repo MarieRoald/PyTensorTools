@@ -286,6 +286,9 @@ class FactorfMRIImage(BaseVisualiser):
             ax.set_title(f'Component {i + 1}')
             fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, i], mask, axis=0)
             create_fmri_factor_plot(fmri_factor, template, ax=ax, **self.tile_plot_kwargs)
+
+        if (self.tile_plot_kwargs is not None) and ('threshold' in self.tile_plot_kwargs):
+            fig.suptitle(f'Threshold = {self.tile_plot_kwargs["threshold"]}')
         return fig
 
 class ResidualHistogram(BaseVisualiser):
