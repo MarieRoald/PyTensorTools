@@ -66,7 +66,7 @@ class FactorLinePlotter(BaseVisualiser):
             factor = factor/np.linalg.norm(factor, axis=0, keepdims=True)
 
         ax.plot(factor)
-        ax.set_title(f'Mode {mode}')
+        ax.set_title(f'Mode {mode + 1}')
         if (data_reader.mode_names is not None) and (len(data_reader.mode_names) > mode):
             ax.set_title(data_reader.mode_names[mode])
 
@@ -158,7 +158,7 @@ class SingleComponentLinePlotter(BaseVisualiser):
             if r == 0:
                 ax.set_ylabel('Factor')
             
-            ax.set_title(f'Component {r}')
+            ax.set_title(f'Component {r + 1}')
 
         return fig
 
@@ -214,7 +214,7 @@ class FactorScatterPlotter(BaseVisualiser):
             elif self.common_axis:
                 ax.set_yticks([])
             
-            ax.set_title(f'Component {r}')
+            ax.set_title(f'Component {r + 1}')
 
             if self.common_axis:
                 fmin = factor.min()
@@ -283,7 +283,7 @@ class FactorfMRIImage(BaseVisualiser):
 
         fig, axes = plt.subplots(1, self.summary['model_rank'], figsize=self.figsize)
         for i, ax in enumerate(axes):
-            ax.set_title(f'Component {i}')
+            ax.set_title(f'Component {i + 1}')
             fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, i], mask, axis=0)
             create_fmri_factor_plot(fmri_factor, template, ax=ax, **self.tile_plot_kwargs)
         return fig
