@@ -45,11 +45,11 @@ class MatlabDataReader(BaseDataReader):
 
 class HDF5DataReader(BaseDataReader):
     def _load_data_tensor(self, file_path, tensor_name):
-        with h5py.File(file_path) as h5:
+        with h5py.File(file_path, 'r') as h5:
             return h5[tensor_name][...]
 
     def _load_class(self, file_path, class_name):
-        with h5py.File(file_path) as h5:
+        with h5py.File(file_path, 'r') as h5:
             return h5[class_name][...]
 
     def _load_meta_data(self, file_path, classes):
