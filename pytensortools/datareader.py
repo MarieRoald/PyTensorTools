@@ -50,11 +50,14 @@ class HDF5DataReader(BaseDataReader):
 
     def _load_class(self, file_path, class_name):
         with h5py.File(file_path, 'r') as h5:
-            return h5[class_name][...]
+            class_data = h5[class_name]
+            if 'is_string' in class_data.attrs and class_data.attrs['is_string']:
+                return [class_data.attrs['string_values'][i] for i in class_data]
+            return class_data[...]
 
     def _load_meta_data(self, file_path, classes):
         _classes = [{} for _ in self._tensor.shape]
-        for class_dict, mode_classes in zip(self._classes, classes):
+        for class_dict, mode_classes in zip(_classes, classes):
             for name, varname in mode_classes.items():
                 class_dict[name] = self._load_class(file_path, varname)
         return _classes    
@@ -71,4 +74,3 @@ class HDF5DataReader(BaseDataReader):
 
         if classes is not None:
             self._classes = self._load_meta_data(self.meta_info_path, classes)
-
