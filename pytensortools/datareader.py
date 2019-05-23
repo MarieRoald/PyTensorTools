@@ -61,7 +61,7 @@ class HDF5DataReader(BaseDataReader):
                 class_dict[name] = self._load_class(file_path, varname)
         return _classes    
         
-    def __init__(self, file_path, tensor_name, meta_info_path=None, classes=None, mode_names=None):
+    def __init__(self, file_path, tensor_name, meta_info_path=None, classes=None, mode_names=None, transpose=True):
         super().__init__(mode_names=mode_names)
         self.file_path = file_path
 
@@ -69,7 +69,12 @@ class HDF5DataReader(BaseDataReader):
             meta_info_path = file_path
 
         self.meta_info_path = meta_info_path
+
         self._tensor = self._load_data_tensor(self.file_path, tensor_name)
+        self.transpose = transpose
+        if self.transpose:
+            self._tensor = self._tensor.T
+
 
         if classes is not None:
             self._classes = self._load_meta_data(self.meta_info_path, classes)
