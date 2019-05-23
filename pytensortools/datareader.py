@@ -52,7 +52,7 @@ class HDF5DataReader(BaseDataReader):
         with h5py.File(file_path, 'r') as h5:
             class_data = h5[class_name]
             if 'is_string' in class_data.attrs and class_data.attrs['is_string']:
-                return [class_data.attrs['string_values'][i] for i in class_data]
+                return np.array([class_data.attrs['string_values'][i] for i in class_data])
             return class_data[...]
 
     def _load_meta_data(self, file_path, classes):
