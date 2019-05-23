@@ -57,7 +57,7 @@ class HDF5DataReader(BaseDataReader):
 
     def _load_meta_data(self, file_path, classes):
         _classes = [{} for _ in self._tensor.shape]
-        for class_dict, mode_classes in zip(self._classes, classes):
+        for class_dict, mode_classes in zip(_classes, classes):
             for name, varname in mode_classes.items():
                 class_dict[name] = self._load_class(file_path, varname)
         return _classes    
@@ -74,4 +74,3 @@ class HDF5DataReader(BaseDataReader):
 
         if classes is not None:
             self._classes = self._load_meta_data(self.meta_info_path, classes)
-
