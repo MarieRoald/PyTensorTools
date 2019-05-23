@@ -9,6 +9,7 @@ import matplotlib as mpl
 
 from plottools.fMRI.tile_plots import create_fmri_factor_plot
 import plottools
+from scipy.stats import ttest_ind
 
 mpl.rcParams['font.family'] = 'PT Sans'
 
@@ -165,7 +166,7 @@ class SingleComponentLinePlotter(BaseVisualiser):
 class FactorScatterPlotter(BaseVisualiser):
     """Note: only works for two classes"""
     _name = 'factor_scatterplot'
-    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, filename=None, figsize=None):
+    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, include_p_value=False, filename=None, figsize=None):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
         self.normalise = normalise
@@ -174,6 +175,7 @@ class FactorScatterPlotter(BaseVisualiser):
         self.common_axis = common_axis
         self.class_name = class_name
         self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
+        self.include_p_value = include_p_value
 
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
@@ -189,11 +191,17 @@ class FactorScatterPlotter(BaseVisualiser):
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
+
+            
+        if self.include_p_value:
+            assert len(set(classes)) == 2
+            indices = [[i for i, c in enumerate(classes) if c == class_] for class_ in set(classes)]
+            p_values = tuple(ttest_ind(factor[indices[0]], factor[indices[1]], equal_var=False).pvalue)
         #assert len(set(classes)) == 2
 
         different_classes = np.unique(classes)
-        class1 = different_classes[0]
-        class2 = different_classes[1]
+        #class1 = different_classes[0]
+        #class2 = different_classes[1]
 
         for r in range(rank):
             ax = fig.add_subplot(1, rank, r+1)
@@ -214,7 +222,12 @@ class FactorScatterPlotter(BaseVisualiser):
             elif self.common_axis:
                 ax.set_yticks([])
             
-            ax.set_title(f'Component {r + 1}')
+            if self.include_p_value:
+                assert len(set(classes)) == 2
+                ax.set_title(f'Component {r + 1}, p-value: {p_values[r]}')
+            else:
+                ax.set_title(f'Component {r + 1}')
+
 
             if self.common_axis:
                 fmin = factor.min()
