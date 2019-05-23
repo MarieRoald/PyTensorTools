@@ -74,7 +74,6 @@ def run_partial_experiment(
     X = data_reader.tensor
     fit_params = decomposition_params.get('fit_params', {})
     decomposer.fit(X, **fit_params)
-    return decomposer
 
 
 class Experiment(ABC):
@@ -254,10 +253,9 @@ class Experiment(ABC):
 
     def run_experiments(self):
         self.copy_parameter_files()
-        decomposers = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
+        self.run_many_experiments(self.experiment_params.get('num_runs', 10))
         self.save_summary()
         print(f'Stored summaries in {self.experiment_path}')
 
-        return decomposers
         
 
