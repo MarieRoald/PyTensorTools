@@ -224,7 +224,7 @@ class FactorScatterPlotter(BaseVisualiser):
             
             if self.include_p_value:
                 assert len(set(classes)) == 2
-                ax.set_title(f'Component {r + 1}, p-value: {p_values[r]:g}')
+                ax.set_title(f'Component {r + 1}, p-value: {p_values[r]:5.2e}')
             else:
                 ax.set_title(f'Component {r + 1}')
 
