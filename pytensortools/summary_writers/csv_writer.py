@@ -1,6 +1,6 @@
 import csv
 from collections import ChainMap
-from ._base import load_summary, load_evaluations
+from ..utils import load_summary, load_evaluations
 
 
 def _format_csv_rank(rank):
