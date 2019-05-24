@@ -1,3 +1,7 @@
+import sys
+sys.path.append('../PyTensor')
+sys.path.append('../PyTensor_classification')
+
 from pathlib import Path
 import h5py
 from scipy.io import savemat
