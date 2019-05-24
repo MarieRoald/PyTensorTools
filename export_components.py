@@ -24,5 +24,6 @@ if __name__ == '__main__'
         if not (experiment/'summaries'/'summary.json').is_file():
             print(f'Skipping {experiment}')
             continue
-        export_best_components(experiment)
+        out_name = f'{experiment.name}_factors.mat'
+        export_best_components(experiment, out_name=out_name)
         
