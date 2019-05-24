@@ -173,6 +173,7 @@ class Experiment(ABC):
         self.summary['dataset_path'] = self.data_reader_params['arguments']['file_path']
         self.summary['model_type'] = self.decomposition_params['type']
         self.summary['model_rank'] = self.decomposition_params['arguments']['rank']
+        self.summary['dataset_shape'] = self.generate_data_reader().tensor.shape
 
         self.summary = {**self.summary, **self.get_experiment_statistics()}        # finne beste run
 
