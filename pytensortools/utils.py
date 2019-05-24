@@ -5,7 +5,7 @@ import h5py
 
 
 @contextmanager
-def open_run_checkpoint(experiment_path, run, mode='r'):
+def open_run(experiment_path, run, mode='r'):
     run_path = Path(experiment_path)/'checkpoints'/run
     h5 = h5py.File(run_path, mode)
     yield h5.__enter__()
@@ -15,7 +15,7 @@ def open_run_checkpoint(experiment_path, run, mode='r'):
 @contextmanager
 def open_best_run(experiment_path, mode='r'):
     best_run = load_summary(experiment_path)['best_run']
-    ctx = open_run_checkpoint(experiment_path, best_run, mode=mode)
+    ctx = open_run(experiment_path, best_run, mode=mode)
     yield ctx.__enter__()
     ctx.__exit__()
 
