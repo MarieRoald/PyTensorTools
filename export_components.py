@@ -3,7 +3,7 @@ from pytensortools.io.factor_export import export_best_components
 from pathlib import Path
 
 
-if __name__ == '__main__'
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('result_path', type=str)
     parser.add_argument('--is_single', type=bool, help='Whether subfolders should be iterated over.', default=False)

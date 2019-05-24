@@ -21,8 +21,8 @@ def open_best_run(experiment_path, mode='r'):
 
 
 def load_best_group(run_h5):
-    final_it = h5.attrs['final_iteration']
-    return run_h5[final_it]
+    final_it = run_h5.attrs['final_iteration']
+    return run_h5[f'checkpoint_{final_it:05d}']
 
 
 def load_summary(experiment_path):
