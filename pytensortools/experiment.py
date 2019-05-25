@@ -16,6 +16,16 @@ from functools import partial
 import numpy as np
 
 
+EXPERIMENT_COMPLETED = 0
+EXPERIMENT_INTERRUPTED = 1
+
+
+def _raise_multiprocessing_error(run_id):
+    def raise_exception(exception):
+        print(f'Exception for run {run_id}')
+        raise exception
+
+
 def generate_data_reader(data_reader_params):
     DataReader = getattr(datareader, data_reader_params['type'])
     args = data_reader_params.get('arguments', {})
@@ -57,10 +67,9 @@ def preprocess_data(data_reader, preprocessors_params):
     return preprocessed
 
 
-
 def run_partial_experiment(
     decomposition_params,
-    logger_params,
+    log_params,
     data_reader_params,
     preprocessors_params,
     checkpoint_path,
@@ -70,20 +79,8 @@ def run_partial_experiment(
     np.random.seed(seed)
     data_reader = generate_data_reader(data_reader_params)
     data_reader = preprocess_data(data_reader, preprocessors_params)
-    decomposer = generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num)
-
+    decomposer = generate_decomposer(decomposition_params, log_params, checkpoint_path, run_num)
     X = data_reader.tensor
-    if run_num == 0:
-        print('Starting fit:')
-        print(f'  * Tensor shape: {X.shape}')
-        print(f'  * Decomposition: {type(decomposer)}')
-        print(f'  * Rank: {decomposer.rank}')
-        print(f'  * Maximum number of iterations: {decomposer.max_its}')
-        print(f'  * Tolerance: {decomposer.convergence_tol}')
-    else:
-        # Ideally we wish to have a barrier here, but I have no idea how...
-        # Therefore, we'll just let it sleep for 2 seconds if it is not the master process.
-        sleep(2)
 
     fit_params = decomposition_params.get('fit_params', {})
     decomposer.fit(X, **fit_params)
@@ -102,6 +99,13 @@ class Experiment(ABC):
        
         self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
+    
+    @property
+    def num_processes(self):
+        if 'num_processess' in self.experiment_params:
+            return self.experiment_params['num_processess']
+        else:
+            return multiprocessing.cpu_count() - 1
 
     def get_experiment_directory(self):
         # For easy access, create variables from dict
@@ -180,20 +184,21 @@ class Experiment(ABC):
             'std_fit': std_fit
         }
 
-    def create_summary(self):
+    def create_summary(self, completion_status):
         self.summary = {}
 
         self.summary['dataset_path'] = self.data_reader_params['arguments']['file_path']
         self.summary['model_type'] = self.decomposition_params['type']
         self.summary['model_rank'] = self.decomposition_params['arguments']['rank']
         self.summary['dataset_shape'] = self.generate_data_reader().tensor.shape
+        self.summary['experiment_completed'] = completion_status == EXPERIMENT_COMPLETED
 
         self.summary = {**self.summary, **self.get_experiment_statistics()}        # finne beste run
 
         return self.summary
     
-    def save_summary(self):
-        summary = self.create_summary()
+    def save_summary(self, completion_status):
+        summary = self.create_summary(completion_status=completion_status)
         summary_path = self.summary_path / 'summary.json'
 
         with summary_path.open('w') as f:
@@ -232,6 +237,19 @@ class Experiment(ABC):
             checkpoint_path=checkpoint_path
         )
     
+    def print_experiment_info(self):
+        data_reader = generate_data_reader(self.data_reader_params)
+        data_reader = preprocess_data(data_reader, self.preprocessor_params)
+        X = data_reader.tensor
+        decomposition = self.generate_decomposer()
+
+        print('Starting fit:')
+        print(f"  * Tensor shape: {X.shape}")
+        print(f"  * Decomposition: {self.decomposition_params['type']}")
+        print(f"  * Rank: {decomposition.rank}")
+        print(f"  * Maximum number of iterations: {decomposition.max_its}")
+        print(f"  * Tolerance: {decomposition.convergence_tol}")
+
     def run_single_experiment(self, run_num=None, seed=None):
         np.random.seed(seed)
         checkpoint_path = None
@@ -246,30 +264,41 @@ class Experiment(ABC):
         X = self.data_reader.tensor
         decomposer.fit(X, **self.decomposition_params.get('fit_params', {}))
         return decomposer
-    
+
     def run_many_experiments(self, num_experiments):
-        if 'num_processess' in self.experiment_params:
-            num_processess = self.experiment_params['num_processess']
-        else:
-            num_processess = multiprocessing.cpu_count() - 1
-        with multiprocessing.Pool(num_processess) as p:
-            # return [self.run_single_experiment(i) for i in range(num_experiments)]
-            run_single_experiment = partial(
-                run_partial_experiment,
-                self.decomposition_params,
-                self.log_params,
-                self.data_reader_params,
-                self.preprocessor_params,
-                self.checkpoint_path,
-            )
-            #return [run_single_experiment(i) for i in range(num_experiments)]
-            return p.map(run_single_experiment, range(num_experiments))
+        self.print_experiment_info()
+
+        with multiprocessing.Pool(self.num_processes) as pool:
+            results = []
+            for i in range(num_experiments):
+                result = pool.apply_async(
+                    run_partial_experiment,
+                    kwds={
+                        'run_num': i,
+                        'decomposition_params': self.decomposition_params,
+                        'log_params': self.log_params,
+                        'data_reader_params': self.data_reader_params,
+                        'preprocessors_params': self.preprocessor_params,
+                        'checkpoint_path': self.checkpoint_path
+                    },
+                    error_callback=_raise_multiprocessing_error(i)
+                )
+                results.append(result)
+
+            try:
+                while True:
+                    sleep(0.5)
+                    if all(result.ready() for result in results):
+                        print('Experiment completed')
+                        break
+            except KeyboardInterrupt:
+                pool.terminate()
+                print('Experiment interrupted')
+                return EXPERIMENT_INTERRUPTED
+        return EXPERIMENT_COMPLETED
 
     def run_experiments(self):
         self.copy_parameter_files()
-        self.run_many_experiments(self.experiment_params.get('num_runs', 10))
-        self.save_summary()
+        completion_status = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
+        self.save_summary(completion_status=completion_status)
         print(f'Stored summaries in {self.experiment_path}')
-
-        
-
