@@ -35,6 +35,15 @@ class ExplainedVariance(BaseSingleRunEvaluator):
         return {self.name: h5['ExplainedVarianceLogger/values'][-1]}
 
 
+class ConvergenceTolerance(BaseSingleRunEvaluator):
+    _name = "Minimum relative loss change"
+    
+    def _evaluate(self, data_reader, h5):
+        loss = h5['LossLogger/values'][...]
+        rel_change = (loss[1:] - loss[:-1])/loss[:-1]
+        return {self.name: rel_change.min()}
+
+
 class AllPValues(BaseSingleRunEvaluator):
     _name = 'All P values'
 
