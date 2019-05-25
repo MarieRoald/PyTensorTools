@@ -2,6 +2,7 @@ import multiprocessing
 from abc import ABC, abstractproperty, abstractmethod
 import json
 from typing import Dict
+from time import sleep
 
 from . import datareader
 from . import preprocessor
@@ -72,6 +73,18 @@ def run_partial_experiment(
     decomposer = generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num)
 
     X = data_reader.tensor
+    if run_num == 0:
+        print('Starting fit:')
+        print(f'  * Tensor shape: {X.shape}')
+        print(f'  * Decomposition: {type(decomposer)}')
+        print(f'  * Rank: {decomposer.rank}')
+        print(f'  * Maximum number of iterations: {decomposer.max_its}')
+        print(f'  * Tolerance: {decomposer.convergence_tol}')
+    else:
+        # Ideally we wish to have a barrier here, but I have no idea how...
+        # Therefore, we'll just let it sleep for 2 seconds if it is not the master process.
+        sleep(2)
+
     fit_params = decomposition_params.get('fit_params', {})
     decomposer.fit(X, **fit_params)
 
