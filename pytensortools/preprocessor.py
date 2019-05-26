@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 import numpy as np
+from .datareader import BaseDataReader
 
 
 def get_preprocessor(preprocessor):
     raise NotImplementedError
 
 
-class BasePreprocessor(ABC):
+class BasePreprocessor(BaseDataReader):
     def __init__(self, data_reader):
         self.data_reader = data_reader
         self.mode_names = data_reader.mode_names
