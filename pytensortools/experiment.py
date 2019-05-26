@@ -302,3 +302,9 @@ class Experiment(ABC):
         completion_status = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
         self.save_summary(completion_status=completion_status)
         print(f'Stored summaries in {self.experiment_path}')
+    
+    def save_raw_dataset(self, label_names, out_file):
+        self.generate_data_reader().to_matlab(label_names, out_file)
+    
+    def save_preprocessed_dataset(self, label_names, out_file):
+        self.data_reader.to_matlab(label_names, out_file)
