@@ -61,6 +61,17 @@ if __name__ == "__main__":
         type=int,
         default=None
     )
+    # TODO: Move this to separate file
+    parser.add_argument(
+        '--save_dataset',
+        help='Save the dataset file in the log folder. If this is set, then the experiments will not be run.'
+    )
+    parser.add_argument(
+        '--dataset_labels',
+        help='The name of the classes that should be regarded as labels. Separate label names by comma and modes by space',
+        nargs='*',
+        default=[]
+    )
     args = parser.parse_args()
 
     # Load experiment params
@@ -110,7 +121,18 @@ if __name__ == "__main__":
     }
 
     # Run experiment
-    if run_single:
+    if args.save_dataset:
+        experiment = Experiment(
+            experiment_params,
+            data_reader_params,
+            decomposition_params,
+            logger_params,
+            preprocessor_params=preprocessor_params
+        )
+        label_names = [labels.split(',') for labels in args.dataset_labels]
+
+        experiment.generate_data_reader().to_matlab(label_names, experiment_path/'dataset.mat')
+    elif run_single:
         experiment = Experiment(
             experiment_params,
             data_reader_params,

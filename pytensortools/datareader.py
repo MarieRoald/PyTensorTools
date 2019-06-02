@@ -79,6 +79,17 @@ class BaseDataReader(ABC):
         return ClassIDs(self.classes)
     
     def to_matlab(self, label_names, outfile):
+        """
+        Parameters
+        ----------
+        label_names : List
+            List of lists. Each inner list contains the names of the classes that should
+            be regarded as labels in the MATLAB dataset.
+        outfile : str
+            Location of the saved file.
+        """
+        if len(label_names) < len(self.tensor.shape):
+            label_names = label_names + [[]]*(len(self.tensor.shape) - len(label_names))
         # Divide self.classes in labels and classes
         labels = []
         classes = []
@@ -89,7 +100,7 @@ class BaseDataReader(ABC):
             labels_ = self.classes[mode]
             classes_ = self.class_ids[mode]
 
-            mode_class_names = list(set(labels_.keys()) - set(mode_label_names))
+            mode_class_names = list(set(self.classes[mode].keys()) - set(mode_label_names))
             mode_label_names = label_names[mode]
             class_names.append(mode_class_names)
 
@@ -186,7 +197,7 @@ class HDF5DataReader(BaseDataReader):
             self._classes = self._load_meta_data(self.meta_info_path, classes)
 
 
-MATLAB_TOOLBOX_PATH = "../matlab_toolboxes/"
+MATLAB_TOOLBOX_PATH = "../../matlab/toolboxes/"
 MATLAB_CREATE_DATASET = f"""
 disp('Adding to path');
 addpath(genpath('{MATLAB_TOOLBOX_PATH}'));
