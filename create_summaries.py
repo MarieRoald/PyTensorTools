@@ -15,6 +15,10 @@ if __name__ == '__main__':
         )
     )
     for experiment_path in experiments:
+        print(experiment_path)
+        if not (experiment_path/'summaries'/'evaluations.json').is_file():
+             print('skipping', experiment_path)
+             continue
         summary_writers.create_spreadsheet(experiment_path)
     
     summary_writers.create_csv(experiment_parent)
