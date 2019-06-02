@@ -217,9 +217,8 @@ for i = 1:length(mode_titles)
     if size(labels_, 1) == 1
         data.label{{i, 1}} = cellstr(labels_);
     elseif size(labels_, 1) > 1
-        labels__ = labels_';
         for j = 1:size(labels_, 1)
-            data.label{{i,j}} = cellstr(labels__(j));
+            data.label{{i,j}} = cellstr(labels__(j, :));
         end;
     end;
 
@@ -229,7 +228,7 @@ for i = 1:length(mode_titles)
         data.labelname{{i,1}} = squeeze(label_names_);
     elseif size(label_names_, 1) > 1
         for j = 1:size(label_names_, 1)
-            data.labelname{{i,j}} = label_names_{{j}};
+            data.labelname{{i,j}} = label_names_{{j, :}};
         end;
     end;
 
@@ -245,9 +244,9 @@ for i = 1:length(mode_titles)
     elseif size(classes_, 1) > 1
         disp('multiple');
         for j = 1:size(classes, 1)
-            data.class{{i,j}} = double(classes_{{j}});
-            data.classname{{i,j}} = class_names_{{j}};
-            data.classid{{i,j}} = cellstr(class_ids_{{j}});
+            data.class{{i,j}} = double(classes_{{j, :}});
+            data.classname{{i,j}} = class_names_{{j, :}};
+            data.classid{{i,j}} = cellstr(class_ids_{{j, :}});
         end;
     end;
 end;
