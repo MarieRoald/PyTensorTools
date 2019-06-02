@@ -142,6 +142,7 @@ class BaseDataReader(ABC):
 
             p = Popen(['matlab', '-nosplash', '-nodesktop', '-r', matlab_script])
             print(p.communicate())
+            print(f'Stored file in {outfile}')
 
 
 class MatlabDataReader(BaseDataReader):
