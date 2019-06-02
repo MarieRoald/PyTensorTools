@@ -128,7 +128,7 @@ if __name__ == "__main__":
             logger_params,
             preprocessor_params=preprocessor_params
         )
-        label_names = [[labels.split(',') for labels in label_list] for label_list in args.dataset_labels.split('_')]
+        label_names = [[labels.split(',') for labels in label_list] for label_list in args.dataset_labels.split('_')]
 
         experiment.generate_data_reader().to_matlab(label_names, experiment_path/'dataset.mat')
     elif run_single:
