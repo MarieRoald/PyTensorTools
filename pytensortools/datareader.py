@@ -228,7 +228,7 @@ for i = 1:length(mode_titles)
         data.labelname{{i,1}} = cellstr(label_names_);
     elseif size(label_names_, 1) > 1
         for j = 1:size(label_names_, 1)
-            data.labelname{{i,j}} = cellstr(label_names_(j, :);
+            data.labelname{{i,j}} = cellstr(label_names_(j, :));
         end;
     end;
 
