@@ -76,7 +76,7 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder):
     generate_table(slide, data_rows, column_names)
 
     for experiment in experiment_folder.iterdir():
-        if not experiment.isdir() or not (experiment/'summaries/summary.json').is_file():
+        if not experiment.is_dir() or not (experiment/'summaries/summary.json').is_file():
             continue
         slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
         slide.shapes.title.text = experiment.name
