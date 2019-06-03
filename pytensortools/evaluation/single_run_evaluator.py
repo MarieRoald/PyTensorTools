@@ -141,12 +141,12 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
             factors_p1 = [
                 decomposition.factor_matrices[0][:, p1],
                 [f[:, p1] for f in decomposition.factor_matrices[1]],
-                decomposition.factor_matricesestimated_factors[2][:, p1]
+                decomposition.factor_matrices[2][:, p1]
             ]
             factors_p2 = [
                 decomposition.factor_matrices[0][:, p2],
                 [f[:, p2] for f in decomposition.factor_matrices[1]],
-                decomposition.factor_matricesestimated_factors[2][:, p2]
+                decomposition.factor_matrices[2][:, p2]
             ]
 
             score = metrics._factor_match_score_parafac2(factors_p1, factors_p2,
