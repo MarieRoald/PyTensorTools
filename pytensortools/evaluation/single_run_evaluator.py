@@ -135,8 +135,19 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
         
         for (p1, p2) in itertools.permutations(range(R), r=2): 
         
-            factors_p1 = [fm[:, p1] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
-            factors_p2 = [fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
+            #factors_p2 = [
+            #    fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in [0, 2]
+            #]
+            factors_p1 = [
+                decomposition.factor_matrices[0][:, p1],
+                [f[:, p1] for f in decomposition.factor_matrices[1]],
+                decomposition.factor_matricesestimated_factors[2][:, p1]
+            ]
+            factors_p2 = [
+                decomposition.factor_matrices[0][:, p2],
+                [f[:, p2] for f in decomposition.factor_matrices[1]],
+                decomposition.factor_matricesestimated_factors[2][:, p2]
+            ]
 
             score = metrics._factor_match_score_parafac2(factors_p1, factors_p2,
                                                 nonnegative=False, weight_penalty=False)[0]
