@@ -1,14 +1,20 @@
 #!/home/marie/anaconda3/bin/python
 import sys
+import argparse
+from pathlib import Path
+
+
 sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
 sys.path.append('../PlotTools')
+
 import pytensor.base
 from pytensortools.experiment import Experiment
 from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
 from pytensortools import summary_writers
-import argparse
-from pathlib import Path
+
+sys.path.append('../PlotTools')
+
 
 
 if __name__ == '__main__':
@@ -189,5 +195,5 @@ if __name__ == '__main__':
         summary_writers.create_spreadsheet(Path(experiment))
 
     if not args.is_single:
-        summary_writers.create_csv(Path(args.result_path))
+        summary_writers.create_csv(Path(args.result_path), new_file=True)
         summary_writers.create_ppt(Path(args.result_path))

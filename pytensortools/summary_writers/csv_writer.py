@@ -1,6 +1,10 @@
 import csv
 from collections import ChainMap
+import os
 from ..utils import load_summary, load_evaluations
+
+
+CSV_FILE = 'slide.csv'
 
 
 def _format_csv_rank(rank):
@@ -64,23 +68,29 @@ def _write_csv_row(experiment_path, csvpath=None):
     best_run_evaluations = dict(ChainMap(*best_run_evaluations))
 
     if csvpath is None:
-        csvpath = experiment_path.parent/'slide.csv'
+        csvpath = experiment_path.parent/CSV_FILE
+    
+    writeheader = False
+    if not csvpath.is_file():
+        writeheader = True
 
     with csvpath.open('a') as f:
         writer = csv.DictWriter(f, fieldnames=[
             'Number of Components', 'Core Consistency', r'% Explained',
             'Significant Factors (p-values)', 'Clustering (max acc)'
         ])
-        if not csvpath.is_file():
+        if writeheader:
             writer.writeheader()
         writer.writerow(
             _format_csv_row(experiment_path, summary, best_run_evaluations)
         )
 
 
-def create_csv(experiment_parent):
+def create_csv(experiment_parent, new_file=False):
     for experiment in experiment_parent.iterdir():
         if not (experiment/'summaries/summary.json').is_file():
             continue
+        if new_file:
+            os.remove(experiment_parent/CSV_FILE)
         if experiment.is_dir():
             _write_csv_row(experiment)
