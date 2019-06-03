@@ -117,7 +117,7 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
 
         return {self.name: min_score}
 
-class WorstDegeneracy(BaseSingleRunEvaluator):
+class Parafa2WorstDegeneracy(BaseSingleRunEvaluator):
     _name = 'Worst degeneracy parafac2'
     def __init__(self, summary, modes=None, return_permutation=False):
         super().__init__(summary)
