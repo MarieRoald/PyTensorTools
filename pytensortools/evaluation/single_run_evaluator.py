@@ -94,7 +94,8 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
         decomposition = self.load_final_checkpoint(h5)
         factors = decomposition.factor_matrices
 
-        if self.modes is None:
+        modes = self.modes
+        if modes is None:
             modes = range(len(decomposition.factor_matrices))
         R = decomposition.factor_matrices[0].shape[1] 
         min_score = np.inf 
@@ -139,15 +140,16 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
             #    fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in [0, 2]
             #]
             factors_p1 = [
-                decomposition.factor_matrices[0][:, np.newaxis, p1],
-                [f[:, np.newaxis, p1] for f in decomposition.factor_matrices[1]],
-                decomposition.factor_matrices[2][:, np.newaxis, p1]
+                factors[0][:, np.newaxis, p1],
+                [f[:, np.newaxis, p1] for f in factors[1]],
+                factors[2][:, np.newaxis, p1]
             ]
             factors_p2 = [
-                decomposition.factor_matrices[0][:, np.newaxis, p2],
-                [f[:, np.newaxis, p2] for f in decomposition.factor_matrices[1]],
-                decomposition.factor_matrices[2][:, np.newaxis, p2]
+                factors[0][:, np.newaxis, p2],
+                [f[:, np.newaxis, p2] for f in factors[1]],
+                factors[2][:, np.newaxis, p2]
             ]
+
 
             score = metrics._factor_match_score_parafac2(factors_p1, factors_p2,
                                                 nonnegative=False, weight_penalty=False)[0]
