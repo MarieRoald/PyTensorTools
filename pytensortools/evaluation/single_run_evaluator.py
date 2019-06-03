@@ -117,6 +117,39 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
 
         return {self.name: min_score}
 
+class WorstDegeneracy(BaseSingleRunEvaluator):
+    _name = 'Worst degeneracy parafac2'
+    def __init__(self, summary, modes=None, return_permutation=False):
+        super().__init__(summary)
+        self.modes = modes
+        self.return_permutation = return_permutation
+
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        factors = decomposition.factor_matrices
+
+        if self.modes is None:
+            modes = range(len(decomposition.factor_matrices))
+        R = decomposition.factor_matrices[0].shape[1] 
+        min_score = np.inf 
+        
+        for (p1, p2) in itertools.permutations(range(R), r=2): 
+        
+            factors_p1 = [fm[:, p1] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
+            factors_p2 = [fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
+
+            score = metrics._factor_match_score_parafac2(factors_p1, factors_p2,
+                                                nonnegative=False, weight_penalty=False)[0]
+
+            if score < min_score:
+                min_score = score
+                worst_p1 = p1
+                worst_p2 = p2
+
+        if self.return_permutation:
+            return {self.name: min_score, f'permutation:': (worst_p1, worst_p2)}
+
+        return {self.name: min_score}
 class CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
 
@@ -190,12 +223,14 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
                    f"Length of classes vector ({num_classes_elements}) "\
                    f"differs from number of samples ({num_samples}). "
 
-            command = [f"load('{tmp_matlab_factor_file}');\
-                            load('{tmp_matlab_classes_file}'); \
-                            addpath(genpath('{self.matlab_scripts_path}'));\
-                            [acc]=run_kmeans_acc_from_python(classes, factormatrix');\
-                            save('{tmp_outfile}');\
-                            exit"]
+            command = [
+                f"load('{tmp_matlab_factor_file}');\
+                  load('{tmp_matlab_classes_file}'); \
+                  addpath(genpath('{self.matlab_scripts_path}'));\
+                  [acc]=run_kmeans_acc_from_python(classes, factormatrix');\
+                  save('{tmp_outfile}');\
+                  exit"
+            ]
 
             p = Popen(self.matlab + self.options + command)
             stdout, stderr = p.communicate()
