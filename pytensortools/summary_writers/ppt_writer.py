@@ -83,7 +83,7 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder):
 
         summary = load_summary(experiment)
         slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
-        slide.shapes.title.text = f'Rank {summary["rank"]}'
+        slide.shapes.title.text = f'Rank {summary["model_rank"]}'
         
         for i, image in enumerate((experiment/'summaries'/'visualizations').iterdir()):
             slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
