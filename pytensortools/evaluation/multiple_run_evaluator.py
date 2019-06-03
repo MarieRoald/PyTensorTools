@@ -58,6 +58,7 @@ class MultipleSingleRunEvaluators(BaseMultipleEvaluator):
         
         return results
 
+
 class Uniqueness(BaseMultipleEvaluator):
     """Note: Bases similarity on runs on SSE. """
     def _get_best_run(self, checkpoint_path):
@@ -104,4 +105,5 @@ class Uniqueness(BaseMultipleEvaluator):
         return results
 
 class Parafac2Uniqueness(Uniqueness):
-    pass
+    def _factor_match_score(self, decomposition1, decomposition2):
+        return pytensor.metrics.factor_match_score_parafac2(decomposition1, decomposition2)[0]
