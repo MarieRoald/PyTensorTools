@@ -7,6 +7,7 @@ import pptx
 from pptx.util import Pt, Cm
 
 
+TITLE_ONLY_SLIDE = 5
 BLANK_SLIDE = 6
 SLIDE_WIDTH = 9144000
 SLIDE_HEIGHT = 5143500
@@ -62,7 +63,7 @@ def generate_table(slide, data_rows, column_names):
         column.width = col_width
 
 
-def generate_presentation(pres, data_rows, column_names):
+def generate_presentation(pres, data_rows, column_names, experiment_folder):
     # Setup slide
     pres.slide_width = SLIDE_WIDTH
     pres.slide_height = SLIDE_HEIGHT
@@ -73,6 +74,15 @@ def generate_presentation(pres, data_rows, column_names):
         slide = pres.slides.add_slide(pres.slide_layouts[BLANK_SLIDE])
 
     generate_table(slide, data_rows, column_names)
+
+    for experiment in experiment_folder.iterdir():
+        if not experiment.isdir() or not (experiment/'summaries/summary.json').is_file():
+            continue
+        slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
+        slide.shapes.title.text = experiment.name
+        
+        for i, image in enumerate((experiment/'summaries'/'visualizations').glob('*.{jpg,png,gif,tif,tiff,jpeg}')):
+            slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
     return pres
 
 
@@ -87,19 +97,21 @@ def create_ppt(parent_folder, csvpath='slide.csv', pptpath='summary.pptx'):
         column_names = list(data_rows[0].keys())
     
     pres = pptx.Presentation(TEMPLATE_NAME)
-    pres = generate_presentation(pres, data_rows, column_names)
+    pres = generate_presentation(pres, data_rows, column_names, parent_folder)
     pres.save(pptpath)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument("experiment_folder")
     parser.add_argument("csv_file")
     parser.add_argument("output_file")
     parser.add_argument("-p", "--parent_folder", default=None)
     parser.add_argument("-t", "--template", default="template.pptx")
 
     args = parser.parse_args()
-    csv_file = args.csv_file
+    experiment_folder = Path(args.experiment_folder)
+    csv_file = experiment_folder/args.csv_file
     output_file = args.output_file
     if args.parent_folder is not None:
         csv_file = os.path.join(args.parent_folder, csv_file)
@@ -111,5 +123,5 @@ if __name__ == '__main__':
         column_names = list(data_rows[0].keys())
 
     pres = pptx.Presentation(args.template)
-    pres = generate_presentation(pres, data_rows, column_names)
+    pres = generate_presentation(pres, data_rows, column_names, experiment_folder)
     pres.save(output_file)
