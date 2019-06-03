@@ -80,5 +80,7 @@ def _write_csv_row(experiment_path, csvpath=None):
 
 def create_csv(experiment_parent):
     for experiment in experiment_parent.iterdir():
+        if not (experiment/'summaries/summary.json').is_file():
+            continue
         if experiment.is_dir():
             _write_csv_row(experiment)
