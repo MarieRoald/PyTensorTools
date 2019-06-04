@@ -339,14 +339,9 @@ class LeverageScatterPlot(BaseVisualiser):
 
 class EvolvingComponentMatrixMap(BaseVisualiser):
 
-    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, filename=None, figsize=None):
+    def __init__(self, summary, mode, filename=None, figsize=None):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
-        self.normalise = normalise
-        self.label = label
-        self.legend = legend
-        self.common_axis = common_axis
-        self.class_name = class_name
         self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
     
     def _visualise(self, data_reader, h5):
