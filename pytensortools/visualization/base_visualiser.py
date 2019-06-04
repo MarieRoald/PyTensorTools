@@ -346,7 +346,7 @@ class EvolvingComponentMatrixMap(BaseVisualiser):
     
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
-        factor = self.load_final_checkpoint(h5)[1]
+        factor = np.array(self.load_final_checkpoint(h5)[1])
 
         classes = data_reader.classes[2][self.class_name].squeeze()
 
@@ -356,13 +356,13 @@ class EvolvingComponentMatrixMap(BaseVisualiser):
         for i, ax in enumerate(axes):
             ax.set_title(f'Component {i + 1}')
 
-            component = factor[i]
+            component = factor[..., i]
             sorted_component = np.empty_like(component)
 
             offset = 0
             for c in unique_classes:
                 class_idx = classes==c
-                sorted_component[:, offset:offset+sum(class_idx)] = component[:, class_idx]
+                sorted_component[offset:offset+sum(class_idx)] = component[class_idx]
                 offset += sum(class_idx)
 
             ax.imshow(sorted_component) 
