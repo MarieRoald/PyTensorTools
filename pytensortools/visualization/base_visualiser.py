@@ -316,5 +316,60 @@ class ResidualHistogram(BaseVisualiser):
 
         ax = fig.add_subplot(111)
         ax.hist(residuals)
+        return fig
 
+class LeverageScatterPlot(BaseVisualiser):
+
+    def __init__(self, summary, mode, filename=None, figsize=None):
+        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        self.mode = mode
+
+        self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
+
+    def _visualise(self, data_reader, h5):
+        fig = self.create_figure()
+        factor = self.load_final_checkpoint(h5)[self.mode]
+        rank = factor.shape[1]
+
+        leverage_scores = pytensor.metrics.leverages(factor)
+
+        #?
+
+
+
+class EvolvingComponentMatrixMap(BaseVisualiser):
+
+    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, filename=None, figsize=None):
+        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        self.mode = mode
+        self.normalise = normalise
+        self.label = label
+        self.legend = legend
+        self.common_axis = common_axis
+        self.class_name = class_name
+        self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
     
+    def _visualise(self, data_reader, h5):
+        fig = self.create_figure()
+        factor = self.load_final_checkpoint(h5)[self.mode]
+
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
+
+        unique_classes = np.unique(classes)
+
+        fig, axes = plt.subplots(1, self.summary['model_rank'], figsize=self.figsize)
+        for i, ax in enumerate(axes):
+            ax.set_title(f'Component {i + 1}')
+
+            component = factor[i]
+            sorted_component = np.empty_like(component)
+
+            offset = 0
+            for c in unique_classes:
+                class_idx = classes==c
+                sorted_component[offset:offset+sum(class_idx)] = component[class_idx]
+                offset += sum(class_idx)
+
+            ax.imshow(sorted_component) 
+
+        return fig
