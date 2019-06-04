@@ -362,7 +362,7 @@ class EvolvingComponentMatrixMap(BaseVisualiser):
             offset = 0
             for c in unique_classes:
                 class_idx = classes==c
-                sorted_component[:, offset:offset+sum(class_idx)] = component[class_idx]
+                sorted_component[:, offset:offset+sum(class_idx)] = component[:, class_idx]
                 offset += sum(class_idx)
 
             ax.imshow(sorted_component) 
