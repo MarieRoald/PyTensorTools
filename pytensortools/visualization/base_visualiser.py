@@ -304,6 +304,42 @@ class FactorfMRIImage(BaseVisualiser):
             fig.suptitle(f'Threshold = {self.tile_plot_kwargs["threshold"]}')
         return fig
 
+class EvolvingFactorfMRIImage(FactorfMRIImage):
+    def __init__(
+        self, 
+        summary, 
+        mode, 
+        mask_path,
+        template_path,
+        filename=None, 
+        figsize=None, 
+        tile_plot_kwargs=None,
+        component=0
+        ):
+
+        super().__init__(summary=summary,
+                         mode=mode,
+                         mask_path=mask_path,
+                         template_path=template_path,
+                         filename=filename,
+                         figsize=figsize,
+                         tile_plot_kwargs=tile_plot_kwargs)
+
+        self.component = component
+
+    def _visualise(self, data_reader, h5):
+        
+        factor = self.load_final_checkpoint(h5)[self.mode]
+
+        mask = plottools.fMRI.base.load_mask(self.mask_path)
+        template = plottools.fMRI.base.load_template(self.template_path)
+        fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, self.component], mask, axis=0)
+        fig = plottools.fMRI.base.create_fmri_evolving_factor_plot(
+            fmri_factor, template, **self.tile_plot_kwargs
+        )[0]
+
+        return fig
+
 class ResidualHistogram(BaseVisualiser):
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
