@@ -378,11 +378,12 @@ class LeverageScatterPlot(BaseVisualiser):
 
         residuals = np.sum((predicted_tensor-data_reader.tensor)**2, (1,2))
         ax = fig.add_subplot(111)
-        ax.scatter(residuals, leverage_scores, s=5, alpha=0.5)
-
+        ax.scatter(leverage_scores, residuals, s=5, alpha=0.5)
+        ax.set_xlabel('Leverage score')
+        ax.set_ylabel('Residual')
         if self.annotation is not None:
             for i, (l, r) in enumerate(zip(leverage_scores, residuals)):
-                ax.annotate(str(i), [r, l])
+                ax.annotate(str(i), [l, r])
             """
             labels = data_reader.classes[self.annotation]
             for label, l, r in zip(labels, leverage_scores, residuals):
