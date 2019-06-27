@@ -382,11 +382,11 @@ class LeverageScatterPlot(BaseVisualiser):
 
         if self.annotation is not None:
             for i, (l, r) in enumerate(zip(leverage_scores, residuals)):
-                ax.annotate(str(i), [l, r])
+                ax.annotate(str(i), [r, l])
             """
             labels = data_reader.classes[self.annotation]
             for label, l, r in zip(labels, leverage_scores, residuals):
-                ax.annotate(label, [l, r])"""
+                ax.annotate(label, [r, l])"""
 
         return fig
 
