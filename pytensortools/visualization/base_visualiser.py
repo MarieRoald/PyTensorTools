@@ -7,7 +7,7 @@ import numpy as np
 import string
 import matplotlib as mpl
 
-from plottools.fMRI.tile_plots import create_fmri_factor_plot
+from plottools.fMRI.tile_plots import create_fmri_factor_plot, create_fmri_evolving_factor_plot
 import plottools
 from scipy.stats import ttest_ind
 
@@ -328,14 +328,17 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
         self.component = component
 
     def _visualise(self, data_reader, h5):
-        
-        factor = self.load_final_checkpoint(h5)[self.mode]
+        factor = np.array(self.load_final_checkpoint(h5)[self.mode])
+        rank = factor.shape[-1]
+
+        if self.component >= rank:
+            return self.create_figure()
 
         mask = plottools.fMRI.base.load_mask(self.mask_path)
         template = plottools.fMRI.base.load_template(self.template_path)
-        fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, self.component], mask, axis=0)
-        fig = plottools.fMRI.base.create_fmri_evolving_factor_plot(
-            fmri_factor, template, **self.tile_plot_kwargs
+        fmri_factor = plottools.fMRI.base.get_fMRI_images(factor[:, :, self.component].T, mask, axis=0)
+        fig = create_fmri_evolving_factor_plot(
+            fmri_factor, template,cmap='maryland', **self.tile_plot_kwargs
         )[0]
 
         return fig
