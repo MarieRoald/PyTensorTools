@@ -7,7 +7,7 @@ def _write_summary_excel(sheet, row, summary):
     row += 1
     for key, value in summary.items():
         sheet.write(row, 1, key)
-        sheet.write(row, 2, value)
+        sheet.write(row, 2, str(value))
         row += 1
     row += 1
     return row

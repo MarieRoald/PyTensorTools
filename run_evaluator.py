@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
+sys.path.append('../PlotTools')
 
 import pytensor.base
 from pytensortools.experiment import Experiment
@@ -18,86 +19,150 @@ sys.path.append('../PlotTools')
 
 if __name__ == '__main__':
     single_run_evaluators = [
-        {'type': 'FinalLoss', 'arguments': {}},
-        {'type': 'ExplainedVariance', 'arguments': {}},
-        {'type': 'MinPValue', 
-         'arguments': {
+       {'type': 'FinalLoss', 'arguments': {}},
+       {'type': 'ExplainedVariance', 'arguments': {}},
+       {'type': 'MinPValue', 
+        'arguments': {
+           'mode': 2,
+           'class_name': 'schizophrenic'
+        }
+       },
+	{'type': 'AllPValues',
+         'arguments': {'mode': 2, 'class_name': 'schizophrenic'}
+       },
+       {'type': 'WorstDegeneracy',
+         'arguments': {}
+       },
+       {'type': 'CoreConsistency',
+         'arguments': {}
+       },
+       {'type': 'MaxKMeansAcc', 
+        'arguments': {
+            'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
             'mode': 2,
             'class_name': 'schizophrenic'
-         }
-        },
-	{'type': 'AllPValues',
-	 'arguments': {'mode': 2, 'class_name': 'schizophrenic'}
-	},
-        {'type': 'WorstDegeneracy',
-          'arguments': {}
-        },
-        {'type': 'CoreConsistency',
-          'arguments': {}
-        },
-        {'type': 'MaxKMeansAcc', 
-         'arguments': {
-             'matlab_scripts_path': 'pytensortools/evaluation/legacy_matlab_code',
-             'mode': 2,
-             'class_name': 'schizophrenic'
 
-         }
         }
+       }
     ]
     multi_run_evaluators = [
-      {'type': 'Uniqueness', 'arguments': {}}
+     {'type': 'Uniqueness', 'arguments': {}}
     ]
     single_run_visualisers = [
+       {
+           'type': 'FactorLinePlotter', 
+           'arguments': {
+               'modes': [0, 1, 2]
+           }
+       },
+       {
+           'type': 'FactorScatterPlotter', 
+           'arguments': {
+               'mode': 2,
+               'class_name': 'sites',
+               'filename': 'sites_scatter',
+               'common_axis': False,
+           }
+       },
+       {
+           'type': 'ClassLinePlotter', 
+           'arguments': {
+               'mode': 2,
+               'class_name': 'sites',
+               'filename': 'sites_line'
+           }
+       },
+       {
+           'type': 'FactorScatterPlotter', 
+           'arguments': {
+               'mode': 2,
+	       'include_p_value': True,
+               'class_name': 'schizophrenic',
+               'common_axis': False,
+           }
+       },
+{
+    'type': 'SingleComponentLinePlotter',
+           'arguments' : {
+               'mode': 0,
+               'filename': 'time_mode'
+           }
+       },
+       {
+           'type': 'LogPlotter',
+           'arguments': {
+               'log_name': 'ExplainedVariance',
+               'logger_name': 'ExplainedVarianceLogger',
+               'filename': 'explained_variance'
+           }
+       },
+       {
+           'type': 'LogPlotter',
+           'arguments': {
+               'log_name': 'Loss',
+               'logger_name': 'LossLogger',
+               'filename': 'loss'
+           }
+       },
+       {
+           'type': 'FactorfMRIImage',
+           'arguments': {
+               'mode': 1,
+               'mask_path': '/home/mariero/datasets/MCIC/mask.mat',
+               'template_path': '/home/mariero/datasets/MCIC/fmri_template.h5'
+
+           }
+        },
+       {
+           'type': 'FactorfMRIImage',
+           'arguments': {
+               'mode': 1,
+               'mask_path': '/home/mariero/datasets/MCIC/mask.mat',
+               'template_path': '/home/mariero/datasets/MCIC/fmri_template.h5',
+		'filename': 'fMRI_factor_threshold_1',
+		'tile_plot_kwargs':{
+			'threshold': 1
+		}
+
+           }
+       },
         {
-            'type': 'FactorLinePlotter', 
+            'type': 'FactorfMRIImage',
             'arguments': {
-                'modes': [0, 1, 2]
+                'mode': 1,
+                'mask_path': '/home/mariero/datasets/MCIC/mask.mat',
+                'template_path': '/home/mariero/datasets/MCIC/fmri_template.h5',
+		'filename': 'fMRI_factor_threshold_2',
+		'tile_plot_kwargs':{
+			'threshold': 2
+		}
+
             }
         },
         {
-            'type': 'FactorScatterPlotter', 
+            'type': 'FactorfMRIImage',
             'arguments': {
-                'mode': 2,
-                'class_name': 'sites',
-		'filename': 'sites_scatter'
+                'mode': 1,
+                'mask_path': '/home/mariero/datasets/MCIC/mask.mat',
+		'filename': 'fMRI_factor_threshold_1_5',
+                'template_path': '/home/mariero/datasets/MCIC/fmri_template.h5',
+		'tile_plot_kwargs':{
+			'threshold': 1.5
+		}
+
             }
         },
         {
-            'type': 'ClassLinePlotter', 
+            'type': 'FactorfMRIImage',
             'arguments': {
-                'mode': 2,
-                'class_name': 'sites',
-		'filename': 'sites_line'
-            }
-        },
-        {
-            'type': 'FactorScatterPlotter', 
-            'arguments': {
-                'mode': 2,
-                'class_name': 'schizophrenic'
-            }
-        },
-	{
-	    'type': 'SingleComponentLinePlotter',
-            'arguments' : {
-                'mode': 0,
-                'filename': 'time_mode'
-            }
-        },
-        {
-            'type': 'LogPlotter',
-            'arguments': {
-                'log_name': 'ExplainedVariance',
-                'logger_name': 'ExplainedVarianceLogger',
-                'filename': 'explained_variance'
-            }
-        },
-        {
-            'type': 'LogPlotter',
-            'arguments': {
-                'log_name': 'Loss',
-                'logger_name': 'LossLogger',
-                'filename': 'loss'
+                'mode': 1,
+                'mask_path': '/home/mariero/datasets/MCIC/mask.mat',
+		'filename': 'fMRI_factor_threshold_0_5',
+                'template_path': '/home/mariero/datasets/MCIC/fmri_template.h5',
+		'tile_plot_kwargs':{
+			'threshold': 0.5
+		}
+
             }
         }
     ]
@@ -118,6 +183,9 @@ if __name__ == '__main__':
             lambda x: x.is_dir(), Path(args.result_path).iterdir()
         )
     )
+    if args.is_single:
+        experiments = [Path(args.result_path)]
+
     for experiment in experiments:
         print(f'Evaluating {experiment}')
         if not (experiment/'summaries'/'summary.json').is_file():
