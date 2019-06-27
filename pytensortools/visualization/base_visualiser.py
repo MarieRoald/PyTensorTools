@@ -373,7 +373,7 @@ class LeverageScatterPlot(BaseVisualiser):
 
         
 
-        leverage_scores = pytensor.metrics.leverages(factor)
+        leverage_scores = pytensor.metrics.leverage(factor)
         predicted_tensor = decomposition.construct_tensor()
 
         residuals = np.sum((predicted_tensor-data_reader.tensor)**2, (1,2))
