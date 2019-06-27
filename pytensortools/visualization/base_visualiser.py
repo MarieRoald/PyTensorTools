@@ -356,21 +356,33 @@ class ResidualHistogram(BaseVisualiser):
 
 class LeverageScatterPlot(BaseVisualiser):
 
-    def __init__(self, summary, mode, filename=None, figsize=None):
+    def __init__(self, summary, mode, filename=None, figsize=None, annotation=None):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
-
+        self.annotation = annotation
         self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
 
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
         factor = self.load_final_checkpoint(h5)[self.mode]
-        rank = factor.shape[1]
+        decomposition = self.load_final_checkpoint(h5)
+        rank = decomposition.rank
+
+        
 
         leverage_scores = pytensor.metrics.leverages(factor)
+        predicted_tensor = decomposition.construct_tensor()
 
-        #?
+        residuals = np.sum((predicted_tensor-data_reader.tensor)**2, (1,2))
+        ax = fig.add_subplot(111)
+        ax.plot(residuals, leverage_scores)
 
+        if self.annotation is not None:
+            labels = data_reader.classes[self.annotation]
+            for label, l, r in zip(labels, leverage_scores, residuals):
+                ax.annotate(label, [l, r])
+
+        return fig
 
 
 class EvolvingComponentMatrixMap(BaseVisualiser):
