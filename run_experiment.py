@@ -71,6 +71,11 @@ if __name__ == "__main__":
         help='The name of the classes that should be regarded as labels. Separate label names by comma and modes by underscore',
         default=[]
     )
+    parser.add_argument(
+        '--save_preprocessed',
+        help='Whether the dataset should be processed before saving',
+        default=False
+    )
     args = parser.parse_args()
 
     # Load experiment params
@@ -128,9 +133,16 @@ if __name__ == "__main__":
             logger_params,
             preprocessor_params=preprocessor_params
         )
-        label_names = [[labels.split(',') for labels in label_list] for label_list in args.dataset_labels.split('_')]
-
-        experiment.generate_data_reader().to_matlab(label_names, experiment_path/'dataset.mat')
+        label_names = [
+            [l for l in labels.split(',') if l != '']
+                for labels in args.dataset_labels.split('_')
+        ]
+        dataset_parent = Path(experiment_params['save_path'])
+        if args.save_preprocessed:
+            experiment.data_reader.to_matlab(label_names, dataset_parent/'preprocessed_dataset.mat')
+            print('Saved preprocessed')
+        else:
+            experiment.generate_data_reader().to_matlab(label_names, dataset_parent/'dataset.mat')
     elif run_single:
         experiment = Experiment(
             experiment_params,
