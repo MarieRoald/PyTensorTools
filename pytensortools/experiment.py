@@ -87,7 +87,14 @@ def run_partial_experiment(
 
 
 class Experiment(ABC):
-    def __init__(self, experiment_params, data_reader_params, decomposition_params, log_params, preprocessor_params=None):
+    def __init__(self, 
+        experiment_params, 
+        data_reader_params, 
+        decomposition_params, 
+        log_params, 
+        preprocessor_params=None,
+    ):
+
         self.experiment_params = experiment_params
         self.data_reader_params = data_reader_params
         self.preprocessor_params = preprocessor_params
@@ -166,12 +173,12 @@ class Experiment(ABC):
             decomposer = model_type(rank=model_rank, max_its=-1, init='from_checkpoint')
             decomposer._init_fit(self.data_reader.tensor, max_its=None, initial_decomposition=file_name)
 
-            losses.append(decomposer.loss())
+            losses.append(decomposer.loss)
             fits.append(decomposer.explained_variance)
             if decomposer.explained_variance > best_fit:
                 best_run = file_name.name
                 best_fit = decomposer.explained_variance
-                best_loss = decomposer.loss()
+                best_loss = decomposer.loss
 
         std_loss = np.std(losses)
         std_fit = np.std(fits)
