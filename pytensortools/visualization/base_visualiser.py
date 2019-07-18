@@ -376,7 +376,10 @@ class LeverageScatterPlot(BaseVisualiser):
         leverage_scores = pytensor.metrics.leverage(factor)
         predicted_tensor = decomposition.construct_tensor()
 
-        residuals = np.sum((predicted_tensor-data_reader.tensor)**2, (1,2))
+        reduction_modes = set(range(predicted_tensor.ndim)) - {self.mode}
+        reduction_modes = tuple(reduction_modes)
+        residuals = np.sum((predicted_tensor-data_reader.tensor)**2, reduction_modes)
+
         ax = fig.add_subplot(111)
         ax.scatter(leverage_scores, residuals, s=5, alpha=0.5)
         ax.set_xlabel('Leverage score')
