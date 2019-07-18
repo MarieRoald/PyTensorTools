@@ -73,14 +73,19 @@ class Standardize(BasePreprocessor):
 
 
 class MarylandPreprocess(BasePreprocessor):
-    def __init__(self, data_reader, mode):
+    def __init__(self, data_reader, mode, center=True, scale=True):
         self.mode = mode
+        self.center = center
+        self.scale = scale
         super().__init__(data_reader)
     
     def preprocess(self, data_reader):
-        centered = data_reader.tensor - data_reader.tensor.mean(self.mode, keepdims=True)
-        scaled = centered/np.linalg.norm(centered, axis=self.mode, keepdims=True)
-        return scaled, data_reader.classes
+        tensor = data_reader.tensor
+        if self.center:
+            tensor = data_reader.tensor - data_reader.tensor.mean(self.mode, keepdims=True)
+        if self.scale:
+            tensor = centered/np.linalg.norm(tensor, axis=self.mode, keepdims=True)
+        return tensor, data_reader.classes
 
 class BaseRemoveOutliers(BasePreprocessor):
     def __init__(self, data_reader, mode, remove_from_classes=True):
