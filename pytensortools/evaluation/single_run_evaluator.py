@@ -190,12 +190,11 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         decomposition = self.load_final_checkpoint(h5)
 
         P_k = decomposition.projection_matrices
-        F = decomposition.blueprint_B
         A = decomposition.A
-        D_k = decomposition.D
-        rank = decomposition.rank
+        B = decomposition.blueprint_B
+        C = decomposition.C
 
-        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 1, 0), P_k, F, A, D_k, rank)
+        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 1, 0), P_k, A, B, C)
 
         return {self.name: np.asscalar(cc)}
 
