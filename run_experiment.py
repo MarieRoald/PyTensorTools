@@ -137,7 +137,7 @@ if __name__ == "__main__":
             [l for l in labels.split(',') if l != '']
                 for labels in args.dataset_labels.split('_')
         ]
-        dataset_parent = Path(experiment_params['save_path'])
+        dataset_parent = Path(experiment_params['save_path'])/experiment_params['experiment_name']
         if args.save_preprocessed:
             experiment.data_reader.to_matlab(label_names, dataset_parent/'preprocessed_dataset.mat')
             print('Saved preprocessed')
