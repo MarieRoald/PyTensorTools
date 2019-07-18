@@ -253,5 +253,6 @@ for i = 1:length(mode_titles)
 end;
 
 save(outfile, 'data', '-v7.3');
+disp(size(tensor));
 exit
 """
