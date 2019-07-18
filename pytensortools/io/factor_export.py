@@ -31,3 +31,4 @@ def export_components(experiment_path, run, out_name='factors.mat'):
 def export_best_components(experiment_path, out_name='factors.mat'):
     best_run = load_summary(experiment_path)['best_run']
     export_components(experiment_path, best_run, out_name=out_name)
+
