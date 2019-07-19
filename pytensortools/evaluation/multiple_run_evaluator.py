@@ -91,6 +91,7 @@ class Uniqueness(BaseMultipleEvaluator):
         best_decomposition = self._get_best_run(checkpoint_path)
         results = {'name': [], 'SSE_difference': [], 'fit_difference': [], 'fms': []}
 
+        # Do in parallel.
         for name, decomposition in self.load_final_checkpoints(checkpoint_path):
             results['name'].append(name)
             results['SSE_difference'].append(self._SSE_difference(data_reader, best_decomposition, decomposition))
