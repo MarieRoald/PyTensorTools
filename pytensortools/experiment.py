@@ -93,6 +93,7 @@ class Experiment(ABC):
         decomposition_params, 
         log_params, 
         preprocessor_params=None,
+        load_old=False
     ):
 
         self.experiment_params = experiment_params
@@ -106,6 +107,7 @@ class Experiment(ABC):
        
         self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
+        self.load_old = load_old
     
     @property
     def num_processes(self):
@@ -237,6 +239,16 @@ class Experiment(ABC):
         return loggers
 
     def generate_decomposer(self, checkpoint_path=None):
+        #load from checkpoint path?
+
+        if self.load_old and checkpoint_path is not None:
+            initial_decomposition = checkpoint_path
+            init_method = 'from_checkpoint'
+
+            #TODO: Should we warn that some of the parameters are overwritten?
+            self.decomposition_params['arguments']['initial_decomposition'] = initial_decomposition
+            self.decomposition_params['arguments']['init_method'] = init_method
+
         Decomposer = getattr(pytensor.decomposition, self.decomposition_params['type'])
         return Decomposer(
             **self.decomposition_params['arguments'],
