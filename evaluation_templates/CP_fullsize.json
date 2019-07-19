@@ -1,5 +1,5 @@
 {
-    "single_run_evaluators": [
+    "single_run_evaluator_params": [
         {
             "type": "FinalLoss",
             "arguments": {}
@@ -39,13 +39,13 @@
             }
         }
     ],
-    "multi_run_evaluators": [
+    "multi_run_evaluator_params": [
         {
             "type": "Uniqueness",
             "arguments": {}
         }
     ],
-    "single_run_visualisers": [
+    "single_run_visualiser_params": [
         {
             "type": "FactorLinePlotter", 
             "arguments": {
@@ -58,7 +58,7 @@
                 "mode": 2,
                 "class_name": "sites",
                 "filename": "sites_scatter",
-                "common_axis": false,
+                "common_axis": false
             }
         },
         {
@@ -75,7 +75,7 @@
                 "mode": 2,
                 "include_p_value": true,
                 "class_name": "schizophrenic",
-                "common_axis": false,
+                "common_axis": false
             }
         },
         {
