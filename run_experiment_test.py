@@ -44,7 +44,7 @@ if __name__ == "__main__":
         'type': 'CP_ALS',
         'arguments': {
             'rank': 4,
-            'max_its': 10,
+            'max_its': 11,
             'checkpoint_frequency': 2
         },
         'fit_params': {
@@ -62,9 +62,8 @@ if __name__ == "__main__":
     savemat('x.mat', {'X': X, 'classes':c, 'labels': l})
     print('Starting dataset')
     experiment = Experiment(experiment_params, data_reader_params, decomposer_params, logger_params, preprocessor_params=preprocessor_params)
-    runs = experiment.run_experiments()
-    for run in runs:
-        print(run.loss())
+    # runs = experiment.run_experiments()
+    experiment.data_reader.to_matlab([[], ['tast'], []], 'test.mat')
     
 
 
