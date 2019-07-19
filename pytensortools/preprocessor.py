@@ -84,7 +84,7 @@ class MarylandPreprocess(BasePreprocessor):
         if self.center:
             tensor = data_reader.tensor - data_reader.tensor.mean(self.mode, keepdims=True)
         if self.scale:
-            tensor = centered/np.linalg.norm(tensor, axis=self.mode, keepdims=True)
+            tensor = tensor/np.linalg.norm(tensor, axis=self.mode, keepdims=True)
         return tensor, data_reader.classes
 
 class BaseRemoveOutliers(BasePreprocessor):
