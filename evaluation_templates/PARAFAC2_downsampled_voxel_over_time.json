@@ -1,0 +1,112 @@
+{
+    "single_run_evaluator_params": [
+        {
+            "type": "FinalLoss",
+            "arguments": {}
+        },
+        {
+            "type": "ExplainedVariance",
+            "arguments": {}
+        },
+        {
+            "type": "MinPValue", 
+            "arguments": {
+                "mode": 0,
+                "class_name": "schizophrenic"
+            }
+        },
+        {
+            "type": "AllPValues",
+            "arguments": {
+                "mode": 0,
+                "class_name": "schizophrenic"
+            }
+        },
+        {
+            "type": "Parafac2WorstDegeneracy",
+            "arguments": {}
+        },
+        {
+            "type": "Parafac2CoreConsistency",
+            "arguments": {}
+        },
+        {
+            "type": "MaxKMeansAcc", 
+            "arguments": {
+                "matlab_scripts_path": "pytensortools/evaluation/legacy_matlab_code",
+                "mode": 0,
+                "class_name": "schizophrenic"
+            }
+        }
+    ],
+    "multi_run_evaluator_params": [
+        {
+            "type": "Parafac2Uniqueness",
+            "arguments": {}
+        }
+    ],
+    "single_run_visualiser_params": [
+        {
+            "type": "FactorLinePlotter", 
+            "arguments": {
+                "modes": [0, 2]
+            }
+        },
+        {
+            "type": "FactorScatterPlotter", 
+            "arguments": {
+                "mode": 2,
+                "class_name": "sites",
+                "filename": "sites_scatter",
+                "common_axis": false
+            }
+        },
+        {
+            "type": "ClassLinePlotter", 
+            "arguments": {
+                "mode": 0,
+                "class_name": "sites",
+                "filename": "sites_line"
+            }
+        },
+        {
+            "type": "FactorScatterPlotter", 
+            "arguments": {
+                "mode": 0,
+                "include_p_value": true,
+                "class_name": "schizophrenic",
+                "common_axis": false
+            }
+        },
+        {
+            "type": "SingleComponentLinePlotter",
+            "arguments" : {
+                "mode": 2,
+                "filename": "time_mode"
+            }
+        },
+        {
+            "type": "LogPlotter",
+            "arguments": {
+                "log_name": "ExplainedVariance",
+                "logger_name": "ExplainedVarianceLogger",
+                "filename": "explained_variance"
+            }
+        },
+        {
+            "type": "LogPlotter",
+            "arguments": {
+                "log_name": "Loss",
+                "logger_name": "LossLogger",
+                "filename": "loss"
+            }
+        },
+        {
+            "type": "LeverageScatterPlot",
+            "arguments": {
+                "mode": 0,
+                "annotation": true
+            }
+        }
+    ]
+}
