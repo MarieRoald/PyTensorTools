@@ -1,6 +1,7 @@
 import csv
 from collections import ChainMap
 import os
+from pathlib import Path
 from ..utils import load_summary, load_evaluations
 
 
@@ -87,7 +88,7 @@ def _write_csv_row(experiment_path, csvpath=None):
 
 
 def create_csv(experiment_parent, new_file=False):
-    if new_file:
+    if new_file and (Path(experiment_parent)/CSV_FILE).is_file():
         os.remove(experiment_parent/CSV_FILE)
     for experiment in experiment_parent.iterdir():
         if not (experiment/'summaries/summary.json').is_file():
