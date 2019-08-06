@@ -363,7 +363,7 @@ class LeverageScatterPlot(BaseVisualiser):
         super().__init__(summary=summary, filename=filename, figsize=figsize)
         self.mode = mode
         self.annotation = annotation
-        self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
+        self.figsize = (self.figsize[0], self.figsize[1])
 
     def _visualise(self, data_reader, h5):
         fig = self.create_figure()
