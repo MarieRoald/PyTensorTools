@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pptx
 from pptx.util import Pt, Cm
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 
 from ..utils import load_summary
 
@@ -77,16 +78,27 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder):
     
     generate_table(slide, data_rows, column_names)
 
-    for experiment in experiment_folder.iterdir():
+    for experiment in sorted(experiment_folder.iterdir()):
         if not experiment.is_dir() or not (experiment/'summaries/summary.json').is_file():
             continue
 
         summary = load_summary(experiment)
-        slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
-        slide.shapes.title.text = f'Rank {summary["model_rank"]}'
-        
+        model = summary['model_type'].replace('_', ' ')
         for i, image in enumerate((experiment/'summaries'/'visualizations').iterdir()):
-            slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
+            slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
+            slide.shapes.title.text = f'{model} model with {summary["model_rank"]} components'
+            for paragraph in slide.shapes.title.text_frame.paragraphs:
+            	paragraph.font.name = FONT_NAME
+            	paragraph.font.bold = True
+            	paragraph.font.size=Pt(18)
+            	paragraph.alignment=PP_ALIGN.LEFT
+
+            slide.shapes.title.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+        
+            image = slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
+            image.left = int((SLIDE_WIDTH - image.width)/2)
+            image.top = int((SLIDE_HEIGHT - image.height)/2)
+
     return pres
 
 
