@@ -105,7 +105,7 @@
             "type": "FactorfMRIImage",
             "arguments": {
                 "mode": 1,
-                "mask_path": "/home/mariero/datasets/MCIC/mask.mat",
+                "mask_path": "/home/mariero/datasets/MCIC/ica_analysisMask_hossain.mat",
                 "template_path": "/home/mariero/datasets/MCIC/fmri_template.h5"
 
             }
@@ -114,7 +114,7 @@
             "type": "FactorfMRIImage",
             "arguments": {
                 "mode": 1,
-                "mask_path": "/home/mariero/datasets/MCIC/mask.mat",
+                "mask_path": "/home/mariero/datasets/MCIC/ica_analysisMask_hossain.mat",
                 "template_path": "/home/mariero/datasets/MCIC/fmri_template.h5",
                 "filename": "fMRI_factor_threshold_1",
                 "tile_plot_kwargs":{
@@ -126,7 +126,7 @@
             "type": "FactorfMRIImage",
             "arguments": {
                 "mode": 1,
-                "mask_path": "/home/mariero/datasets/MCIC/mask.mat",
+                "mask_path": "/home/mariero/datasets/MCIC/ica_analysisMask_hossain.mat",
                 "template_path": "/home/mariero/datasets/MCIC/fmri_template.h5",
                 "filename": "fMRI_factor_threshold_2",
                 "tile_plot_kwargs":{
@@ -138,7 +138,7 @@
             "type": "FactorfMRIImage",
             "arguments": {
                 "mode": 1,
-                "mask_path": "/home/mariero/datasets/MCIC/mask.mat",
+                "mask_path": "/home/mariero/datasets/MCIC/ica_analysisMask_hossain.mat",
                 "filename": "fMRI_factor_threshold_1_5",
                 "template_path": "/home/mariero/datasets/MCIC/fmri_template.h5",
                 "tile_plot_kwargs":{
@@ -150,7 +150,7 @@
             "type": "FactorfMRIImage",
             "arguments": {
                 "mode": 1,
-                "mask_path": "/home/mariero/datasets/MCIC/mask.mat",
+                "mask_path": "/home/mariero/datasets/MCIC/ica_analysisMask_hossain.mat",
                 "filename": "fMRI_factor_threshold_0_5",
                 "template_path": "/home/mariero/datasets/MCIC/fmri_template.h5",
                 "tile_plot_kwargs":{

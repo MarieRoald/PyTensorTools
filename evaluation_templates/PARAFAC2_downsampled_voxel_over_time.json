@@ -55,7 +55,7 @@
         {
             "type": "FactorScatterPlotter", 
             "arguments": {
-                "mode": 2,
+                "mode": 0,
                 "class_name": "sites",
                 "filename": "sites_scatter",
                 "common_axis": false
