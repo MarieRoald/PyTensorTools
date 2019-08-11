@@ -61,6 +61,11 @@ if __name__ == "__main__":
         type=int,
         default=None
     )
+    parser.add_argument(
+        '--rank_step',
+        type=int,
+        default=1
+    )
     # TODO: Move this to separate file
     parser.add_argument(
         '--save_dataset',
@@ -153,7 +158,7 @@ if __name__ == "__main__":
         )
         runs = experiment.run_experiments()
     else:
-        for rank in range(args.min_rank, args.max_rank):
+        for rank in range(args.min_rank, args.max_rank, args.rank_step):
             decomposition_params['arguments']['rank'] = rank
             experiment = Experiment(
                 experiment_params,
