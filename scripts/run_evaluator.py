@@ -23,6 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('result_path', type=str)
     parser.add_argument('evaluator_params', type=str)
     parser.add_argument('--is_single', type=bool, help='Whether subfolders should be iterated over.', default=False)
+    parser.add_argument('--skip_evaluation', default=False)
     args = parser.parse_args()
 
     with open(args.evaluator_params) as f:
@@ -41,13 +42,14 @@ if __name__ == '__main__':
     if args.is_single:
         experiments = [Path(args.result_path)]
 
-    for experiment in experiments:
-        print(f'Evaluating {experiment}')
-        if not (experiment/'summaries'/'summary.json').is_file():
-            print(f'Skipping {experiment}')
-            continue
-        evaluator.evaluate_experiment(str(experiment))
-        summary_writers.create_spreadsheet(Path(experiment))
+    if not args.skip_evaluation:
+        for experiment in experiments:
+            print(f'Evaluating {experiment}')
+            if not (experiment/'summaries'/'summary.json').is_file():
+                print(f'Skipping {experiment}')
+                continue
+            evaluator.evaluate_experiment(str(experiment))
+            summary_writers.create_spreadsheet(Path(experiment))
 
     if not args.is_single:
         summary_writers.create_csv(Path(args.result_path), new_file=True)
