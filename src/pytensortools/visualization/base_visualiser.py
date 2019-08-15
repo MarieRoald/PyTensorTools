@@ -207,7 +207,7 @@ class FactorScatterPlotter(BaseVisualiser):
             ax = fig.add_subplot(1, rank, r+1)
 
             for c in different_classes:
-                ax.scatter(x_values[classes==c], factor[classes==c, r], label=c)
+                ax.plot(x_values[classes==c], factor[classes==c, r], 'o', label=c)
             
             #ax.scatter(x_values[classes==class1], factor[classes==class1, r], color='tomato')
             #ax.scatter(x_values[classes==class2], factor[classes==class2, r], color='darkslateblue')
