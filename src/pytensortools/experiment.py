@@ -258,7 +258,7 @@ class Experiment(ABC):
 
         rank = self.decomposition_params['arguments']['rank']
         max_its = self.decomposition_params['arguments'].get('max_its', 'Default')
-        tol = self.decomposition_params['arguments'].get('max_its', 'Default')
+        tol = self.decomposition_params['arguments'].get('tol', 'Default')
 
         print('Starting fit:')
         print(f"  * Tensor shape: {X.shape}")
