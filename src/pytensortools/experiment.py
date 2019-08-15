@@ -251,54 +251,22 @@ class Experiment(ABC):
 
     def generate_loggers(self):
         return generate_loggers(self.log_params)
-
-    """
-    def generate_decomposer(self, checkpoint_path=None):
-        #load from checkpoint path?
-
-        if self.load_old and checkpoint_path is not None:
-            initial_decomposition = checkpoint_path
-            init_method = 'from_checkpoint'
-
-            #TODO: Should we warn that some of the parameters are overwritten?
-            self.decomposition_params['arguments']['initial_decomposition'] = initial_decomposition
-            self.decomposition_params['arguments']['init_method'] = init_method
-
-        Decomposer = getattr(pytensor.decomposition, self.decomposition_params['type'])
-        return Decomposer(
-            **self.decomposition_params['arguments'],
-            loggers=self.generate_loggers(),
-            checkpoint_path=checkpoint_path
-        )
-    """
     
     def print_experiment_info(self):
         data_reader = generate_data_reader(self.data_reader_params)
         data_reader = preprocess_data(data_reader, self.preprocessor_params)
         X = data_reader.tensor
-        decomposition = self.generate_decomposer()
+
+        rank = self.decomposition_params['arguments']['rank']
+        max_its = self.decomposition_params['arguments'].get('max_its', 'Default')
+        tol = self.decomposition_params['arguments'].get('max_its', 'Default')
 
         print('Starting fit:')
         print(f"  * Tensor shape: {X.shape}")
         print(f"  * Decomposition: {self.decomposition_params['type']}")
-        print(f"  * Rank: {decomposition.rank}")
-        print(f"  * Maximum number of iterations: {decomposition.max_its}")
-        print(f"  * Tolerance: {decomposition.convergence_tol}")
-
-    def run_single_experiment(self, run_num=None, seed=None):
-        np.random.seed(seed)
-        checkpoint_path = None
-
-        if run_num is not None:
-            checkpoint_path = Path(self.checkpoint_path)
-            if not checkpoint_path.is_dir():
-                checkpoint_path.mkdir(parents=True)
-            checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
-
-        decomposer = self.generate_decomposer(checkpoint_path)
-        X = self.data_reader.tensor
-        decomposer.fit(X, **self.decomposition_params.get('fit_params', {}))
-        return decomposer
+        print(f"  * Rank: {rank}")
+        print(f"  * Maximum number of iterations: {max_its}")
+        print(f"  * Tolerance: {tol}")
 
     def run_many_experiments(self, num_experiments):
         self.print_experiment_info()
