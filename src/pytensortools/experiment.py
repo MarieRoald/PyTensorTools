@@ -1,6 +1,7 @@
-import multiprocessing
 from abc import ABC, abstractproperty, abstractmethod
+from copy import copy
 import json
+import multiprocessing
 from typing import Dict
 from time import sleep
 
@@ -41,14 +42,20 @@ def generate_loggers(log_params):
     return loggers
 
 
-def generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num):
+def generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num, load_old):
     if not checkpoint_path.is_dir():
         checkpoint_path.mkdir(parents=True)
     checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
+    
+    kwargs = copy(
+        decomposition_params.get('arguments', {})
+    )
+    if load_old:
+        kwargs['init'] = str(checkpoint_path)
 
     Decomposer = getattr(pytensor.decomposition, decomposition_params['type'])
     return Decomposer(
-        **decomposition_params.get('arguments', {}),
+        **kwargs,
         loggers=generate_loggers(logger_params),
         checkpoint_path=checkpoint_path
     )
@@ -56,8 +63,8 @@ def generate_decomposer(decomposition_params, logger_params, checkpoint_path, ru
 
 def preprocess_data(data_reader, preprocessors_params):
     if isinstance(preprocessors_params, Dict):
-        self.preprocessor_params = [preprocessors_params]
-    
+        preprocessor_params = [preprocessors_params]
+
     preprocessed = data_reader
     for preprocessor_params in preprocessors_params:
         Preprocessor = getattr(preprocessor, preprocessor_params['type'])
@@ -74,12 +81,13 @@ def run_partial_experiment(
     preprocessors_params,
     checkpoint_path,
     run_num,
+    load_old,
     seed=None
 ):
     np.random.seed(seed)
     data_reader = generate_data_reader(data_reader_params)
     data_reader = preprocess_data(data_reader, preprocessors_params)
-    decomposer = generate_decomposer(decomposition_params, log_params, checkpoint_path, run_num)
+    decomposer = generate_decomposer(decomposition_params, log_params, checkpoint_path, run_num, load_old)
     X = data_reader.tensor
 
     fit_params = decomposition_params.get('fit_params', {})
@@ -93,9 +101,9 @@ class Experiment(ABC):
         decomposition_params, 
         log_params, 
         preprocessor_params=None,
-        load_old=False
+        load_id=None
     ):
-
+        # Set params dicts
         self.experiment_params = experiment_params
         self.data_reader_params = data_reader_params
         self.preprocessor_params = preprocessor_params
@@ -105,9 +113,15 @@ class Experiment(ABC):
         if self.preprocessor_params is not None:
             self.data_reader = self.preprocess_data(self.data_reader)
        
+        # Check if we should load from checkpoint
+        self.load_id = load_id
+        self.load_old = False
+        if load_id is not None:
+            self.load_old = True
+            
+        # Set experiment paths
         self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
-        self.load_old = load_old
     
     @property
     def num_processes(self):
@@ -124,6 +138,10 @@ class Experiment(ABC):
         # Set parent dir and experiment name        
         parent = save_path/experiment_name
         name = f'{experiment_name}_rank_{self.decomposition_params["arguments"]["rank"]:02d}'
+
+        # If loading old, return correct path
+        if self.load_id is not None:
+            return Path(f'{parent/name}_{self.load_id:02d}')
 
         # Give unique folder to current experiment
         num = 0
@@ -231,58 +249,23 @@ class Experiment(ABC):
         return preprocessed
 
     def generate_loggers(self):
-        loggers = []
-        for logger_params in self.log_params:
-            Logger = getattr(pytensor.decomposition.logging, logger_params['type'])
-            loggers.append(Logger(**logger_params.get('arguments', {})))
-
-        return loggers
-
-    def generate_decomposer(self, checkpoint_path=None):
-        #load from checkpoint path?
-
-        if self.load_old and checkpoint_path is not None:
-            initial_decomposition = checkpoint_path
-            init_method = 'from_checkpoint'
-
-            #TODO: Should we warn that some of the parameters are overwritten?
-            self.decomposition_params['arguments']['initial_decomposition'] = initial_decomposition
-            self.decomposition_params['arguments']['init_method'] = init_method
-
-        Decomposer = getattr(pytensor.decomposition, self.decomposition_params['type'])
-        return Decomposer(
-            **self.decomposition_params['arguments'],
-            loggers=self.generate_loggers(),
-            checkpoint_path=checkpoint_path
-        )
+        return generate_loggers(self.log_params)
     
     def print_experiment_info(self):
         data_reader = generate_data_reader(self.data_reader_params)
         data_reader = preprocess_data(data_reader, self.preprocessor_params)
         X = data_reader.tensor
-        decomposition = self.generate_decomposer()
+
+        rank = self.decomposition_params['arguments']['rank']
+        max_its = self.decomposition_params['arguments'].get('max_its', 'Default')
+        tol = self.decomposition_params['arguments'].get('tol', 'Default')
 
         print('Starting fit:')
         print(f"  * Tensor shape: {X.shape}")
         print(f"  * Decomposition: {self.decomposition_params['type']}")
-        print(f"  * Rank: {decomposition.rank}")
-        print(f"  * Maximum number of iterations: {decomposition.max_its}")
-        print(f"  * Tolerance: {decomposition.convergence_tol}")
-
-    def run_single_experiment(self, run_num=None, seed=None):
-        np.random.seed(seed)
-        checkpoint_path = None
-
-        if run_num is not None:
-            checkpoint_path = Path(self.checkpoint_path)
-            if not checkpoint_path.is_dir():
-                checkpoint_path.mkdir(parents=True)
-            checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
-
-        decomposer = self.generate_decomposer(checkpoint_path)
-        X = self.data_reader.tensor
-        decomposer.fit(X, **self.decomposition_params.get('fit_params', {}))
-        return decomposer
+        print(f"  * Rank: {rank}")
+        print(f"  * Maximum number of iterations: {max_its}")
+        print(f"  * Tolerance: {tol}")
 
     def run_many_experiments(self, num_experiments):
         self.print_experiment_info()
@@ -298,7 +281,8 @@ class Experiment(ABC):
                         'log_params': self.log_params,
                         'data_reader_params': self.data_reader_params,
                         'preprocessors_params': self.preprocessor_params,
-                        'checkpoint_path': self.checkpoint_path
+                        'checkpoint_path': self.checkpoint_path,
+                        'load_old': self.load_old
                     },
                     error_callback=_raise_multiprocessing_error(i)
                 )
@@ -318,6 +302,7 @@ class Experiment(ABC):
 
     def run_experiments(self):
         self.copy_parameter_files()
+        # Pass på at init er 
         completion_status = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
         self.save_summary(completion_status=completion_status)
         print(f'Stored summaries in {self.experiment_path}')

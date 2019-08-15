@@ -66,6 +66,11 @@ if __name__ == "__main__":
         type=int,
         default=1
     )
+    parser.add_argument(
+        '--load_id',
+        type=int,
+        default=None
+    )
     # TODO: Move this to separate file
     parser.add_argument(
         '--save_dataset',
@@ -154,7 +159,8 @@ if __name__ == "__main__":
             data_reader_params,
             decomposition_params,
             logger_params,
-            preprocessor_params=preprocessor_params
+            preprocessor_params=preprocessor_params,
+            load_id=args.load_id
         )
         runs = experiment.run_experiments()
     else:
@@ -165,6 +171,7 @@ if __name__ == "__main__":
                 data_reader_params,
                 decomposition_params,
                 logger_params,
-                preprocessor_params=preprocessor_params
+                preprocessor_params=preprocessor_params,
+                load_id=args.load_id
             )
             runs = experiment.run_experiments()
