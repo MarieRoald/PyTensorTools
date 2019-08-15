@@ -1,6 +1,7 @@
-import multiprocessing
 from abc import ABC, abstractproperty, abstractmethod
+from copy import copy
 import json
+import multiprocessing
 from typing import Dict
 from time import sleep
 
@@ -41,14 +42,20 @@ def generate_loggers(log_params):
     return loggers
 
 
-def generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num):
+def generate_decomposer(decomposition_params, logger_params, checkpoint_path, run_num, load_old):
     if not checkpoint_path.is_dir():
         checkpoint_path.mkdir(parents=True)
     checkpoint_path = str(checkpoint_path/f'run_{run_num:03d}.h5')
+    
+    kwargs = copy(
+        decomposition_params.get('arguments', {})
+    )
+    if load_old:
+        kwargs['init'] = str(checkpoint_path)
 
     Decomposer = getattr(pytensor.decomposition, decomposition_params['type'])
     return Decomposer(
-        **decomposition_params.get('arguments', {}),
+        **kwargs,
         loggers=generate_loggers(logger_params),
         checkpoint_path=checkpoint_path
     )
@@ -56,8 +63,8 @@ def generate_decomposer(decomposition_params, logger_params, checkpoint_path, ru
 
 def preprocess_data(data_reader, preprocessors_params):
     if isinstance(preprocessors_params, Dict):
-        self.preprocessor_params = [preprocessors_params]
-    
+        preprocessor_params = [preprocessors_params]
+
     preprocessed = data_reader
     for preprocessor_params in preprocessors_params:
         Preprocessor = getattr(preprocessor, preprocessor_params['type'])
@@ -74,12 +81,13 @@ def run_partial_experiment(
     preprocessors_params,
     checkpoint_path,
     run_num,
+    load_old,
     seed=None
 ):
     np.random.seed(seed)
     data_reader = generate_data_reader(data_reader_params)
     data_reader = preprocess_data(data_reader, preprocessors_params)
-    decomposer = generate_decomposer(decomposition_params, log_params, checkpoint_path, run_num)
+    decomposer = generate_decomposer(decomposition_params, log_params, checkpoint_path, run_num, load_old)
     X = data_reader.tensor
 
     fit_params = decomposition_params.get('fit_params', {})
@@ -93,9 +101,9 @@ class Experiment(ABC):
         decomposition_params, 
         log_params, 
         preprocessor_params=None,
-        load_old=False
+        load_id=None
     ):
-
+        # Set params dicts
         self.experiment_params = experiment_params
         self.data_reader_params = data_reader_params
         self.preprocessor_params = preprocessor_params
@@ -105,9 +113,16 @@ class Experiment(ABC):
         if self.preprocessor_params is not None:
             self.data_reader = self.preprocess_data(self.data_reader)
        
+        # Check if we should load from checkpoint
+        self.load_id = load_id
+        self.load_old = False
+        if load_id is not None:
+            self.load_id = str(load_id)
+            self.load_old = True
+            
+        # Set experiment paths
         self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
-        self.load_old = load_old
     
     @property
     def num_processes(self):
@@ -124,6 +139,10 @@ class Experiment(ABC):
         # Set parent dir and experiment name        
         parent = save_path/experiment_name
         name = f'{experiment_name}_rank_{self.decomposition_params["arguments"]["rank"]:02d}'
+
+        # If loading old, return correct path
+        if self.load_id is not None:
+            return Path(f'{parent/name}_{self.load_id:02d}')
 
         # Give unique folder to current experiment
         num = 0
@@ -231,13 +250,9 @@ class Experiment(ABC):
         return preprocessed
 
     def generate_loggers(self):
-        loggers = []
-        for logger_params in self.log_params:
-            Logger = getattr(pytensor.decomposition.logging, logger_params['type'])
-            loggers.append(Logger(**logger_params.get('arguments', {})))
+        return generate_loggers(self.log_params)
 
-        return loggers
-
+    """
     def generate_decomposer(self, checkpoint_path=None):
         #load from checkpoint path?
 
@@ -255,6 +270,7 @@ class Experiment(ABC):
             loggers=self.generate_loggers(),
             checkpoint_path=checkpoint_path
         )
+    """
     
     def print_experiment_info(self):
         data_reader = generate_data_reader(self.data_reader_params)
@@ -298,7 +314,8 @@ class Experiment(ABC):
                         'log_params': self.log_params,
                         'data_reader_params': self.data_reader_params,
                         'preprocessors_params': self.preprocessor_params,
-                        'checkpoint_path': self.checkpoint_path
+                        'checkpoint_path': self.checkpoint_path,
+                        'load_old': self.load_old
                     },
                     error_callback=_raise_multiprocessing_error(i)
                 )
@@ -318,6 +335,7 @@ class Experiment(ABC):
 
     def run_experiments(self):
         self.copy_parameter_files()
+        # Pass på at init er 
         completion_status = self.run_many_experiments(self.experiment_params.get('num_runs', 10))
         self.save_summary(completion_status=completion_status)
         print(f'Stored summaries in {self.experiment_path}')
