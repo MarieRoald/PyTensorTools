@@ -199,15 +199,17 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         return {self.name: np.asscalar(cc)}
 
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
-    def __init__(self, summary, matlab_scripts_path):
+    def __init__(self, summary, matlab_scripts_path=None):
         super().__init__(summary)
         self.matlab  = ['matlab']
         self.options = ['-nosplash', '-nodesktop', '-r']
-        self.matlab_scripts_path = matlab_scripts_path
+        if matlab_scripts_path is None:
+            matlab_scripts_path = Path(__file__).parent / 'legacy_matlab_code'
+        self.matlab_scripts_path = str(matlab_scripts_path)
 
 class MaxKMeansAcc(BaseMatlabEvaluator):
     _name = 'Max Kmeans clustering accuracy'
-    def __init__(self, summary, matlab_scripts_path, mode, class_name):
+    def __init__(self, summary, mode, class_name, matlab_scripts_path=None):
         self.mode = mode
         self.class_name = class_name
         super().__init__(summary, matlab_scripts_path)
