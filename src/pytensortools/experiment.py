@@ -117,7 +117,6 @@ class Experiment(ABC):
         self.load_id = load_id
         self.load_old = False
         if load_id is not None:
-            self.load_id = str(load_id)
             self.load_old = True
             
         # Set experiment paths
