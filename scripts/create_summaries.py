@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-import pytensortools.summary_writers as summary_writers
+import tenkittools.summary_writers as summary_writers
 
 
 if __name__ == '__main__':

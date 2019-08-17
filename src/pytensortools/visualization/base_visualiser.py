@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from .. import visualization
 from ..evaluation.base_evaluator import BaseEvaluator
-import pytensor
+import tenkit
 import matplotlib.pyplot as plt
 import numpy as np
 import string
@@ -31,7 +31,7 @@ class BaseVisualiser(BaseEvaluator):
     _name = 'visualisation'
     def __init__(self, summary, filename=None, figsize=None):
         self.summary = summary
-        self.DecomposerType = getattr(pytensor.decomposition, summary['model_type'])
+        self.DecomposerType = getattr(tenkit.decomposition, summary['model_type'])
         self.DecompositionType = self.DecomposerType.DecompositionType
 
         if figsize is not None:
@@ -373,7 +373,7 @@ class LeverageScatterPlot(BaseVisualiser):
 
         
 
-        leverage_scores = pytensor.metrics.leverage(factor)
+        leverage_scores = tenkit.metrics.leverage(factor)
         predicted_tensor = decomposition.construct_tensor()
 
         reduction_modes = set(range(predicted_tensor.ndim)) - {self.mode}

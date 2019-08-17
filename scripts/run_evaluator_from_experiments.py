@@ -3,9 +3,9 @@
 import sys
 sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
-import pytensor.base
-from pytensortools.experiment import Experiment
-from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
+import tenkit.base
+from tenkittools.experiment import Experiment
+from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
 import argparse
 
 

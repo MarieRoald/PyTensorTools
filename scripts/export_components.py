@@ -1,5 +1,5 @@
 import argparse
-from pytensortools.io.factor_export import export_best_components
+from tenkittools.io.factor_export import export_best_components
 from pathlib import Path
 
 

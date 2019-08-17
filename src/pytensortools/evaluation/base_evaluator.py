@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from .. import evaluation
-import pytensor
+import tenkit
 
 
 def create_evaluator(evaluator_params, summary):
@@ -20,7 +20,7 @@ class BaseEvaluator(ABC):
     _name = None
     def __init__(self, summary):
         self.summary = summary
-        self.DecomposerType = getattr(pytensor.decomposition, summary['model_type'])
+        self.DecomposerType = getattr(tenkit.decomposition, summary['model_type'])
         self.DecompositionType = self.DecomposerType.DecompositionType
 
     @property

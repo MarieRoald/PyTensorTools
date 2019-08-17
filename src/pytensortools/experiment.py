@@ -7,9 +7,9 @@ from time import sleep
 
 from . import datareader
 from . import preprocessor
-from pytensor.decomposition import cp
-from pytensor.decomposition import parafac2
-import pytensor
+from tenkit.decomposition import cp
+from tenkit.decomposition import parafac2
+import tenkit
 from pathlib import Path
 
 from functools import partial
@@ -36,7 +36,7 @@ def generate_data_reader(data_reader_params):
 def generate_loggers(log_params):
     loggers = []
     for logger_params in log_params:
-        Logger = getattr(pytensor.decomposition.logging, logger_params['type'])
+        Logger = getattr(tenkit.decomposition.logging, logger_params['type'])
         loggers.append(Logger(**logger_params.get('arguments', {})))
 
     return loggers
@@ -53,7 +53,7 @@ def generate_decomposer(decomposition_params, logger_params, checkpoint_path, ru
     if load_old:
         kwargs['init'] = str(checkpoint_path)
 
-    Decomposer = getattr(pytensor.decomposition, decomposition_params['type'])
+    Decomposer = getattr(tenkit.decomposition, decomposition_params['type'])
     return Decomposer(
         **kwargs,
         loggers=generate_loggers(logger_params),
@@ -180,7 +180,7 @@ class Experiment(ABC):
             
     def get_experiment_statistics(self):
         # TODO: This can load the list of decompositions
-        model_type = getattr(pytensor.decomposition, self.decomposition_params['type'])
+        model_type = getattr(tenkit.decomposition, self.decomposition_params['type'])
         model_rank = self.decomposition_params['arguments']['rank']
 
         best_run = ''

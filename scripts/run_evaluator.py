@@ -9,10 +9,10 @@ sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
 sys.path.append('../PlotTools')
 
-import pytensor.base
-from pytensortools.experiment import Experiment
-from pytensortools.evaluation.experiment_evaluator import ExperimentEvaluator
-from pytensortools import summary_writers
+import tenkit.base
+from tenkittools.experiment import Experiment
+from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
+from tenkittools import summary_writers
 
 sys.path.append('../PlotTools')
 

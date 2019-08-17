@@ -6,7 +6,7 @@ import numpy as np
 import h5py
 
 from .base_evaluator import BaseEvaluator, create_evaluator
-import pytensor
+import tenkit
 
 
 def _sort_by(l, sort_by):
@@ -85,7 +85,7 @@ class Uniqueness(BaseMultipleEvaluator):
         return fit1 - fit2
 
     def _factor_match_score(self, decomposition1, decomposition2):
-        return pytensor.metrics.factor_match_score(decomposition1, decomposition2)[0]
+        return tenkit.metrics.factor_match_score(decomposition1, decomposition2)[0]
 
     def _evaluate(self, data_reader, checkpoint_path):
         best_decomposition = self._get_best_run(checkpoint_path)
@@ -107,4 +107,4 @@ class Uniqueness(BaseMultipleEvaluator):
 
 class Parafac2Uniqueness(Uniqueness):
     def _factor_match_score(self, decomposition1, decomposition2):
-        return pytensor.metrics.factor_match_score_parafac2(decomposition1, decomposition2)[0]
+        return tenkit.metrics.factor_match_score_parafac2(decomposition1, decomposition2)[0]

@@ -8,8 +8,8 @@ import numpy as np
 from scipy.stats import ttest_ind
 from scipy.io import loadmat, savemat
 
-import pytensor
-from pytensor import metrics  # TODO: Fix __init__.py
+import tenkit
+from tenkit import metrics  # TODO: Fix __init__.py
 
 from .base_evaluator import BaseEvaluator
 
@@ -178,7 +178,7 @@ class CoreConsistency(BaseSingleRunEvaluator):
         factor_matrices = [fm*weights**(1/d) for fm in factor_matrices]
         # ENDFIX
 
-        cc = pytensor.metrics.core_consistency(data_reader.tensor, *factor_matrices)
+        cc = tenkit.metrics.core_consistency(data_reader.tensor, *factor_matrices)
         return {self.name: np.asscalar(cc)}
 
 class Parafac2CoreConsistency(BaseSingleRunEvaluator):
@@ -194,7 +194,7 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         B = decomposition.blueprint_B
         C = decomposition.C
 
-        cc = pytensor.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 0, 1), P_k, A, B, C)
+        cc = tenkit.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 0, 1), P_k, A, B, C)
 
         return {self.name: np.asscalar(cc)}
 

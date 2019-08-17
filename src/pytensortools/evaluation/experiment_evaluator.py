@@ -4,7 +4,7 @@ import h5py
 import xlsxwriter
 
 import json
-import pytensor
+import tenkit
 
 from .. import datareader
 from .. import evaluation

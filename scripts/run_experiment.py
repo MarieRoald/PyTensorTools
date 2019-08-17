@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
 sys.path.append('../PyTensor/')
-from pytensortools.experiment import Experiment
+from tenkittools.experiment import Experiment
 
 #TODO: Add argument to assert that decomposer params is set
 

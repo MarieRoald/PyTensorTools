@@ -2,8 +2,8 @@ from scipy.io import savemat
 import sys
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
 sys.path.append('../PyTensor/')
-import pytensor.base
-from pytensortools.experiment import Experiment
+import tenkit.base
+from tenkittools.experiment import Experiment
 import numpy as np
 
 if __name__ == "__main__":
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         }
 
     }
-    ktensor = pytensor.base.KruskalTensor.random_init((100, 20, 300), rank=4)
+    ktensor = tenkit.base.KruskalTensor.random_init((100, 20, 300), rank=4)
     ktensor.store('ktensor.h5')
     X = ktensor.construct_tensor()
     c = np.random.randint(0, 2, size=(100,))

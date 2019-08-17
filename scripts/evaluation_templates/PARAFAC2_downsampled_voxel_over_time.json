@@ -33,7 +33,7 @@
         {
             "type": "MaxKMeansAcc", 
             "arguments": {
-                "matlab_scripts_path": "pytensortools/evaluation/legacy_matlab_code",
+                "matlab_scripts_path": "tenkittools/evaluation/legacy_matlab_code",
                 "mode": 0,
                 "class_name": "schizophrenic"
             }
