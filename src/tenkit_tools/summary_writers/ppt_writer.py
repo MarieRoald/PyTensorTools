@@ -184,7 +184,7 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder, slid
         model = summary['model_type'].replace('_', ' ')
 
         
-        for slide_content in slides_params:
+        for slide_content in slides_content:
             slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
             slide.shapes.title.text = f'{model} model with {summary["model_rank"]} components'
             for paragraph in slide.shapes.title.text_frame.paragraphs:
