@@ -25,7 +25,7 @@ DEFAULT_CONTENT = [
         {
             'type': 'text',
             'params': {
-                'left': 0,
+                'left': 0.2,
                 'top': 8.36,
                 'width': 5.4,
                 'height': 2.6,
@@ -35,7 +35,6 @@ DEFAULT_CONTENT = [
         {
             'type': 'image',
             'params': {
-                'left': 0.36,
                 'top': 3.46,
                 'height': 5,
                 'name': 'time_mode'
@@ -44,7 +43,6 @@ DEFAULT_CONTENT = [
         {
             'type': 'image',
             'params': {
-                'left': 0.36,
                 'top': 9,
                 'height': 5,
                 'name': 'factor_scatterplot'
