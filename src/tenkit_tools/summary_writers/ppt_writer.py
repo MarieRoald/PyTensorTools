@@ -20,6 +20,59 @@ FONT_NAME = 'Calibri'
 FONT_SIZE = Pt(14)
 
 
+DEFAULT_CONTENT = [
+    [
+        {
+            'type': 'text',
+            'params': {
+                'left': 0,
+                'top': 8.36,
+                'width': 5.4,
+                'height': 2.6,
+                'text': '(1 is control, 2 is scizophrenia)'
+            },
+        },
+        {
+            'type': 'image',
+            'params': {
+                'left': 0.36,
+                'top': 3.46,
+                'height': 5,
+                'name': 'time_mode'
+            }
+        },
+        {
+            'type': 'image',
+            'params': {
+                'left': 0.36,
+                'top': 9,
+                'height': 5,
+                'name': 'factor_scatterplot'
+            }
+        }
+    ],
+    [
+        {
+            'type': 'image',
+            'params': {
+                'height': 7.27,
+                'name': 'visualisation'
+            }
+        }
+    ],
+    [
+
+        {
+            'type': 'image',
+            'params': {
+                'name': 'factor_lineplot',
+                'height': 5
+            }
+        }
+    ]
+]
+
+
 def generate_table(slide, data_rows, column_names):
     # Setup table
     num_rows = len(data_rows)+1
@@ -66,7 +119,52 @@ def generate_table(slide, data_rows, column_names):
         column.width = col_width
 
 
-def generate_presentation(pres, data_rows, column_names, experiment_folder):
+def add_image(slide, experiment, image_params):
+    if 'left' not in image_params:
+        image_params['left'] = (SLIDE_WIDTH - image.width)/2
+    if 'top' not in image_params:
+        image_params['top'] = (SLIDE_HEIGHT - image.height)/2
+    if 'height' not in image_params:
+        image_params['height'] = Cm(5)
+    
+    vis_path = Path(experiment)/'summaries'/'visualizations'
+    name = str(next(vis_path.glob(image_params['name'] + '*')))
+
+    image = slide.shapes.add_picture(name, 0, 0, height=image_params['height'])
+
+    image.left = int(image_params['left'])
+    image.top = int(image_params['top'])
+
+
+def add_text(slide, experiment, text_params):
+    text_box = slide.shapes.add_textbox(
+        CM(text_params['left']),
+        CM(text_params['top']),
+        CM(text_params['width']),
+        CM(text_params['height']),
+    )
+    summary = load_summary(experiment)
+
+    text_frame = text_box.text_frame
+    text_frame.text = text_params['text'].replace('{rank}', summary['rank'])
+    for paragraph in text_frame.paragraphs:
+        paragraph.font.name = FONT_NAME
+        paragraph.font.bold = True
+        paragraph.font.size=Pt(text_params.get('size', 14))
+        paragraph.alignment=PP_ALIGN.LEFT
+
+    text_frame.vertical_anchor = MSO_ANCHOR.TOP
+
+
+def generate_slide(slide, experiment, slide_content):
+    for content in slide_content:
+        if content['type'].lower() == 'image':
+            add_image(slide, experiment, content['params'])
+        elif content['type'].lower() == 'text':
+            add_text(slide, experiment, content['params'])
+
+
+def generate_presentation(pres, data_rows, column_names, experiment_folder, slides_content=None):
     # Setup slide
     pres.slide_width = SLIDE_WIDTH
     pres.slide_height = SLIDE_HEIGHT
@@ -84,7 +182,9 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder):
 
         summary = load_summary(experiment)
         model = summary['model_type'].replace('_', ' ')
-        for i, image in enumerate((experiment/'summaries'/'visualizations').iterdir()):
+
+        
+        for slide_content in slides_params:
             slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
             slide.shapes.title.text = f'{model} model with {summary["model_rank"]} components'
             for paragraph in slide.shapes.title.text_frame.paragraphs:
@@ -94,15 +194,30 @@ def generate_presentation(pres, data_rows, column_names, experiment_folder):
             	paragraph.alignment=PP_ALIGN.LEFT
 
             slide.shapes.title.text_frame.vertical_anchor = MSO_ANCHOR.TOP
+            generate_slide(slide, experiment, slide_content)
+
+        #for i, image in enumerate(sorted((experiment/'summaries'/'visualizations').iterdir())):
+        #    slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
+        #    slide.shapes.title.text = f'{model} model with {summary["model_rank"]} components'
+        #    for paragraph in slide.shapes.title.text_frame.paragraphs:
+        #    	paragraph.font.name = FONT_NAME
+        #    	paragraph.font.bold = True
+        #    	paragraph.font.size=Pt(18)
+        #    	paragraph.alignment=PP_ALIGN.LEFT
+
+        #    slide.shapes.title.text_frame.vertical_anchor = MSO_ANCHOR.TOP
         
-            image = slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
-            image.left = int((SLIDE_WIDTH - image.width)/2)
-            image.top = int((SLIDE_HEIGHT - image.height)/2)
+        #    image = slide.shapes.add_picture(str(image), Cm(i*2), Cm(i*2), height=Cm(5))
+        #    image.left = int((SLIDE_WIDTH - image.width)/2)
+        #    image.top = int((SLIDE_HEIGHT - image.height)/2)
 
     return pres
 
 
-def create_ppt(parent_folder, csvpath='slide.csv', pptpath='summary.pptx'):
+def create_ppt(parent_folder, csvpath='slide.csv', pptpath='summary.pptx', slides_content=None):
+    if slides_content is None:
+        slides_content = DEFAULT_CONTENT
+
     if parent_folder is not None:
         csvpath = os.path.join(parent_folder, csvpath)
         pptpath = os.path.join(parent_folder, pptpath)
@@ -113,7 +228,7 @@ def create_ppt(parent_folder, csvpath='slide.csv', pptpath='summary.pptx'):
         column_names = list(data_rows[0].keys())
     
     pres = pptx.Presentation(TEMPLATE_NAME)
-    pres = generate_presentation(pres, data_rows, column_names, parent_folder)
+    pres = generate_presentation(pres, data_rows, column_names, parent_folder, slides_content=slides_content)
     pres.save(pptpath)
 
 
