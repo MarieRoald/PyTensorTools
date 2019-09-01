@@ -120,6 +120,12 @@ def generate_table(slide, data_rows, column_names):
 
 
 def add_image(slide, experiment, image_params):
+    height = Cm(image_params.get('height', 5))
+    vis_path = Path(experiment)/'summaries'/'visualizations'
+    name = str(next(vis_path.glob(image_params['name'] + '*')))
+
+    image = slide.shapes.add_picture(name, 0, 0, height=height)
+
     if 'left' not in image_params:
         left = (SLIDE_WIDTH - image.width)/2
     else:
@@ -129,13 +135,6 @@ def add_image(slide, experiment, image_params):
         top = (SLIDE_HEIGHT - image.height)/2
     else:
         top = Cm(image_params['top'])
-
-    height = Cm(image_params.get('height', 5))
-    vis_path = Path(experiment)/'summaries'/'visualizations'
-    name = str(next(vis_path.glob(image_params['name'] + '*')))
-
-    image = slide.shapes.add_picture(name, 0, 0, height=height)
-
     image.left = int(left)
     image.top = int(top)
 
