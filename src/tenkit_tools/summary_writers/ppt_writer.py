@@ -150,7 +150,7 @@ def add_text(slide, experiment, text_params):
     summary = load_summary(experiment)
 
     text_frame = text_box.text_frame
-    text_frame.text = text_params['text'].replace('{rank}', summary['rank'])
+    text_frame.text = text_params['text'].replace('{rank}', summary['model_rank'])
     for paragraph in text_frame.paragraphs:
         paragraph.font.name = FONT_NAME
         paragraph.font.bold = True
