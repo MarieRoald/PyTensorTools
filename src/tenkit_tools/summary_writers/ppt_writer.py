@@ -121,27 +121,31 @@ def generate_table(slide, data_rows, column_names):
 
 def add_image(slide, experiment, image_params):
     if 'left' not in image_params:
-        image_params['left'] = (SLIDE_WIDTH - image.width)/2
+        left = (SLIDE_WIDTH - image.width)/2
+    else:
+        left = Cm(image_params['left'])
+
     if 'top' not in image_params:
-        image_params['top'] = (SLIDE_HEIGHT - image.height)/2
-    if 'height' not in image_params:
-        image_params['height'] = Cm(5)
-    
+        top = (SLIDE_HEIGHT - image.height)/2
+    else:
+        top = Cm(image_params['top'])
+
+    height = Cm(image_params.get('height', 5))
     vis_path = Path(experiment)/'summaries'/'visualizations'
     name = str(next(vis_path.glob(image_params['name'] + '*')))
 
-    image = slide.shapes.add_picture(name, 0, 0, height=image_params['height'])
+    image = slide.shapes.add_picture(name, 0, 0, height=height)
 
-    image.left = int(image_params['left'])
-    image.top = int(image_params['top'])
+    image.left = int(left)
+    image.top = int(top)
 
 
 def add_text(slide, experiment, text_params):
     text_box = slide.shapes.add_textbox(
-        CM(text_params['left']),
-        CM(text_params['top']),
-        CM(text_params['width']),
-        CM(text_params['height']),
+        Cm(text_params['left']),
+        Cm(text_params['top']),
+        Cm(text_params['width']),
+        Cm(text_params['height']),
     )
     summary = load_summary(experiment)
 
