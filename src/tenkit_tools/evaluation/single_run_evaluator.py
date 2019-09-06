@@ -82,6 +82,34 @@ class MinPValue(AllPValues):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
         return {self.name: min(p_values), 'component': int(np.argmin(p_values))}
 
+class ClassBalance(BaseSingleRunEvaluator):
+    # Only works for two classes
+    # TODO: consider supporting more classes
+    _name = 'Class balance'
+    def __init__(self, summary, mode, class_name):
+        super().__init__(summary)
+        self.mode = mode
+        self.class_name = class_name
+
+
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        factors = decomposition.factor_matrices[self.mode]
+
+        classes = data_reader.classes[self.mode][self.class_name].squeeze()
+
+        unique_classes = list(set(classes))
+        assert len(unique_classes) == 2
+
+        num_class1 = np.sum(classes==unique_classes[0])
+        num_class2 = np.sum(classes==unique_classes[1])
+
+        ratio = num_class1/(num_class1+num_class2)
+
+        return {self.name: ratio, 
+                f'No. class {unique_classes[0]}':num_class1,
+                f'No. class {unique_classes[1]}':num_class2}
+
 
 class WorstDegeneracy(BaseSingleRunEvaluator):
     _name = 'Worst degeneracy'
