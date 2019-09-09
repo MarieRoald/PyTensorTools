@@ -8,6 +8,7 @@ class BasePostprocessor(ABC):
     Decomposition = decompositions.BaseDecomposedTensor
     def __init__(self, decomposition, data_reader):
         self.data_reader = data_reader
+    self.rank = decomposition.rank
         self.decomposition = self.postprocess(decomposition)
 
     @abstractmethod
