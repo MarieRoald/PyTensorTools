@@ -23,6 +23,7 @@ class ExperimentEvaluator:
         single_run_evaluator_params=None,
         multi_run_evaluator_params=None,
         single_run_visualiser_params=None,
+        postprocessor_params=None,
     ):
         if single_run_evaluator_params is None:
             single_run_evaluator_params = []
@@ -53,7 +54,12 @@ class ExperimentEvaluator:
 
         #decomposer = model_type(rank=model_rank, init_scheme='from_checkpoint')
         #decomposer._init_fit(data_reader.tensor, initial_decomposition=checkpoint_path)
-        single_run_evaluators = create_evaluators(self.single_run_evaluator_params, summary)
+        single_run_evaluators = create_evaluators(
+            self.single_run_evaluator_params,
+            summary,
+            postprocessor_params=self.postprocessor_params,
+            data_reader=data_reader
+        )
 
         results = []
         with h5py.File(checkpoint_path) as h5:
@@ -71,7 +77,12 @@ class ExperimentEvaluator:
         # TODO: maybe have the possibility of evaluating other run than best run?
         checkpoint_path = experiment_path / 'checkpoints'/ summary['best_run']
 
-        single_run_visualisers = create_visualisers(self.single_run_visualiser_params, summary)
+        single_run_visualisers = create_visualisers(
+            self.single_run_visualiser_params,
+            summary,
+            postprocessor_params=self.postprocessor_params,
+            data_reader=data_reader
+        )
 
         results = {}
         figure_path = experiment_path/'summaries'/'visualizations'
@@ -121,7 +132,12 @@ class ExperimentEvaluator:
     
     def evaluate_multiple_runs(self, experiment_path, summary, data_reader):
         checkpoint_path = Path(experiment_path)/'checkpoints'
-        multi_run_evaluators = create_evaluators(self.multi_run_evaluator_params, summary)
+        multi_run_evaluators = create_evaluators(
+            self.multi_run_evaluator_params,
+            summary,
+            postprocessor_params=self.postprocessor_params,
+            data_reader=data_reader
+        )
         results = {}
 
         for run_evaluator in multi_run_evaluators:
