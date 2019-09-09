@@ -35,6 +35,7 @@ class ExperimentEvaluator:
         self.single_run_evaluator_params = single_run_evaluator_params
         self.multi_run_evaluator_params = multi_run_evaluator_params
         self.single_run_visualiser_params = single_run_visualiser_params
+        self.postprocessor_params = postprocessor_params
 
     def load_experiment_summary(self, experiment_path):
         summary_path = experiment_path / 'summaries/summary.json'
