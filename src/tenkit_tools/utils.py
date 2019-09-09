@@ -38,11 +38,11 @@ def load_evaluations(experiment_path):
 
 
 def data_driven_get_sign(factor_matrix, data_matrix):
-    return factor_matrix * tenkit.utils.get_signs(factor_matrix, data_matrix)[0].reshape([1, -1])
+    return tenkit.utils.get_signs(factor_matrix, data_matrix)[0].reshape([1, -1])
 
 
 def sign_driven_get_sign(factor_matrix):
-    return factor_matrix * tenkit.utils.get_signs(factor_matrix, None)[0].reshape([1, -1])
+    return tenkit.utils.get_signs(factor_matrix, None)[0].reshape([1, -1])
 
 
 def classification_driven_get_sign(factor_matrix, labels, positive_label_value=None, separation_factor_matrix=None):
