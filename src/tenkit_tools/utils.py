@@ -63,3 +63,5 @@ def classification_driven_sign_flip(factor_matrix, labels, positive_label_value=
 
     return factor_matrix * signs.reshape([1, -1])
 
+
+def sign_flip(factor_matrices)

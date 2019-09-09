@@ -47,7 +47,7 @@ class ConvergenceTolerance(BaseSingleRunEvaluator):
 class AllPValues(BaseSingleRunEvaluator):
     _name = 'All P values'
 
-    def __init__(self, summary, mode, class_name):
+    def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary)
         self.mode = mode
         self._name = f'All P values for mode {mode}'
@@ -74,7 +74,7 @@ class AllPValues(BaseSingleRunEvaluator):
 
 class MinPValue(AllPValues):
     _name = 'Best P value'
-    def __init__(self, summary, mode, class_name):
+    def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary, mode, class_name)
         self._name = f'Best P value for mode {mode}'
 
@@ -86,15 +86,13 @@ class ClassBalance(BaseSingleRunEvaluator):
     # Only works for two classes
     # TODO: consider supporting more classes
     _name = 'Class balance'
-    def __init__(self, summary, mode, class_name):
+    def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary)
         self.mode = mode
         self.class_name = class_name
 
 
     def _evaluate(self, data_reader, h5):
-        decomposition = self.load_final_checkpoint(h5)
-        factors = decomposition.factor_matrices[self.mode]
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
@@ -113,7 +111,7 @@ class ClassBalance(BaseSingleRunEvaluator):
 
 class WorstDegeneracy(BaseSingleRunEvaluator):
     _name = 'Worst degeneracy'
-    def __init__(self, summary, modes=None, return_permutation=False):
+    def __init__(self, summary, modes=None, return_permutation=False, **kwargs):
         super().__init__(summary)
         self.modes = modes
         self.return_permutation = return_permutation
@@ -148,7 +146,7 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
 
 class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
     _name = 'Worst degeneracy parafac2'
-    def __init__(self, summary, modes=None, return_permutation=False):
+    def __init__(self, summary, modes=None, return_permutation=False, **kwargs):
         super().__init__(summary)
         self.modes = modes
         self.return_permutation = return_permutation
@@ -227,7 +225,7 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         return {self.name: np.asscalar(cc)}
 
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
-    def __init__(self, summary, matlab_scripts_path=None):
+    def __init__(self, summary, matlab_scripts_path=None, **kwargs):
         super().__init__(summary)
         self.matlab  = ['matlab']
         self.options = ['-nosplash', '-nodesktop', '-r']
@@ -237,7 +235,7 @@ class BaseMatlabEvaluator(BaseSingleRunEvaluator):
 
 class MaxKMeansAcc(BaseMatlabEvaluator):
     _name = 'Max Kmeans clustering accuracy'
-    def __init__(self, summary, mode, class_name, matlab_scripts_path=None):
+    def __init__(self, summary, mode, class_name, matlab_scripts_path=None, **kwargs):
         self.mode = mode
         self.class_name = class_name
         super().__init__(summary, matlab_scripts_path)

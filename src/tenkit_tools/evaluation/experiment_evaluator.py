@@ -10,7 +10,7 @@ from .. import datareader
 from .. import evaluation
 from .. import preprocessor
 from .base_evaluator import create_evaluators
-from ..visualization.base_visualiser import create_visualisers
+from ..visualization import create_visualisers
 
 from collections import ChainMap
 import csv
@@ -19,9 +19,10 @@ import csv
 class ExperimentEvaluator:
     def __init__(
         self,
+        data_reader=None,
         single_run_evaluator_params=None,
         multi_run_evaluator_params=None,
-        single_run_visualiser_params=None
+        single_run_visualiser_params=None,
     ):
         if single_run_evaluator_params is None:
             single_run_evaluator_params = []

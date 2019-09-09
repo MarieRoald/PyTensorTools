@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from .. import visualization
 from ..evaluation.base_evaluator import BaseEvaluator
+from .. import utils
 import tenkit
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,29 +17,38 @@ mpl.rcParams['font.family'] = 'PT Sans'
 def create_visualiser(visualiser_params, summary):
     Visualiser = getattr(visualization, visualiser_params['type'])
     kwargs = visualiser_params.get('arguments', {})
-    return Visualiser(summary=summary, **kwargs)
+    return Visualiser(
+        summary=summary,
+        post_processor_params=post_processor_params,
+        data_reader=data_reader,
+        **kwargs
+    )
 
 
 def create_visualisers(visualisers_params, summary):
     visualisers = []
     for visualiser_params in visualisers_params:
-        visualisers.append(create_visualiser(visualiser_params, summary))
+        visualisers.append(create_visualiser(
+            visualiser_params,
+            summary,
+            post_processor_params,
+            data_reader,
+        ))
     return visualisers
 
 
 class BaseVisualiser(BaseEvaluator):
     figsize = (5.91, 3.8)
     _name = 'visualisation'
-    def __init__(self, summary, filename=None, figsize=None):
-        self.summary = summary
-        self.DecomposerType = getattr(tenkit.decomposition, summary['model_type'])
-        self.DecompositionType = self.DecomposerType.DecompositionType
-
+    def __init__(self, summary, post_processor_params, data_reader, filename=None, figsize=None):
+        super().__init__(summary, post_processor_params=post_processor_params, data_reader=data_reader)
         if figsize is not None:
             self.figsize = figsize
         
         if filename is not None:
             self._name = filename
+        
+
 
     def __call__(self, data_reader, h5):
         return self._visualise(data_reader, h5)
@@ -49,18 +59,19 @@ class BaseVisualiser(BaseEvaluator):
 
     def create_figure(self, *args, **kwargs):
         return plt.figure(*args, figsize=self.figsize, **kwargs)
+    
 
 class FactorLinePlotter(BaseVisualiser):
     _name = 'factor_lineplot'
-    def __init__(self, summary, modes, normalise=True, labels=None, show_legend=True, filename=None, figsize=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, modes, normalise=True, labels=None, show_legend=True, filename=None, figsize=None,):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.modes = modes
         self.figsize = (self.figsize[0]*len(modes), self.figsize[1])
         self.labels = labels
         self.show_legend = show_legend
         self.normalise = normalise
 
-    def _visualise_mode(self, data_reader, factor_matrices, ax, mode, label=None,):
+    def _visualise_mode(self, data_reader, factor_matrices, ax, mode, label=None):
         factor = factor_matrices[mode]
         
         if self.normalise:
@@ -90,15 +101,15 @@ class FactorLinePlotter(BaseVisualiser):
             if self.labels is not None:
                 label = self.labels[i]
 
-            self._visualise_mode(data_reader, factor_matrices, ax, mode, label=label)
+            self._visualise_mode(data_reader, factor_matrices, ax, mode, label=label,)
 
         return fig
 
 class ClassLinePlotter(BaseVisualiser):
     _name = 'ClassLinePlotter'
 
-    def __init__(self, summary, mode, class_name, filename=None, figsize=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, mode, class_name, filename=None, figsize=None):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.mode = mode
         self.class_name = class_name
     
@@ -127,8 +138,8 @@ class ClassLinePlotter(BaseVisualiser):
 # TODO: BaseSingleComponentPlotter
 class SingleComponentLinePlotter(BaseVisualiser):
     _name = "single_factor_lineplot"
-    def __init__(self, summary, mode, normalise=True, common_axis=True, label=None, filename=None, figsize=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, mode, normalise=True, common_axis=True, label=None, filename=None, figsize=None):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.mode = mode
         self.normalise = normalise
         self.label = label
@@ -166,8 +177,8 @@ class SingleComponentLinePlotter(BaseVisualiser):
 class FactorScatterPlotter(BaseVisualiser):
     """Note: only works for two classes"""
     _name = 'factor_scatterplot'
-    def __init__(self, summary, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, include_p_value=False, filename=None, figsize=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, mode, class_name, normalise=True, common_axis=True, label=None, legend=None, include_p_value=False, filename=None, figsize=None):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.mode = mode
         self.normalise = normalise
         self.label = label
@@ -245,8 +256,8 @@ class FactorScatterPlotter(BaseVisualiser):
 
 class LogPlotter(BaseVisualiser):
     _name = 'logplot'
-    def __init__(self, summary, logger_name, log_name=None, filename=None, figsize=None,):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, logger_name, log_name=None, filename=None, figsize=None,):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.logger_name = logger_name
         self.log_name = log_name
     
@@ -267,6 +278,8 @@ class FactorfMRIImage(BaseVisualiser):
     def __init__(
         self, 
         summary, 
+        post_processor_params,
+        data_reader,
         mode, 
         mask_path,
         template_path,
@@ -275,7 +288,7 @@ class FactorfMRIImage(BaseVisualiser):
         tile_plot_kwargs=None
         ):
 
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.mode = mode
         self.tile_plot_kwargs = tile_plot_kwargs
         self.mask_path = mask_path
@@ -308,6 +321,8 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
     def __init__(
         self, 
         summary, 
+        post_processor_params,
+        data_reader,
         mode, 
         mask_path,
         template_path,
@@ -317,13 +332,17 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
         component=0
         ):
 
-        super().__init__(summary=summary,
-                         mode=mode,
-                         mask_path=mask_path,
-                         template_path=template_path,
-                         filename=filename,
-                         figsize=figsize,
-                         tile_plot_kwargs=tile_plot_kwargs)
+        super().__init__(
+            summary=summary,
+            post_processor_params=post_processor_params,
+            data_reader=data_reader,
+            mode=mode,
+            mask_path=mask_path,
+            template_path=template_path,
+            filename=filename,
+            figsize=figsize,
+            tile_plot_kwargs=tile_plot_kwargs
+        )
 
         self.component = component
 
@@ -359,8 +378,8 @@ class ResidualHistogram(BaseVisualiser):
 
 class LeverageScatterPlot(BaseVisualiser):
 
-    def __init__(self, summary, mode, filename=None, figsize=None, annotation=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+    def __init__(self, summary, post_processor_params, data_reader, mode, filename=None, figsize=None, annotation=None):
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.mode = mode
         self.annotation = annotation
         self.figsize = (self.figsize[0], self.figsize[1])
@@ -398,7 +417,7 @@ class LeverageScatterPlot(BaseVisualiser):
 class EvolvingComponentMatrixMap(BaseVisualiser):
 
     def __init__(self, summary, class_name, filename=None, figsize=None):
-        super().__init__(summary=summary, filename=filename, figsize=figsize)
+        super().__init__(summary=summary, post_processor_params=post_processor_params, data_reader=data_reader, filename=filename, figsize=figsize)
         self.class_name = class_name
         self.figsize = (self.figsize[0]*summary['model_rank']*0.7, self.figsize[1])
     
