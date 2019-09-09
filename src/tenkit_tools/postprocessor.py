@@ -79,7 +79,7 @@ class KruskalSignFlipper(KruskalPostprocessor):
 
             
 
-            labels = data_reader.classes[class_name]
+            labels = self.data_reader.classes[class_name]
             return utils.classification_driven_get_sign(
                 factor_matrix, labels, positive_label_value, factor_matrix
             )
@@ -93,8 +93,9 @@ class KruskalSignFlipper(KruskalPostprocessor):
     def postprocess(self, decomposition):
         correction_sign = 1
         for flip_mode, params in self.flip_params.items():
-            sign = self.get_sign(mode, params['method'], params.get('arguments', {}))
+            flip_mode = int(flip_mode)
+            sign = self.get_sign(flip_mode, params['method'], params.get('arguments', {}))
             self.factor_matrices[flip_mode] *= sign
             correction_sign *= sign
         
-        factor_matrices[self.correction_mode] *= sign
+        self.factor_matrices[self.correction_mode] *= sign
