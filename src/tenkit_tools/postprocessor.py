@@ -94,7 +94,7 @@ class KruskalSignFlipper(KruskalPostprocessor):
         correction_sign = 1
         for flip_mode, params in self.flip_params.items():
             flip_mode = int(flip_mode)
-            sign = self.get_sign(flip_mode, params['method'], params.get('arguments', {}))
+            sign = self.get_sign(flip_mode, params['method'], **params.get('arguments', {}))
             self.factor_matrices[flip_mode] *= sign
             correction_sign *= sign
         
