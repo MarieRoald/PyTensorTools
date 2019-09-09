@@ -14,7 +14,7 @@ def _sort_by(l, sort_by):
 
 
 class BaseMultipleEvaluator(BaseEvaluator):
-    def __init__(self, summary, runs=None):
+    def __init__(self, summary, runs=None, **kwargs):
         super().__init__(summary)
         self.runs=runs
 
@@ -43,7 +43,7 @@ class BaseMultipleEvaluator(BaseEvaluator):
 
 
 class MultipleSingleRunEvaluators(BaseMultipleEvaluator):
-    def __init__(self, summary, single_run_evaluator_params, runs):
+    def __init__(self, summary, single_run_evaluator_params, runs, **kwargs):
         super().__init__(summary, runs)
         self.single_run_evaluator = create_evaluator(single_run_evaluator_params, summary)
         self._name = f'Multiple {self.single_run_evaluator.name}'
