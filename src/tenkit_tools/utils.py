@@ -37,15 +37,15 @@ def load_evaluations(experiment_path):
         return json.load(f)
 
 
-def data_driven_sign_flip(factor_matrix, data_matrix):
+def data_driven_get_sign(factor_matrix, data_matrix):
     return factor_matrix * tenkit.utils.get_signs(factor_matrix, data_matrix)[0].reshape([1, -1])
 
 
-def sign_driven_sign_flip(factor_matrix):
+def sign_driven_get_sign(factor_matrix):
     return factor_matrix * tenkit.utils.get_signs(factor_matrix, None)[0].reshape([1, -1])
 
 
-def classification_driven_sign_flip(factor_matrix, labels, positive_label_value=None, separation_factor_matrix=None):
+def classification_driven_get_sign(factor_matrix, labels, positive_label_value=None, separation_factor_matrix=None):
     if separation_factor_matrix is None:
         separation_factor_matrix = factor_matrix
     if positive_label_value is not None:
@@ -61,7 +61,4 @@ def classification_driven_sign_flip(factor_matrix, labels, positive_label_value=
     t_statistics, _ = ttest_ind(positive, negative, axis=0, equal_var=False)
     signs = np.sign(t_statistics)
 
-    return factor_matrix * signs.reshape([1, -1])
-
-
-def sign_flip(factor_matrices)
+    return signs.reshape([1, -1])
