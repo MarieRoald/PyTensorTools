@@ -99,8 +99,8 @@ class ClassBalance(BaseSingleRunEvaluator):
         unique_classes = list(set(classes))
         assert len(unique_classes) == 2
 
-        num_class1 = np.sum(classes==unique_classes[0])
-        num_class2 = np.sum(classes==unique_classes[1])
+        num_class1 = int(np.sum(classes==unique_classes[0]))
+        num_class2 = int(np.sum(classes==unique_classes[1]))
 
         ratio = num_class1/(num_class1+num_class2)
 
