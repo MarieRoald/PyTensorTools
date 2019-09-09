@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from tenkit.decomposition import decompositions
+from . import utils
 
 
 
@@ -64,7 +65,7 @@ class KruskalSignFlipper(KruskalPostprocessor):
             raise ValueError(f'Correction mode ({correction_mode}) cannot be amongst the keys of flip params')
         super().__init__(decomposition, data_reader)
 
-    def flip_sign(
+    def get_sign(
         self,
         mode,
         method,
@@ -79,20 +80,20 @@ class KruskalSignFlipper(KruskalPostprocessor):
             
 
             labels = data_reader.classes[class_name]
-            return utils.classification_driven_sign_flip(
+            return utils.classification_driven_get_sign(
                 factor_matrix, labels, positive_label_value, factor_matrix
             )
         elif method == 'data_driven':
-            return utils.data_driven_sign_flip(factor_matrix, self.data_reader.tensor)
+            return utils.data_driven_get_sign(factor_matrix, self.data_reader.tensor)
         elif method == 'sign_driven':
-            return utils.sign_driven_sign_flip(factor_matrix)
+            return utils.sign_driven_get_sign(factor_matrix)
         else:
             raise ValueError(f'{method} is not a valid sign flip method') 
     
     def postprocess(self, decomposition):
         correction_sign = 1
         for flip_mode, params in self.flip_params.items():
-            sign = 
+            sign = self.get_sign(mode, params['method'], params.get('arguments', {}))
             self.factor_matrices[flip_mode] *= sign
             correction_sign *= sign
         
