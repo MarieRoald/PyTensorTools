@@ -19,14 +19,14 @@ def create_evaluators(evaluators_params, summary, postprocessor_params, data_rea
 
 class BaseEvaluator(ABC):
     _name = None
-    def __init__(self, summary, postprocessor_params=None, datareader=None):
+    def __init__(self, summary, postprocessor_params=None, data_reader=None):
         self.summary = summary
         self.DecomposerType = getattr(tenkit.decomposition, summary['model_type'])
         self.DecompositionType = self.DecomposerType.DecompositionType
         self.postprocessor_params = postprocessor_params
         if self.postprocessor_params is None:
             self.postprocessor_params = []
-        self.datareader = datareader
+        self.data_reader = data_reader
 
     @property
     def name(self):
@@ -41,6 +41,6 @@ class BaseEvaluator(ABC):
         for postprocessor_params in self.postprocessor_params:
             PostprocessorType = getattr(postprocessor, postprocessor_params['type'])
             kwargs = postprocessor_params.get('arguments', {})
-            postprocessed = PostprocessorType(postprocessed, self.datareader, **kwargs)
+            postprocessed = PostprocessorType(postprocessed, self.data_reader, **kwargs)
         
         return postprocessed
