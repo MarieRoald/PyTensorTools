@@ -79,7 +79,7 @@ class KruskalSignFlipper(KruskalPostprocessor):
 
             
 
-            labels = self.data_reader.classes[class_name]
+            labels = self.data_reader.classes[mode][class_name]
             return utils.classification_driven_get_sign(
                 factor_matrix, labels, positive_label_value, factor_matrix
             )
