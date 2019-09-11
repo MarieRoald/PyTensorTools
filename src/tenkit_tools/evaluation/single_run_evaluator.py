@@ -24,34 +24,36 @@ class BaseSingleRunEvaluator(BaseEvaluator):
 
 
 class FinalLoss(BaseSingleRunEvaluator):
-    _name = 'Final loss'
+    _name = "Final loss"
+
     def _evaluate(self, data_reader, h5):
-        return {self.name: h5['LossLogger/values'][-1]}
+        return {self.name: h5["LossLogger/values"][-1]}
 
 
 class ExplainedVariance(BaseSingleRunEvaluator):
-    #TODO: maybe create a decomposer to not rely on logging
-    _name = 'Explained variance'
+    # TODO: maybe create a decomposer to not rely on logging
+    _name = "Explained variance"
+
     def _evaluate(self, data_reader, h5):
-        return {self.name: h5['ExplainedVarianceLogger/values'][-1]}
+        return {self.name: h5["ExplainedVarianceLogger/values"][-1]}
 
 
 class ConvergenceTolerance(BaseSingleRunEvaluator):
     _name = "Minimum relative loss change"
-    
+
     def _evaluate(self, data_reader, h5):
-        loss = h5['LossLogger/values'][...]
-        rel_change = (loss[1:] - loss[:-1])/loss[:-1]
+        loss = h5["LossLogger/values"][...]
+        rel_change = (loss[1:] - loss[:-1]) / loss[:-1]
         return {self.name: rel_change.min()}
 
 
 class AllPValues(BaseSingleRunEvaluator):
-    _name = 'All P values'
+    _name = "All P values"
 
     def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary)
         self.mode = mode
-        self._name = f'All P values for mode {mode}'
+        self._name = f"All P values for mode {mode}"
         self.class_name = class_name
 
     def _calculate_p_values_from_factors(self, data_reader, h5):
@@ -62,37 +64,41 @@ class AllPValues(BaseSingleRunEvaluator):
 
         assert len(set(classes)) == 2
 
-        indices = [[i for i, c in enumerate(classes) if c == class_] for class_ in set(classes)]
-        p_values = tuple(ttest_ind(factors[indices[0]], factors[indices[1]], equal_var=False).pvalue)
+        indices = [
+            [i for i, c in enumerate(classes) if c == class_] for class_ in set(classes)
+        ]
+        p_values = tuple(
+            ttest_ind(factors[indices[0]], factors[indices[1]], equal_var=False).pvalue
+        )
         return p_values
-
 
     def _evaluate(self, data_reader, h5):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
 
-        return {f'p_value_component{i}': p_value for i, p_value in enumerate(p_values)}
+        return {f"p_value_component{i}": p_value for i, p_value in enumerate(p_values)}
 
 
 class MinPValue(AllPValues):
-    _name = 'Best P value'
+    _name = "Best P value"
+
     def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary, mode, class_name)
-        self._name = f'Best P value for mode {mode}'
+        self._name = f"Best P value for mode {mode}"
 
     def _evaluate(self, data_reader, h5):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
-        return {self.name: min(p_values), 'component': int(np.argmin(p_values))}
+        return {self.name: min(p_values), "component": int(np.argmin(p_values))}
 
 
 class ClassBalance(BaseSingleRunEvaluator):
     # Only works for two classes
     # TODO: consider supporting more classes
-    _name = 'Class balance'
+    _name = "Class balance"
+
     def __init__(self, summary, mode, class_name, **kwargs):
         super().__init__(summary)
         self.mode = mode
         self.class_name = class_name
-
 
     def _evaluate(self, data_reader, h5):
 
@@ -101,18 +107,21 @@ class ClassBalance(BaseSingleRunEvaluator):
         unique_classes = list(set(classes))
         assert len(unique_classes) == 2
 
-        num_class1 = int(np.sum(classes==unique_classes[0]))
-        num_class2 = int(np.sum(classes==unique_classes[1]))
+        num_class1 = int(np.sum(classes == unique_classes[0]))
+        num_class2 = int(np.sum(classes == unique_classes[1]))
 
-        ratio = num_class1/(num_class1+num_class2)
+        ratio = num_class1 / (num_class1 + num_class2)
 
-        return {self.name: ratio, 
-                f'No. class {unique_classes[0]}':num_class1,
-                f'No. class {unique_classes[1]}':num_class2}
+        return {
+            self.name: ratio,
+            f"No. class {unique_classes[0]}": num_class1,
+            f"No. class {unique_classes[1]}": num_class2,
+        }
 
 
 class WorstDegeneracy(BaseSingleRunEvaluator):
-    _name = 'Worst degeneracy'
+    _name = "Worst degeneracy"
+
     def __init__(self, summary, modes=None, return_permutation=False, **kwargs):
         super().__init__(summary)
         self.modes = modes
@@ -125,16 +134,25 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
         modes = self.modes
         if modes is None:
             modes = range(len(decomposition.factor_matrices))
-        R = decomposition.factor_matrices[0].shape[1] 
-        min_score = np.inf 
-        
-        for (p1, p2) in itertools.permutations(range(R), r=2): 
-        
-            factors_p1 = [fm[:, p1] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
-            factors_p2 = [fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in modes]
+        R = decomposition.factor_matrices[0].shape[1]
+        min_score = np.inf
 
-            score = metrics._factor_match_score(factors_p1, factors_p2,
-                                                nonnegative=False, weight_penalty=False)[0]
+        for (p1, p2) in itertools.permutations(range(R), r=2):
+
+            factors_p1 = [
+                fm[:, p1]
+                for mode, fm in enumerate(decomposition.factor_matrices)
+                if mode in modes
+            ]
+            factors_p2 = [
+                fm[:, p2]
+                for mode, fm in enumerate(decomposition.factor_matrices)
+                if mode in modes
+            ]
+
+            score = metrics._factor_match_score(
+                factors_p1, factors_p2, nonnegative=False, weight_penalty=False
+            )[0]
 
             if score < min_score:
                 min_score = score
@@ -142,13 +160,14 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
                 worst_p2 = p2
 
         if self.return_permutation:
-            return {self.name: min_score, f'permutation:': (worst_p1, worst_p2)}
+            return {self.name: min_score, f"permutation:": (worst_p1, worst_p2)}
 
         return {self.name: min_score}
 
 
 class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
-    _name = 'Worst degeneracy parafac2'
+    _name = "Worst degeneracy parafac2"
+
     def __init__(self, summary, modes=None, return_permutation=False, **kwargs):
         super().__init__(summary)
         self.modes = modes
@@ -160,28 +179,28 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
 
         if self.modes is None:
             modes = range(len(decomposition.factor_matrices))
-        R = decomposition.factor_matrices[0].shape[1] 
-        min_score = np.inf 
-        
-        for (p1, p2) in itertools.permutations(range(R), r=2): 
-        
-            #factors_p2 = [
+        R = decomposition.factor_matrices[0].shape[1]
+        min_score = np.inf
+
+        for (p1, p2) in itertools.permutations(range(R), r=2):
+
+            # factors_p2 = [
             #    fm[:, p2] for mode, fm in enumerate(decomposition.factor_matrices) if mode in [0, 2]
-            #]
+            # ]
             factors_p1 = [
                 factors[0][:, np.newaxis, p1],
                 [f[:, np.newaxis, p1] for f in factors[1]],
-                factors[2][:, np.newaxis, p1]
+                factors[2][:, np.newaxis, p1],
             ]
             factors_p2 = [
                 factors[0][:, np.newaxis, p2],
                 [f[:, np.newaxis, p2] for f in factors[1]],
-                factors[2][:, np.newaxis, p2]
+                factors[2][:, np.newaxis, p2],
             ]
 
-
-            score = metrics._factor_match_score_parafac2(factors_p1, factors_p2,
-                                                nonnegative=False, weight_penalty=False)[0]
+            score = metrics._factor_match_score_parafac2(
+                factors_p1, factors_p2, nonnegative=False, weight_penalty=False
+            )[0]
 
             if score < min_score:
                 min_score = score
@@ -189,7 +208,7 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
                 worst_p2 = p2
 
         if self.return_permutation:
-            return {self.name: min_score, f'permutation:': (worst_p1, worst_p2)}
+            return {self.name: min_score, f"permutation:": (worst_p1, worst_p2)}
 
         return {self.name: min_score}
 
@@ -198,7 +217,7 @@ class CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
 
     _name = "Core Consistency"
-    
+
     def _evaluate(self, data_reader, h5):
         decomposition = self.load_final_checkpoint(h5)
         factor_matrices = decomposition.factor_matrices
@@ -206,7 +225,7 @@ class CoreConsistency(BaseSingleRunEvaluator):
         # FIX:
         weights = decomposition.weights
         d = len(factor_matrices)
-        factor_matrices = [fm*weights**(1/d) for fm in factor_matrices]
+        factor_matrices = [fm * weights ** (1 / d) for fm in factor_matrices]
         # ENDFIX
 
         cc = tenkit.metrics.core_consistency(data_reader.tensor, *factor_matrices)
@@ -226,7 +245,9 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         B = decomposition.blueprint_B
         C = decomposition.C
 
-        cc = tenkit.metrics.core_consistency_parafac2(data_reader.tensor.transpose(2, 0, 1), P_k, A, B, C)
+        cc = tenkit.metrics.core_consistency_parafac2(
+            data_reader.tensor.transpose(2, 0, 1), P_k, A, B, C
+        )
 
         return {self.name: np.asscalar(cc)}
 
@@ -234,15 +255,16 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
     def __init__(self, summary, matlab_scripts_path=None, **kwargs):
         super().__init__(summary)
-        self.matlab  = ['matlab']
-        self.options = ['-nosplash', '-nodesktop', '-r']
+        self.matlab = ["matlab"]
+        self.options = ["-nosplash", "-nodesktop", "-r"]
         if matlab_scripts_path is None:
-            matlab_scripts_path = Path(__file__).parent / 'legacy_matlab_code'
+            matlab_scripts_path = Path(__file__).parent / "legacy_matlab_code"
         self.matlab_scripts_path = str(matlab_scripts_path)
 
 
 class MaxKMeansAcc(BaseMatlabEvaluator):
-    _name = 'Max Kmeans clustering accuracy'
+    _name = "Max Kmeans clustering accuracy"
+
     def __init__(self, summary, mode, class_name, matlab_scripts_path=None, **kwargs):
         self.mode = mode
         self.class_name = class_name
@@ -257,19 +279,20 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
 
-            tmp_matlab_factor_file = tmpdir / 'tmp_matlab_factor.mat'
-            tmp_matlab_classes_file = tmpdir / 'tmp_matlab_classes.mat'
-        
-            tmp_outfile = tmpdir / 'tmp_matlab_kmeans_acc.out'
+            tmp_matlab_factor_file = tmpdir / "tmp_matlab_factor.mat"
+            tmp_matlab_classes_file = tmpdir / "tmp_matlab_classes.mat"
 
-            savemat(str(tmp_matlab_classes_file), {'classes': classes})
-            savemat(str(tmp_matlab_factor_file), {'factormatrix': factor_matrix})            
+            tmp_outfile = tmpdir / "tmp_matlab_kmeans_acc.out"
+
+            savemat(str(tmp_matlab_classes_file), {"classes": classes})
+            savemat(str(tmp_matlab_factor_file), {"factormatrix": factor_matrix})
 
             num_classes_elements = classes.shape[0]
             num_samples = factor_matrix.shape[0]
-            assert num_classes_elements == num_samples,\
-                   f"Length of classes vector ({num_classes_elements}) "\
-                   f"differs from number of samples ({num_samples}). "
+            assert num_classes_elements == num_samples, (
+                f"Length of classes vector ({num_classes_elements}) "
+                f"differs from number of samples ({num_samples}). "
+            )
 
             command = [
                 f"load('{tmp_matlab_factor_file}');\
@@ -282,8 +305,8 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
 
             p = Popen(self.matlab + self.options + command)
             stdout, stderr = p.communicate()
-    
+
             outdict = loadmat(tmp_outfile)
-            acc = outdict['acc'].tolist()[0][0]
- 
+            acc = outdict["acc"].tolist()[0][0]
+
             return {self.name: acc}

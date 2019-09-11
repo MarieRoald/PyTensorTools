@@ -15,15 +15,15 @@ class BasePreprocessor(BaseDataReader):
         self.mode_names = data_reader.mode_names
         tensor, classes = self.preprocess(data_reader)
         self._tensor, self._classes = tensor, classes
-    
+
     @abstractmethod
     def preprocess(self, data_reader):
         return data_reader.tensor, data_reader.classes
-    
+
     @property
     def tensor(self):
         return self._tensor
-    
+
     @property
     def classes(self):
         return self._classes
@@ -38,17 +38,18 @@ class Center(BasePreprocessor):
     def __init__(self, data_reader, center_across):
         self.center_across = center_across
         super().__init__(data_reader)
-    
+
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
         tensor = tensor - tensor.mean(axis=self.center_across, keepdims=True)
         return tensor, data_reader.classes
 
+
 class Scale(BasePreprocessor):
     def __init__(self, data_reader, scale_within):
         self.scale_within = scale_within
         super().__init__(data_reader)
-    
+
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
         reduction_axis = [i for i in range(len(tensor.shape)) if i != self.scale_within]
@@ -57,12 +58,13 @@ class Scale(BasePreprocessor):
 
         return tensor, data_reader.classes
 
+
 class Standardize(BasePreprocessor):
     def __init__(self, data_reader, center_across, scale_within):
         if center_across == scale_within:
             raise ValueError(
-                'Cannot scale across the same mode as we center within.\n'
-                'See Centering and scaling in component analysis by R Bro and AK Smilde, 1999'
+                "Cannot scale across the same mode as we center within.\n"
+                "See Centering and scaling in component analysis by R Bro and AK Smilde, 1999"
             )
         self.center_across = center_across
         self.scale_within = scale_within
@@ -80,21 +82,23 @@ class MarylandPreprocess(BasePreprocessor):
         self.center = center
         self.scale = scale
         super().__init__(data_reader)
-    
+
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
         if self.center:
-            tensor = data_reader.tensor - data_reader.tensor.mean(self.mode, keepdims=True)
+            tensor = data_reader.tensor - data_reader.tensor.mean(
+                self.mode, keepdims=True
+            )
         if self.scale:
-            tensor = tensor/np.linalg.norm(tensor, axis=self.mode, keepdims=True)
+            tensor = tensor / np.linalg.norm(tensor, axis=self.mode, keepdims=True)
         return tensor, data_reader.classes
+
 
 class BaseRemoveOutliers(BasePreprocessor):
     def __init__(self, data_reader, mode, remove_from_classes=True):
         self.mode = mode
         self.remove_from_classes = remove_from_classes
         super().__init__(data_reader)
-
 
     def _delete_idx(self, data_reader, delete_idx):
         tensor = data_reader.tensor
@@ -105,12 +109,12 @@ class BaseRemoveOutliers(BasePreprocessor):
         if data_reader.classes is not None and self.remove_from_classes:
             processed_classes = [classes for classes in data_reader.classes]
             processed_classes[self.mode] = {
-                name: np.delete(value, delete_idx) 
-                    for name, value in processed_classes[self.mode].items()
+                name: np.delete(value, delete_idx)
+                for name, value in processed_classes[self.mode].items()
             }
         else:
             processed_classes = classes
-        
+
         return processed_tensor, processed_classes
 
 
@@ -135,13 +139,17 @@ class RemoveRangeOfOutliers(BaseRemoveOutliers):
 
 
 class RemoveClass(BaseRemoveOutliers):
-    def __init__(self, data_reader, mode, class_name, class_to_remove, remove_from_classes=True):
+    def __init__(
+        self, data_reader, mode, class_name, class_to_remove, remove_from_classes=True
+    ):
         self.class_name = class_name
         self.class_to_remove = class_to_remove
         super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
 
     def preprocess(self, data_reader):
-        delete_idx = np.where(data_reader.classes[self.mode][self.class_name]==self.class_to_remove)
+        delete_idx = np.where(
+            data_reader.classes[self.mode][self.class_name] == self.class_to_remove
+        )
         return self._delete_idx(data_reader, delete_idx)
 
 

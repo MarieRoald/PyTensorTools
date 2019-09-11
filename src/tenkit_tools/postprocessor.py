@@ -7,6 +7,7 @@ from . import utils
 
 class BasePostprocessor(ABC):
     Decomposition = decompositions.BaseDecomposedTensor
+
     def __init__(self, decomposition, data_reader):
         self.data_reader = data_reader
         self.rank = decomposition.rank
@@ -18,14 +19,14 @@ class BasePostprocessor(ABC):
 
     def __getitem__(self, value):
         return self.Decomposition.__getitem__(self, value)
-    
+
     @property
     def shape(self):
         return self.Decomposition.shape(self)
-    
+
     def construct_tensor(self):
         return self.Decomposition.construct_tensor(self)
-    
+
 
 class KruskalPostprocessor(BasePostprocessor):
     Decomposition = decompositions.KruskalTensor
@@ -37,7 +38,9 @@ class KruskalPostprocessor(BasePostprocessor):
 
 
 class KruskalSignFlipper(KruskalPostprocessor):
-    def __init__(self, decomposition, data_reader, flip_params: dict, correction_mode: int):
+    def __init__(
+        self, decomposition, data_reader, flip_params: dict, correction_mode: int
+    ):
         """
         flip specification dictionaries:
         {
@@ -64,40 +67,38 @@ class KruskalSignFlipper(KruskalPostprocessor):
         self.flip_params = flip_params
         self.correction_mode = correction_mode
         if correction_mode in self.flip_params:
-            raise ValueError(f'Correction mode ({correction_mode}) cannot be amongst the keys of flip params')
+            raise ValueError(
+                f"Correction mode ({correction_mode}) cannot be amongst the keys of flip params"
+            )
         super().__init__(decomposition, data_reader)
 
-    def get_sign(
-        self,
-        mode,
-        method,
-        class_name=None,
-        positive_label_value=None,
-    ):
+    def get_sign(self, mode, method, class_name=None, positive_label_value=None):
         factor_matrix = self.factor_matrices[mode]
-        if method == 'classification_driven':
+        if method == "classification_driven":
             if class_name is None:
-                raise ValueError('Must supply values for classification driven sign flip')
-
-            
+                raise ValueError(
+                    "Must supply values for classification driven sign flip"
+                )
 
             labels = self.data_reader.classes[mode][class_name]
             return utils.classification_driven_get_sign(
                 factor_matrix, labels, positive_label_value, factor_matrix
             )
-        elif method == 'data_driven':
+        elif method == "data_driven":
             return utils.data_driven_get_sign(factor_matrix, self.data_reader.tensor)
-        elif method == 'sign_driven':
+        elif method == "sign_driven":
             return utils.sign_driven_get_sign(factor_matrix)
         else:
-            raise ValueError(f'{method} is not a valid sign flip method') 
-    
+            raise ValueError(f"{method} is not a valid sign flip method")
+
     def postprocess(self, decomposition):
         correction_sign = 1
         for flip_mode, params in self.flip_params.items():
             flip_mode = int(flip_mode)
-            sign = self.get_sign(flip_mode, params['method'], **params.get('arguments', {}))
+            sign = self.get_sign(
+                flip_mode, params["method"], **params.get("arguments", {})
+            )
             self.factor_matrices[flip_mode] *= sign
             correction_sign *= sign
-        
+
         self.factor_matrices[self.correction_mode] *= sign
