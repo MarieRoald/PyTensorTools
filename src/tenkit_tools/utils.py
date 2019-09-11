@@ -76,11 +76,11 @@ def classification_driven_get_sign(
 
 def load_experiment_params(experiment_path):
     experiment_path = Path(experiment_path)
-    if "parameters" not in experiment_path.iterdir():
+    parameters_path = experiment_path/"parameters"
+    if not parameters_path.is_dir():
         raise RuntimeError(
             f"{experiment_path} is not the path to an experiment. The \"parameters\" folder is missing."
         )
-    parameters_path = experiment_path/"parameters"
 
     params = {}
     for parameter in ["data_reader", "experiment", "decomposition", "log"]:
