@@ -44,8 +44,6 @@ class ExperimentEvaluator:
         # TODO: maybe have the possibility of evaluating other run than best run?
         checkpoint_path = experiment_path / "checkpoints" / summary["best_run"]
 
-        # decomposer = model_type(rank=model_rank, init_scheme='from_checkpoint')
-        # decomposer._init_fit(data_reader.tensor, initial_decomposition=checkpoint_path)
         single_run_evaluators = create_evaluators(
             self.single_run_evaluator_params,
             summary,
@@ -108,14 +106,6 @@ class ExperimentEvaluator:
                 preprocessor_params = json.load(f)
         return data_reader_params, preprocessor_params
 
-    def generate_data_reader(self, data_reader_params, preprocessor_params):
-        # TODO: This is copy-paste from experiment, should probably move somewhere else
-        DataReader = getattr(datareader, data_reader_params["type"])
-        data_reader = DataReader(**data_reader_params["arguments"])
-        data_reader = utils.preprocess_data(data_reader, preprocessor_params)
-
-        return data_reader
-
     def evaluate_multiple_runs(self, experiment_path, summary, data_reader):
         checkpoint_path = Path(experiment_path) / "checkpoints"
         multi_run_evaluators = create_evaluators(
@@ -139,7 +129,7 @@ class ExperimentEvaluator:
         data_reader_params, preprocessor_params = self.load_data_reader_params(
             experiment_path
         )
-        data_reader = self.generate_data_reader(data_reader_params, preprocessor_params)
+        data_reader = datareader.generate_data_reader(data_reader_params, preprocessor_params)
 
         best_run_evaluations = self.evaluate_single_run(
             experiment_path, summary, data_reader

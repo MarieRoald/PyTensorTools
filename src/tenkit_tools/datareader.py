@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod, abstractproperty
+import os
 from pathlib import Path
 from subprocess import Popen
 from tempfile import TemporaryDirectory
+import warnings
 
 import h5py
 import numpy as np
@@ -9,17 +11,39 @@ from hdf5storage import savemat as savemat_73
 from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
 
+from . import preprocessor
+
 # en liste med classes for hver mode?
 # En liste med dictionaries med labelinfo som f.eks. site for hver mode?
 # - kanskje vi kan putte on off som labels her også?
 
 
+def generate_data_reader(data_reader_params, preprocessor_params):
+    DataReader = globals()[data_reader_params["type"]]
+    data_reader = DataReader(**data_reader_params["arguments"])
+    data_reader = preprocessor.preprocess_data(data_reader, preprocessor_params)
+
+    return data_reader
+
+
 def _to_string_list(iterable):
-    """Used in savemat"""
+    """Convert an iterable to a 1D numpy string array.
+    
+    Used in savemat
+    """
     return np.squeeze(np.array(iterable)).astype(str).astype(object)
 
 
 class ClassID:
+    """Translate class ID to MATLAB style class ids.
+
+    Input: 
+        Dict that maps label name to label values
+    Output:
+        Dict that maps label name to list of unique values (to look up label value)
+        and array of numbers instead of label values. The number array starts at
+        one to be MATLAB friendly.
+    """
     def __init__(self, class_dict):
         self.class_dict = class_dict
 
@@ -33,7 +57,7 @@ class ClassID:
         unique_values = np.unique(classes)
 
         name_to_id = {name: i + 1 for i, name in enumerate(np.squeeze(unique_values))}
-        id_to_name = [name for name in name_to_id.values()]
+        # id_to_name = [name for name in name_to_id.values()]
 
         id_array = np.array([name_to_id[i] for i in classes])
 
@@ -80,7 +104,8 @@ class BaseDataReader(ABC):
         return ClassIDs(self.classes)
 
     def to_matlab(self, label_names, outfile):
-        """
+        """Convert dataset to PLS toolbox style dataset.
+
         Parameters
         ----------
         label_names : List
@@ -217,7 +242,17 @@ class HDF5DataReader(BaseDataReader):
             self._classes = self._load_meta_data(self.meta_info_path, classes)
 
 
-MATLAB_TOOLBOX_PATH = "../../matlab/toolboxes/"
+# Used to convert to MATLAB style dataset.
+if 'MATLAB_TOOLBOX_PATH' in os.environ:
+    MATLAB_TOOLBOX_PATH = str(os.environ['MATLAB_TOOLBOX_PATH'])
+else:
+    MATLAB_TOOLBOX_PATH = "../../matlab/toolboxes/"
+    warnings.warn(
+        f"MATLAB_TOOLBOX_PATH system variable is not set. Using {MATLAB_TOOLBOX_PATH} instead",
+        RuntimeWarning
+    )
+
+
 MATLAB_CREATE_DATASET = f"""
 disp('Adding to path');
 addpath(genpath('{MATLAB_TOOLBOX_PATH}'));
