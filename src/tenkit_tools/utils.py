@@ -74,3 +74,27 @@ def classification_driven_get_sign(
     return signs.reshape([1, -1])
 
 
+def load_experiment_params(experiment_path):
+    experiment_path = Path(experiment_path)
+    if "parameters" not in experiment_path.iterdir():
+        raise RuntimeError(
+            f"{experiment_path} is not the path to an experiment. The \"parameters\" folder is missing."
+        )
+    parameters_path = experiment_path/"parameters"
+
+    params = {}
+    for parameter in ["data_reader", "experiment", "decomposition", "log"]:
+        parameter = f"{parameter}_params"
+        parameter_file = parameters_path / f"{parameter}.json"
+
+        with parameter_file.open() as f:
+            params[parameter] = json.load(f)
+    
+    preprocessor_file = parameters_path/"preprocessor_params.json"
+    if preprocessor_file.is_file():
+        with preprocessor_file.open() as f:
+            params["preprocessor_params"] = json.load(f)
+    else:
+        params["preprocessor_params"] = None
+    
+    return params

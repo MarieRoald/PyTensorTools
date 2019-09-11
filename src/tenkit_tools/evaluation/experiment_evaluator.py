@@ -91,21 +91,6 @@ class ExperimentEvaluator:
         # return the results as dict
         return results
 
-    def load_data_reader_params(self, experiment_path):
-        data_reader_path = experiment_path / "parameters" / "data_reader_params.json"
-        with data_reader_path.open() as f:
-            data_reader_params = json.load(f)
-
-        preprocessor_params = None
-        preprocessor_params_path = (
-            experiment_path / "parameters" / "preprocessor_params.json"
-        )
-
-        if preprocessor_params_path.is_file():
-            with preprocessor_params_path.open() as f:
-                preprocessor_params = json.load(f)
-        return data_reader_params, preprocessor_params
-
     def evaluate_multiple_runs(self, experiment_path, summary, data_reader):
         checkpoint_path = Path(experiment_path) / "checkpoints"
         multi_run_evaluators = create_evaluators(
@@ -126,9 +111,10 @@ class ExperimentEvaluator:
         # last inn summary fil
         summary = utils.load_summary(experiment_path)
 
-        data_reader_params, preprocessor_params = self.load_data_reader_params(
-            experiment_path
-        )
+        experiment_params = utils.load_experiment_params(experiment_path)
+        data_reader_params = experiment_params["data_reader_params"]
+        preprocessor_params = experiment_params["preprocessor_params"]
+
         data_reader = datareader.generate_data_reader(data_reader_params, preprocessor_params)
 
         best_run_evaluations = self.evaluate_single_run(
@@ -144,7 +130,6 @@ class ExperimentEvaluator:
             experiment_path, summary, data_reader
         )
         print(multi_run_evaluations)
-        # Last inn all runs???
 
         with (experiment_path / "summaries" / "evaluations.json").open("w") as f:
             json.dump(
@@ -155,7 +140,3 @@ class ExperimentEvaluator:
                 f,
             )
 
-        # kjør multi_run_evaluators på alle?
-
-        # kjør single run evaluators på beste run?
-        pass
