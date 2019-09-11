@@ -1,10 +1,13 @@
-from scipy.io import savemat
 import sys
-sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
-sys.path.append('../PyTensor/')
+
+import numpy as np
+from scipy.io import savemat
+
 import tenkit.base
 from tenkittools.experiment import Experiment
-import numpy as np
+
+sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
+sys.path.append('../PyTensor/')
 
 if __name__ == "__main__":
 

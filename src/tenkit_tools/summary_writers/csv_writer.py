@@ -1,9 +1,9 @@
 import csv
-from collections import ChainMap
 import os
+from collections import ChainMap
 from pathlib import Path
-from ..utils import load_summary, load_evaluations
 
+from ..utils import load_evaluations, load_summary
 
 CSV_FILE = 'slide.csv'
 

@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from pathlib import Path
 from operator import itemgetter
-import numpy as np
+from pathlib import Path
 
 import h5py
+import numpy as np
+
+import tenkit
 
 from .base_evaluator import BaseEvaluator, create_evaluator
-import tenkit
 
 
 def _sort_by(l, sort_by):

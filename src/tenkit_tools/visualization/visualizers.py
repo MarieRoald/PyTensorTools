@@ -1,16 +1,18 @@
+import string
 from abc import ABC, abstractmethod
-from .. import visualization
-from ..evaluation.base_evaluator import BaseEvaluator
-from .. import utils
-import tenkit
+
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import string
-import matplotlib as mpl
-
-from plottools.fMRI.tile_plots import create_fmri_factor_plot, create_fmri_evolving_factor_plot
-import plottools
 from scipy.stats import ttest_ind
+
+import plottools
+import tenkit
+from plottools.fMRI.tile_plots import (create_fmri_evolving_factor_plot,
+                                       create_fmri_factor_plot)
+
+from .. import utils, visualization
+from ..evaluation.base_evaluator import BaseEvaluator
 
 mpl.rcParams['font.family'] = 'PT Sans'
 

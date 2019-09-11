@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+
 import numpy as np
+
 from .datareader import BaseDataReader
 
 
@@ -152,4 +154,3 @@ class Transpose(BasePreprocessor):
         self.mode_names = [self.mode_names[idx] for idx in self.permutation]
         classes = [data_reader.classes[idx] for idx in self.permutation]
         return np.transpose(data_reader.tensor, self.permutation), classes
-

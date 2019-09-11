@@ -1,11 +1,12 @@
-import sys
-import json
 import argparse
+import json
+import sys
 from pathlib import Path
+
+from tenkittools.experiment import Experiment
 
 sys.path.append('/home/marie/Dropbox/Programming/Simula/PyTensor_classification/')
 sys.path.append('../PyTensor/')
-from tenkittools.experiment import Experiment
 
 #TODO: Add argument to assert that decomposer params is set
 

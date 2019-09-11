@@ -1,20 +1,17 @@
+import csv
+import json
+from collections import ChainMap
 from pathlib import Path
 from typing import Dict
+
 import h5py
 import xlsxwriter
 
-import json
 import tenkit
 
-from .. import datareader
-from .. import evaluation
-from .. import preprocessor
-from .. import utils
-from .base_evaluator import create_evaluators
+from .. import datareader, evaluation, preprocessor, utils
 from ..visualization import create_visualisers
-
-from collections import ChainMap
-import csv
+from .base_evaluator import create_evaluators
 
 
 class ExperimentEvaluator:

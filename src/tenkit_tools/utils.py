@@ -1,11 +1,13 @@
-from typing import Dict
 import json
-from pathlib import Path
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Dict
+
 import h5py
-import tenkit.utils
 import numpy as np
 from scipy.stats import ttest_ind
+
+import tenkit.utils
 
 from . import preprocessor
 

@@ -1,7 +1,7 @@
 import argparse
-from tenkittools.io.factor_export import export_best_components
 from pathlib import Path
 
+from tenkittools.io.factor_export import export_best_components
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -27,4 +27,3 @@ if __name__ == '__main__':
             continue
         out_name = f'{experiment.name}_factors.' + args.dtype
         export_best_components(experiment, out_name=out_name)
-        

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from .. import evaluation
+
 import tenkit
-from .. import postprocessor
+
+from .. import evaluation, postprocessor
 
 
 def create_evaluator(evaluator_params, summary, postprocessor_params, data_reader,):

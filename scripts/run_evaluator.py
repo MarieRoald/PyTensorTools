@@ -1,18 +1,18 @@
 #!/home/marie/anaconda3/bin/python
-import sys
 import argparse
-from pathlib import Path
 import json
+import sys
+from pathlib import Path
 
+import tenkit.base
+from tenkittools import summary_writers
+from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
+from tenkittools.experiment import Experiment
 
 sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
 sys.path.append('../PlotTools')
 
-import tenkit.base
-from tenkittools.experiment import Experiment
-from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
-from tenkittools import summary_writers
 
 sys.path.append('../PlotTools')
 

@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from tenkit.decomposition import decompositions
-from . import utils
 
+from tenkit.decomposition import decompositions
+
+from . import utils
 
 
 class BasePostprocessor(ABC):

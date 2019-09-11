@@ -1,12 +1,12 @@
+import itertools
+import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 from subprocess import Popen
-import itertools
-import tempfile
 
 import numpy as np
-from scipy.stats import ttest_ind
 from scipy.io import loadmat, savemat
+from scipy.stats import ttest_ind
 
 import tenkit
 from tenkit import metrics  # TODO: Fix __init__.py

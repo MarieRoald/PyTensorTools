@@ -1,21 +1,18 @@
-from abc import ABC, abstractproperty, abstractmethod
-from copy import copy
 import json
 import multiprocessing
-from typing import Dict
-from time import sleep
-
-from . import datareader
-from . import preprocessor
-from tenkit.decomposition import cp
-from tenkit.decomposition import parafac2
-import tenkit
-from pathlib import Path
-
+from abc import ABC, abstractmethod, abstractproperty
+from copy import copy
 from functools import partial
+from pathlib import Path
+from time import sleep
+from typing import Dict
 
 import numpy as np
 
+import tenkit
+from tenkit.decomposition import cp, parafac2
+
+from . import datareader, preprocessor
 
 EXPERIMENT_COMPLETED = 0
 EXPERIMENT_INTERRUPTED = 1

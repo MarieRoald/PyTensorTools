@@ -1,5 +1,6 @@
 import xlsxwriter
-from ..utils import load_summary, load_evaluations
+
+from ..utils import load_evaluations, load_summary
 
 
 def _write_summary_excel(sheet, row, summary):

@@ -1,14 +1,13 @@
+import argparse
 import csv
 import os
-import argparse
 from pathlib import Path
 
 import pptx
-from pptx.util import Pt, Cm
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+from pptx.util import Cm, Pt
 
 from ..utils import load_summary
-
 
 TITLE_ONLY_SLIDE = 5
 BLANK_SLIDE = 6

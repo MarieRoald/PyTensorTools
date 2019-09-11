@@ -1,13 +1,13 @@
-from abc import ABC, abstractproperty, abstractmethod
-from tempfile import TemporaryDirectory
-from subprocess import Popen
+from abc import ABC, abstractmethod, abstractproperty
 from pathlib import Path
+from subprocess import Popen
+from tempfile import TemporaryDirectory
 
+import h5py
 import numpy as np
+from hdf5storage import savemat as savemat_73
 from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
-import h5py
-from hdf5storage import savemat as savemat_73
 
 # en liste med classes for hver mode?
 # En liste med dictionaries med labelinfo som f.eks. site for hver mode?

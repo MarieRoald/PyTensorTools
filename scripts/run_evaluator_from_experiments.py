@@ -1,12 +1,14 @@
 
+import argparse
 #!/home/marie/anaconda3/bin/python
 import sys
+
+import tenkit.base
+from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
+from tenkittools.experiment import Experiment
+
 sys.path.append('../PyTensor')
 sys.path.append('../PyTensor_classification')
-import tenkit.base
-from tenkittools.experiment import Experiment
-from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
-import argparse
 
 
 if __name__ == '__main__':
@@ -41,6 +43,3 @@ if __name__ == '__main__':
 
     summary_writers.create_csv(args.result_parent_path)
     summary_writers.create_ppt(args.result_parent_path)
-    
-    
-

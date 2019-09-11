@@ -1,9 +1,12 @@
-import pytest
-import numpy as np 
 import tempfile
-from scipy.io import savemat
 from pathlib import Path
+
+import numpy as np
+import pytest
+from scipy.io import savemat
+
 from ..datareader import MatlabDataReader
+
 
 class TestMatlabDataReader:
 
