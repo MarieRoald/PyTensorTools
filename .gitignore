@@ -5,3 +5,5 @@
 *.pyc
 test_result_for_evaluation_test/*
 logs/*
+*.egg-info/
+*build/
