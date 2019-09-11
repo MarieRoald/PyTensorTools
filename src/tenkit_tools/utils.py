@@ -1,3 +1,4 @@
+from typing import Dict
 import json
 from pathlib import Path
 from contextlib import contextmanager
@@ -5,6 +6,8 @@ import h5py
 import tenkit.utils
 import numpy as np
 from scipy.stats import ttest_ind
+
+from . import preprocessor
 
 
 @contextmanager
@@ -29,10 +32,12 @@ def load_best_group(run_h5):
 
 
 def load_summary(experiment_path):
+    experiment_path = Path(experiment_path)
     with (experiment_path/'summaries'/'summary.json').open() as f:
         return json.load(f)
     
 def load_evaluations(experiment_path):
+    experiment_path = Path(experiment_path)
     with (experiment_path/'summaries'/'evaluations.json').open() as f:
         return json.load(f)
 
@@ -62,3 +67,15 @@ def classification_driven_get_sign(factor_matrix, labels, positive_label_value=N
     signs = np.sign(t_statistics)
 
     return signs.reshape([1, -1])
+
+
+def preprocess_data(data_reader, preprocessor_params):
+    if preprocessor_params is not None:
+        if isinstance(preprocessor_params, Dict):
+            preprocessor_params = [preprocessor_params]
+        
+        for preprocessor_params in preprocessor_params:
+            Preprocessor = getattr(preprocessor, preprocessor_params['type'])
+            args = preprocessor_params.get('arguments', {})
+            data_reader = Preprocessor(data_reader=data_reader, **args)
+    return data_reader

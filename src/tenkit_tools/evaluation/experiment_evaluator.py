@@ -9,6 +9,7 @@ import tenkit
 from .. import datareader
 from .. import evaluation
 from .. import preprocessor
+from .. import utils
 from .base_evaluator import create_evaluators
 from ..visualization import create_visualisers
 
@@ -36,13 +37,6 @@ class ExperimentEvaluator:
         self.multi_run_evaluator_params = multi_run_evaluator_params
         self.single_run_visualiser_params = single_run_visualiser_params
         self.postprocessor_params = postprocessor_params
-
-    def load_experiment_summary(self, experiment_path):
-        summary_path = experiment_path / 'summaries/summary.json'
-
-        with summary_path.open('r') as f:
-            summary = json.load(f)
-        return summary
         
     def evaluate_single_run(
         self,
@@ -111,23 +105,11 @@ class ExperimentEvaluator:
                 preprocessor_params = json.load(f)
         return data_reader_params, preprocessor_params
         
-    def preprocess_data(self, data_reader, preprocessor_params):
-        # This should not be a method inside a class... a copy
-        if preprocessor_params is not None:
-            if isinstance(preprocessor_params, Dict):
-                preprocessor_params = [preprocessor_params]
-            
-            for preprocessor_params in preprocessor_params:
-                Preprocessor = getattr(preprocessor, preprocessor_params['type'])
-                args = preprocessor_params.get('arguments', {})
-                data_reader = Preprocessor(data_reader=data_reader, **args)
-        return data_reader
-
     def generate_data_reader(self, data_reader_params, preprocessor_params):
         # TODO: This is copy-paste from experiment, should probably move somewhere else
         DataReader = getattr(datareader, data_reader_params['type'])
         data_reader = DataReader(**data_reader_params['arguments'])
-        data_reader = self.preprocess_data(data_reader, preprocessor_params)
+        data_reader = utils.preprocess_data(data_reader, preprocessor_params)
 
         return data_reader
     
@@ -150,7 +132,7 @@ class ExperimentEvaluator:
     def evaluate_experiment(self, experiment_path):
         experiment_path = Path(experiment_path)
         # last inn summary fil
-        summary = self.load_experiment_summary(experiment_path)
+        summary = utils.load_summary(experiment_path)
         
         data_reader_params, preprocessor_params = self.load_data_reader_params(experiment_path)
         data_reader = self.generate_data_reader(data_reader_params, preprocessor_params)
