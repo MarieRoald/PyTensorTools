@@ -28,6 +28,7 @@ class FinalLoss(BaseSingleRunEvaluator):
     def _evaluate(self, data_reader, h5):
         return {self.name: h5['LossLogger/values'][-1]}
 
+
 class ExplainedVariance(BaseSingleRunEvaluator):
     #TODO: maybe create a decomposer to not rely on logging
     _name = 'Explained variance'
@@ -81,6 +82,7 @@ class MinPValue(AllPValues):
     def _evaluate(self, data_reader, h5):
         p_values = self._calculate_p_values_from_factors(data_reader, h5)
         return {self.name: min(p_values), 'component': int(np.argmin(p_values))}
+
 
 class ClassBalance(BaseSingleRunEvaluator):
     # Only works for two classes
@@ -144,6 +146,7 @@ class WorstDegeneracy(BaseSingleRunEvaluator):
 
         return {self.name: min_score}
 
+
 class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
     _name = 'Worst degeneracy parafac2'
     def __init__(self, summary, modes=None, return_permutation=False, **kwargs):
@@ -189,6 +192,8 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
             return {self.name: min_score, f'permutation:': (worst_p1, worst_p2)}
 
         return {self.name: min_score}
+
+
 class CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
 
@@ -207,6 +212,7 @@ class CoreConsistency(BaseSingleRunEvaluator):
         cc = tenkit.metrics.core_consistency(data_reader.tensor, *factor_matrices)
         return {self.name: np.asscalar(cc)}
 
+
 class Parafac2CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
 
@@ -224,6 +230,7 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
 
         return {self.name: np.asscalar(cc)}
 
+
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
     def __init__(self, summary, matlab_scripts_path=None, **kwargs):
         super().__init__(summary)
@@ -232,6 +239,7 @@ class BaseMatlabEvaluator(BaseSingleRunEvaluator):
         if matlab_scripts_path is None:
             matlab_scripts_path = Path(__file__).parent / 'legacy_matlab_code'
         self.matlab_scripts_path = str(matlab_scripts_path)
+
 
 class MaxKMeansAcc(BaseMatlabEvaluator):
     _name = 'Max Kmeans clustering accuracy'
