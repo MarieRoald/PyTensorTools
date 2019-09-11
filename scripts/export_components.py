@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from tenkittools.io.factor_export import export_best_components
+from tenkit_tools.io.factor_export import export_best_components
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

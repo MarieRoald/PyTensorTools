@@ -4,8 +4,8 @@ import argparse
 import sys
 
 import tenkit.base
-from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
-from tenkittools.experiment import Experiment
+from tenkit_tools.evaluation.experiment_evaluator import ExperimentEvaluator
+from tenkit_tools.experiment import Experiment
 
 
 if __name__ == "__main__":

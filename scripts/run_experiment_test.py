@@ -4,7 +4,7 @@ import numpy as np
 from scipy.io import savemat
 
 import tenkit.base
-from tenkittools.experiment import Experiment
+from tenkit_tools.experiment import Experiment
 
 
 if __name__ == "__main__":

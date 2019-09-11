@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-import tenkittools.summary_writers as summary_writers
+import tenkit_tools.summary_writers as summary_writers
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

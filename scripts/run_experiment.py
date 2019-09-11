@@ -3,7 +3,7 @@ import json
 import sys
 from pathlib import Path
 
-from tenkittools.experiment import Experiment
+from tenkit_tools.experiment import Experiment
 
 
 # TODO: Add argument to assert that decomposer params is set

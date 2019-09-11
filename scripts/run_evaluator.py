@@ -5,9 +5,9 @@ import sys
 from pathlib import Path
 
 import tenkit.base
-from tenkittools import summary_writers
-from tenkittools.evaluation.experiment_evaluator import ExperimentEvaluator
-from tenkittools.experiment import Experiment
+from tenkit_tools import summary_writers
+from tenkit_tools.evaluation.experiment_evaluator import ExperimentEvaluator
+from tenkit_tools.experiment import Experiment
 
 
 if __name__ == "__main__":
