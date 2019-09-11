@@ -1,6 +1,4 @@
-from setuptools import setup
-from setuptools import find_packages
-
+from setuptools import find_packages, setup
 
 setup(
     name="TensorKit-tools",
@@ -8,4 +6,3 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
 )
-
