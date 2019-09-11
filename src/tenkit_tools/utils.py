@@ -74,13 +74,3 @@ def classification_driven_get_sign(
     return signs.reshape([1, -1])
 
 
-def preprocess_data(data_reader, preprocessor_params):
-    if preprocessor_params is not None:
-        if isinstance(preprocessor_params, Dict):
-            preprocessor_params = [preprocessor_params]
-
-        for preprocessor_params in preprocessor_params:
-            Preprocessor = getattr(preprocessor, preprocessor_params["type"])
-            args = preprocessor_params.get("arguments", {})
-            data_reader = Preprocessor(data_reader=data_reader, **args)
-    return data_reader
