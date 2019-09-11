@@ -13,14 +13,14 @@ from plottools.fMRI.tile_plots import (
     create_fmri_factor_plot,
 )
 
-from .. import utils, visualization
+from .. import utils
 from ..evaluation.base_evaluator import BaseEvaluator
 
 mpl.rcParams["font.family"] = "PT Sans"
 
 
 def create_visualiser(visualiser_params, summary, postprocessor_params, data_reader):
-    Visualiser = getattr(visualization, visualiser_params["type"])
+    Visualiser = globals()[visualiser_params["type"]]
     kwargs = visualiser_params.get("arguments", {})
     return Visualiser(
         summary=summary,

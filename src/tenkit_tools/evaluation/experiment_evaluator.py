@@ -10,7 +10,7 @@ import xlsxwriter
 import tenkit
 
 from .. import datareader, evaluation, preprocessor, utils
-from ..visualization import create_visualisers
+from .single_run_visualisers import create_visualisers
 from .base_evaluator import create_evaluators
 
 
