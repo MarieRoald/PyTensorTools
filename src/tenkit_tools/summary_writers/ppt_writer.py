@@ -37,7 +37,7 @@ DEFAULT_CONTENT = [
             "params": {"top": 9, "height": 5, "name": "factor_scatterplot"},
         },
     ],
-    [{"type": "image", "params": {"height": 7.27, "name": "visualisation"}}],
+    [{"type": "image", "params": {"height": 7.27, "name": "leverage"}}],
     [{"type": "image", "params": {"name": "factor_lineplot", "height": 5}}],
 ]
 

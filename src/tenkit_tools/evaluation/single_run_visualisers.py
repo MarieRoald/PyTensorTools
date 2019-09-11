@@ -503,6 +503,7 @@ class ResidualHistogram(BaseVisualiser):
 
 
 class LeverageScatterPlot(BaseVisualiser):
+    _name = "leverage"
     def __init__(
         self,
         summary,
