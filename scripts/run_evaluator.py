@@ -34,7 +34,7 @@ if __name__ == "__main__":
         experiments = [Path(args.result_path)]
 
     if not args.skip_evaluation:
-        for experiment in experiments:
+        for experiment in sorted(experiments):
             print(f"Evaluating {experiment}")
             if not (experiment / "summaries" / "summary.json").is_file():
                 print(f"Skipping {experiment}")
