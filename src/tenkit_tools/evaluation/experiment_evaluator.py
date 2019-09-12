@@ -108,7 +108,8 @@ class ExperimentEvaluator:
 
     def evaluate_experiment(self, experiment_path):
         experiment_path = Path(experiment_path)
-        # last inn summary fil
+
+        # Load info from experiment
         summary = utils.load_summary(experiment_path)
 
         experiment_params = utils.load_experiment_params(experiment_path)
@@ -117,14 +118,16 @@ class ExperimentEvaluator:
 
         data_reader = datareader.generate_data_reader(data_reader_params, preprocessor_params)
 
+        # Evaluate
         best_run_evaluations = self.evaluate_single_run(
             experiment_path, summary, data_reader
         )
+        print(best_run_evaluations)
+
         best_run_visualisations = self.visualise_single_run(
             experiment_path, summary, data_reader
         )
-
-        print(best_run_evaluations)
+        print(best_run_visualisations)
 
         multi_run_evaluations = self.evaluate_multiple_runs(
             experiment_path, summary, data_reader
