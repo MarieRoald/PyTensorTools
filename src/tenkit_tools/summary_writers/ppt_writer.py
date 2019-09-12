@@ -54,7 +54,7 @@ def generate_uniqueness_table(slide, uniqueness_information, num_rows=10):
     tableheight = (num_rows + 1) * row_height
 
     tableshape = slide.shapes.add_table(
-        num_rows, num_cols, left, top, tablewidth, tableheight
+        num_rows + 1, num_cols, left, top, tablewidth, tableheight
     )
     table = tableshape.table
 
