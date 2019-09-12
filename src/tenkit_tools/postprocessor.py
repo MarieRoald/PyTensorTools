@@ -101,4 +101,4 @@ class KruskalSignFlipper(KruskalPostprocessor):
             self.factor_matrices[flip_mode] *= sign
             correction_sign *= sign
 
-        self.factor_matrices[self.correction_mode] *= sign
+        self.factor_matrices[self.correction_mode] *= correction_sign
