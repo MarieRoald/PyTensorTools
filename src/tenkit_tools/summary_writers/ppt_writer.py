@@ -7,7 +7,7 @@ import pptx
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Cm, Pt
 
-from ..utils import load_summary
+from ..utils import load_summary, load_evaluations
 
 TITLE_ONLY_SLIDE = 5
 BLANK_SLIDE = 6
@@ -42,7 +42,81 @@ DEFAULT_CONTENT = [
 ]
 
 
-def generate_table(slide, data_rows, column_names):
+def generate_uniqueness_table(slide, uniqueness_information, num_rows=10):
+    # Setup table
+    row_height = Cm(0.78)
+
+    num_cols = 4
+    col_widths = [Cm(4)]*4
+
+    top, left = Cm(2.5), Cm(1)
+    tablewidth = sum(col_widths)
+    tableheight = (num_rows + 1) * row_height
+
+    tableshape = slide.shapes.add_table(
+        num_rows, num_cols, left, top, tablewidth, tableheight
+    )
+    table = tableshape.table
+
+    # Insert table content
+    column_names = {
+        'Run Name': 'name',
+        'SSE Difference': 'SSE_difference',
+        'Fit Difference': 'fit_difference',
+        'FMS': 'fms',
+    }
+    column_names = [
+        'Run Name',
+        'SSE Difference',
+        'Fit Difference',
+        'FMS'
+    ]
+    data_names = [
+        'name',
+        'SSE_difference',
+        'fit_difference',
+        'fms'
+    ]
+    format_options = [
+        '',
+        '.2e',
+        '.2e',
+        '.2f'
+    ]
+
+    for cell_title, cell in zip(column_names, table.rows[0].cells):
+        frame = cell.text_frame
+        frame.clear()
+        run = frame.paragraphs[0].add_run()
+        run.text = cell_title
+
+        font = run.font
+        font.name = FONT_NAME
+        font.size = FONT_SIZE
+        font.bold = True
+
+    for i in range(num_rows):
+        cellrow = table.rows[i + 1]
+        for data_name, format_option, cell in zip(
+                data_names, format_options, cellrow.cells
+            ):
+            cell_data = uniqueness_information[data_name][i]
+ 
+            frame = cell.text_frame
+            frame.clear()
+            run = frame.paragraphs[0].add_run()
+            run.text = f"{cell_data:{format_option}}"
+
+            font = run.font
+            font.name = FONT_NAME
+            font.size = FONT_SIZE
+
+    # Format table
+    for col_width, column in zip(col_widths, table.columns):
+        column.width = col_width
+
+
+def generate_overview_table(slide, data_rows, column_names):
     # Setup table
     num_rows = len(data_rows) + 1
     row_height = Cm(0.78)
@@ -148,7 +222,7 @@ def generate_presentation(
     else:
         slide = pres.slides.add_slide(pres.slide_layouts[BLANK_SLIDE])
 
-    generate_table(slide, data_rows, column_names)
+    generate_overview_table(slide, data_rows, column_names)
 
     for experiment in sorted(experiment_folder.iterdir()):
         if (
@@ -173,6 +247,18 @@ def generate_presentation(
 
             slide.shapes.title.text_frame.vertical_anchor = MSO_ANCHOR.TOP
             generate_slide(slide, experiment, slide_content)
+        
+        evaluations = load_evaluations(experiment)
+        if (
+            "multi_run_evaluations" in evaluations and
+            "Uniqueness" in evaluations["multi_run_evaluations"]
+        ):
+            slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
+            slide.shapes.title.text = (
+                f'{model} model with {summary["model_rank"]} components'
+            )
+            generate_uniqueness_table(slide, evaluations["multi_run_evaluations"]["Uniqueness"])
+
 
         # for i, image in enumerate(sorted((experiment/'summaries'/'visualizations').iterdir())):
         #    slide = pres.slides.add_slide(pres.slide_layouts[TITLE_ONLY_SLIDE])
