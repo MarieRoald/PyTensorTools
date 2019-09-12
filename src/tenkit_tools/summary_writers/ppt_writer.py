@@ -257,6 +257,12 @@ def generate_presentation(
             slide.shapes.title.text = (
                 f'{model} model with {summary["model_rank"]} components'
             )
+            for paragraph in slide.shapes.title.text_frame.paragraphs:
+                paragraph.font.name = FONT_NAME
+                paragraph.font.bold = True
+                paragraph.font.size = Pt(18)
+                paragraph.alignment = PP_ALIGN.LEFT
+
             generate_uniqueness_table(slide, evaluations["multi_run_evaluations"]["Uniqueness"])
 
 
