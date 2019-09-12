@@ -165,7 +165,10 @@ def generate_overview_table(slide, data_rows, column_names):
 def add_image(slide, experiment, image_params):
     height = Cm(image_params.get("height", 5))
     vis_path = Path(experiment) / "summaries" / "visualizations"
-    name = str(next(vis_path.glob(image_params["name"] + "*")))
+    try:
+        name = str(next(vis_path.glob(image_params["name"] + "*")))
+    except StopIteration:
+        return
 
     image = slide.shapes.add_picture(name, 0, 0, height=height)
 
