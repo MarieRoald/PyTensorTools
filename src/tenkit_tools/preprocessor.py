@@ -48,6 +48,15 @@ class IdentityMap(BasePreprocessor):
 
 
 class Center(BasePreprocessor):
+    """Center data across given mode. 
+    
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    center_across: int
+        Which mode to center across
+    """
     def __init__(self, data_reader, center_across):
         self.center_across = center_across
         super().__init__(data_reader)
@@ -59,6 +68,15 @@ class Center(BasePreprocessor):
 
 
 class Scale(BasePreprocessor):
+    """Scale data within given mode. 
+    
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    scale_within: int
+        Which mode to scale within
+    """
     def __init__(self, data_reader, scale_within):
         self.scale_within = scale_within
         super().__init__(data_reader)
@@ -90,6 +108,7 @@ class Standardize(BasePreprocessor):
 
 
 class MarylandPreprocess(BasePreprocessor):
+    
     def __init__(self, data_reader, mode, center=True, scale=True):
         self.mode = mode
         self.center = center
@@ -132,6 +151,20 @@ class BaseRemoveOutliers(BasePreprocessor):
 
 
 class RemoveOutliers(BaseRemoveOutliers):
+    """Removes subarrays at the given indices across a given mode. 
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    mode: int
+        Which mode to remove subarrays from
+    outlier_idx: np.ndarray
+        Indices to remove
+    remove_from_classes: bool (optinal)
+        By default, the class value is removed from the class array. 
+        if false it is not removed (usefull if the class value is not in the array)
+    """
     def __init__(self, data_reader, mode, outlier_idx, remove_from_classes=True):
         self.outlier_idx = outlier_idx
         super().__init__(data_reader, mode, remove_from_classes=remove_from_classes)
@@ -141,6 +174,22 @@ class RemoveOutliers(BaseRemoveOutliers):
 
 
 class RemoveRangeOfOutliers(BaseRemoveOutliers):
+    """Removes subarrays that lies within a range across a given mode.
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    mode: int
+        Which mode to remove subarrays from
+    start_idx: int
+        First element to delete
+    end_idx: int
+        Endpoint of deletion. This element will not be deleted
+    remove_from_classes: bool (optinal)
+        By default, the class value is removed from the class array. 
+        if false it is not removed (useful if the class value is not in the array)
+    """
     def __init__(self, data_reader, mode, start_idx, end_idx, remove_from_classes=True):
         self.start_idx = start_idx
         self.end_idx = end_idx
@@ -152,6 +201,22 @@ class RemoveRangeOfOutliers(BaseRemoveOutliers):
 
 
 class RemoveClass(BaseRemoveOutliers):
+    """Removes subarrays that matches a given class across a given mode.
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    mode: int
+        Which mode to remove subarrays from
+    class_name: str
+        Name of the class to match against
+    class_to_remove: str
+        Which class value should be removed
+    remove_from_classes: bool (optinal)
+        By default, the class value is removed from the class array. 
+        if false it is not removed (usefull if the class value is not in the array)
+    """
     def __init__(
         self, data_reader, mode, class_name, class_to_remove, remove_from_classes=True
     ):
@@ -167,7 +232,20 @@ class RemoveClass(BaseRemoveOutliers):
 
 
 class Transpose(BasePreprocessor):
-    def __init__(self, data_reader, permutation):
+    """Permutes the modes of a tensor.
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    permutation : list of ints (optional)
+        Permutes the modes according to the values given.
+        If not given,reverse the dimensions, otherwise permute the axes according to the values given.
+    """
+    def __init__(self, data_reader, permutation=None):
+        if permutation is None:
+            permutation = reversed(list(range(data_reader.tensor.ndim)))
+        
         self.permutation = permutation
         super().__init__(data_reader)
 
@@ -175,3 +253,41 @@ class Transpose(BasePreprocessor):
         self.mode_names = [self.mode_names[idx] for idx in self.permutation]
         classes = [data_reader.classes[idx] for idx in self.permutation]
         return np.transpose(data_reader.tensor, self.permutation), classes
+
+
+class Derivative(BasePreprocessor):
+    """Takes the derivative across one mode of a tensor.
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    mode: int
+        Which mode to take the derivative across
+    """
+
+    def __init__(self, data_reader, mode=0):
+        self.mode = mode
+        super().__init__(data_reader)
+
+    def tensor_derivative(self, tensor, mode=0):
+
+        num_elements = tensor.shape[mode]
+        all_indices = np.arange(num_elements)
+
+        even_indices = all_indices[1:]
+        odd_indices = all_indices[:-1]
+
+        derivative_tensor = tensor.take(indices=even_indices, axis=mode) -\
+                            tensor.take(indices=odd_indices, axis=mode)
+
+        return derivative_tensor
+
+    def preprocess(self, data_reader):
+        derivative_tensor = self.tensor_derivative(data_reader.tensor)
+
+        derivative_classes = data_reader.classes
+        derivative_classes[self.mode] = {class_name: self.tensor_derivative(class_values, mode=0) 
+                                         for (class_name, class_values) in derivative_classes[self.mode].items()}
+
+        return derivative_tensor, derivative_classes
