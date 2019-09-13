@@ -1,10 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Dict
+from subclass_register import SubclassRegister
 
 import numpy as np
 
 from .datareader import BaseDataReader
+from .utils import TestDefaults
 
+test_defaults = TestDefaults()
+preprocessor_register = SubclassRegister('preprocessor')
 
 def preprocess_data(data_reader, preprocessor_params):
     if preprocessor_params is not None:
@@ -22,6 +26,7 @@ def get_preprocessor(preprocessor):
     raise NotImplementedError
 
 
+@preprocessor_register.link_base
 class BasePreprocessor(BaseDataReader):
     def __init__(self, data_reader):
         self.data_reader = data_reader
@@ -42,11 +47,13 @@ class BasePreprocessor(BaseDataReader):
         return self._classes
 
 
+@test_defaults.set_default({})
 class IdentityMap(BasePreprocessor):
     def preprocess(self, data_reader):
         return super().preprocess(data_reader)
 
 
+@test_defaults.set_default({'center_across':0})
 class Center(BasePreprocessor):
     """Center data across given mode. 
     
@@ -67,6 +74,7 @@ class Center(BasePreprocessor):
         return tensor, data_reader.classes
 
 
+@test_defaults.set_default({'scale_within':1})
 class Scale(BasePreprocessor):
     """Scale data within given mode. 
     
@@ -84,12 +92,13 @@ class Scale(BasePreprocessor):
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
         reduction_axis = [i for i in range(len(tensor.shape)) if i != self.scale_within]
-        weightings = np.linalg.norm(tensor, axis=reduction_axis, keepdims=True)
+        weightings = np.linalg.norm(tensor, axis=tuple(reduction_axis), keepdims=True)
         tensor = tensor / weightings
 
         return tensor, data_reader.classes
 
 
+@test_defaults.set_default({'center_across':0, 'scale_within':1})
 class Standardize(BasePreprocessor):
     def __init__(self, data_reader, center_across, scale_within):
         if center_across == scale_within:
@@ -107,6 +116,7 @@ class Standardize(BasePreprocessor):
         return scaled_dataset.tensor, scaled_dataset.classes
 
 
+@test_defaults.set_default({'mode':1})
 class MarylandPreprocess(BasePreprocessor):
     
     def __init__(self, data_reader, mode, center=True, scale=True):
@@ -126,6 +136,7 @@ class MarylandPreprocess(BasePreprocessor):
         return tensor, data_reader.classes
 
 
+@preprocessor_register.skip
 class BaseRemoveOutliers(BasePreprocessor):
     def __init__(self, data_reader, mode, remove_from_classes=True):
         self.mode = mode
@@ -150,6 +161,7 @@ class BaseRemoveOutliers(BasePreprocessor):
         return processed_tensor, processed_classes
 
 
+@test_defaults.set_default({'mode':1, 'outlier_idx':[1,4,5]})
 class RemoveOutliers(BaseRemoveOutliers):
     """Removes subarrays at the given indices across a given mode. 
 
@@ -173,6 +185,7 @@ class RemoveOutliers(BaseRemoveOutliers):
         return self._delete_idx(data_reader, self.outlier_idx)
 
 
+@test_defaults.set_default({'mode':1, 'start_idx':1, 'end_idx':-2})
 class RemoveRangeOfOutliers(BaseRemoveOutliers):
     """Removes subarrays that lies within a range across a given mode.
 
@@ -200,6 +213,7 @@ class RemoveRangeOfOutliers(BaseRemoveOutliers):
         return self._delete_idx(data_reader, delete_idx)
 
 
+@test_defaults.set_default({'mode':1, 'class_name':'class', 'class_to_remove':0})
 class RemoveClass(BaseRemoveOutliers):
     """Removes subarrays that matches a given class across a given mode.
 
@@ -231,6 +245,7 @@ class RemoveClass(BaseRemoveOutliers):
         return self._delete_idx(data_reader, delete_idx)
 
 
+@test_defaults.set_default({})
 class Transpose(BasePreprocessor):
     """Permutes the modes of a tensor.
 
@@ -244,17 +259,18 @@ class Transpose(BasePreprocessor):
     """
     def __init__(self, data_reader, permutation=None):
         if permutation is None:
-            permutation = reversed(list(range(data_reader.tensor.ndim)))
+            permutation = list(reversed(range(data_reader.tensor.ndim)))
         
         self.permutation = permutation
         super().__init__(data_reader)
 
     def preprocess(self, data_reader):
-        self.mode_names = [self.mode_names[idx] for idx in self.permutation]
+        if self.mode_names is not None:
+            self.mode_names = [self.mode_names[idx] for idx in self.permutation]
         classes = [data_reader.classes[idx] for idx in self.permutation]
         return np.transpose(data_reader.tensor, self.permutation), classes
 
-
+@test_defaults.set_default({'mode':0})
 class Derivative(BasePreprocessor):
     """Takes the derivative across one mode of a tensor.
 
