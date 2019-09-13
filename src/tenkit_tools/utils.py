@@ -11,6 +11,7 @@ import tenkit.utils
 
 from . import preprocessor
 
+from functools import partial
 
 @contextmanager
 def open_run(experiment_path, run, mode="r"):
@@ -98,3 +99,39 @@ def load_experiment_params(experiment_path):
         params["preprocessor_params"] = None
     
     return params
+
+
+class TestDefaults:
+    def __init__(self):
+        self._defaults = {}
+
+    def __getitem__(self, item):
+        return self._defaults[item]
+
+    def __delitem__(self, item):
+        del self._defaults[item]
+
+    def __setitem__(self, key, value):
+        self._defaults[key] = value
+
+    def __contains__(self, value):
+        return value in self._defaults
+
+    def __iter__(self):
+        return iter(self._defaults)
+
+    def items(self):
+	    return self._defaults.items()
+
+    def keys(self):
+        return self._defaults.keys()
+
+    def values(self):
+        return self._defaults.values()
+
+    def set_default(self, defaults):
+        def set_default_(cls):
+            self[cls] = defaults
+            return cls
+        
+        return set_default_
