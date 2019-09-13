@@ -11,19 +11,21 @@ from hdf5storage import savemat as savemat_73
 from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
 
-from . import preprocessor
+# from . import preprocessor
 
 # en liste med classes for hver mode?
 # En liste med dictionaries med labelinfo som f.eks. site for hver mode?
 # - kanskje vi kan putte on off som labels her også?
 
 
+"""
 def generate_data_reader(data_reader_params, preprocessor_params):
     DataReader = globals()[data_reader_params["type"]]
     data_reader = DataReader(**data_reader_params["arguments"])
     data_reader = preprocessor.preprocess_data(data_reader, preprocessor_params)
 
     return data_reader
+"""
 
 
 def _to_string_list(iterable):
@@ -177,6 +179,13 @@ class BaseDataReader(ABC):
             print(p.communicate())
             print(f"Stored file in {outfile}")
 
+
+class NumpyDataReader(BaseDataReader):
+
+    def __init__(self, tensor, classes, mode_names=None):
+        super().__init__(mode_names=mode_names)
+        self._tensor = tensor
+        self._classes = classes
 
 class MatlabDataReader(BaseDataReader):
     def __init__(self, file_path, tensor_name, classes=None, mode_names=None):

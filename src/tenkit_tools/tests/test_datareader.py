@@ -37,7 +37,7 @@ class TestMatlabDataReader:
                 matlab_file_path, {"tensor": random_tensor, "classes": random_classes}
             )
 
-            dr = MatlabDataReader(matlab_file_path, "tensor", "classes")
+            dr = MatlabDataReader(matlab_file_path, "tensor", [{"class": "classes"},{},{}])
 
             np.allclose(random_tensor, dr.tensor)
-            np.allclose(random_classes, dr.classes)
+            np.allclose(random_classes, dr.classes[0]["class"])
