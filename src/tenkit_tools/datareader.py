@@ -18,15 +18,6 @@ from scipy.stats import ttest_ind
 # - kanskje vi kan putte on off som labels her også?
 
 
-"""
-def generate_data_reader(data_reader_params, preprocessor_params):
-    DataReader = globals()[data_reader_params["type"]]
-    data_reader = DataReader(**data_reader_params["arguments"])
-    data_reader = preprocessor.preprocess_data(data_reader, preprocessor_params)
-
-    return data_reader
-"""
-
 
 def _to_string_list(iterable):
     """Convert an iterable to a 1D numpy string array.

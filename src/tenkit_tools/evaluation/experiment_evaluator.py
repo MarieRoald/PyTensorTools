@@ -116,7 +116,7 @@ class ExperimentEvaluator:
         data_reader_params = experiment_params["data_reader_params"]
         preprocessor_params = experiment_params["preprocessor_params"]
 
-        data_reader = datareader.generate_data_reader(data_reader_params, preprocessor_params)
+        data_reader = utils.generate_data_reader(data_reader_params, preprocessor_params)
 
         # Evaluate
         best_run_evaluations = self.evaluate_single_run(
