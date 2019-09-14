@@ -1,14 +1,24 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 from subclass_register import SubclassRegister
+import warnings
 
 import numpy as np
 
-from .datareader import BaseDataReader
+from . import datareader
 from .utils import TestDefaults
 
 test_defaults = TestDefaults()
 preprocessor_register = SubclassRegister('preprocessor')
+
+
+def generate_data_reader(data_reader_params, preprocessor_params):
+    warnings.warn('This should be somewhere else or renamed', RuntimeWarning)
+    DataReader = getattr(datareader, data_reader_params["type"])
+    data_reader = DataReader(**data_reader_params["arguments"])
+    data_reader = preprocess_data(data_reader, preprocessor_params)
+
+    return data_reader
 
 def preprocess_data(data_reader, preprocessor_params):
     if preprocessor_params is not None:
@@ -27,7 +37,7 @@ def get_preprocessor(preprocessor):
 
 
 @preprocessor_register.link_base
-class BasePreprocessor(BaseDataReader):
+class BasePreprocessor(datareader.BaseDataReader):
     def __init__(self, data_reader):
         self.data_reader = data_reader
         self.mode_names = data_reader.mode_names

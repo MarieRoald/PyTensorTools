@@ -9,9 +9,6 @@ from scipy.stats import ttest_ind
 
 import tenkit.utils
 
-from . import preprocessor
-from . import datareader
-
 from functools import partial
 
 @contextmanager
@@ -137,9 +134,3 @@ class TestDefaults:
         
         return set_default_
 
-def generate_data_reader(data_reader_params, preprocessor_params):
-    DataReader = getattr(datareader, data_reader_params["type"])
-    data_reader = DataReader(**data_reader_params["arguments"])
-    data_reader = preprocessor.preprocess_data(data_reader, preprocessor_params)
-
-    return data_reader
