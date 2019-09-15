@@ -26,6 +26,9 @@ class BasePostprocessor(ABC):
 
     def construct_tensor(self):
         return self.Decomposition.construct_tensor(self)
+        
+    def get_single_component_decomposition(self, component):
+        return self.Decomposition.get_single_component_decomposition(component)
 
 
 class KruskalPostprocessor(BasePostprocessor):
