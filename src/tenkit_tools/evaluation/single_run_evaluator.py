@@ -321,5 +321,5 @@ class ComponentWisePercentExplained(BaseEvaluator):
             single_component_decomposition = decomposition.get_single_component_decomposition(component)
             single_component_tensor = single_component_decomposition.construct_tensor()
             percent_exp = metrics.percent_explained(data_reader.tensor, single_component_tensor)
-            componentwise_explained[f'%_exp_component_{component}': percent_exp]
+            componentwise_explained[f'%_exp_component_{component}'] = percent_exp
         return  componentwise_explained
