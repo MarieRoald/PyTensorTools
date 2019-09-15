@@ -332,3 +332,15 @@ class Weights(BaseEvaluator):
             f'weights_component{r}': w
                 for r, w in enumerate(decomposition.weights)
         }
+
+
+class FactorNorms(BaseEvaluator):
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        norms = np.ones(decomposition.rank
+        for fm in decomposition.factor_matrices:
+            norms *= np.linalg.norm(fm, axis=0)
+        return {
+            f'norm_component{r}': norm
+                for r, norm in enumerate(norms)
+        }
