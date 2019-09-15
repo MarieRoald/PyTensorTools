@@ -9,7 +9,7 @@ from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
 
 import tenkit
-from tenkit import metrics  # TODO: Fix __init__.py
+from tenkit import metrics  
 
 from .base_evaluator import BaseEvaluator
 
@@ -310,3 +310,16 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
             acc = outdict["acc"].tolist()[0][0]
 
             return {self.name: acc}
+
+
+class ComponentWisePercentExplained(BaseEvaluator):
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+
+        componentwise_explained = {}
+        for component in range(decomposition.rank):
+            single_component_decomposition = decomposition.get_single_component_decomposition(component)
+            single_component_tensor = single_component_decomposition.construct_tensor()
+            percent_exp = metrics.percent_explained(data_reader.tensor, single_component_tensor)
+            componentwise_explained[f'%_exp_component_{component}': percent_exp]
+        return  componentwise_explained
