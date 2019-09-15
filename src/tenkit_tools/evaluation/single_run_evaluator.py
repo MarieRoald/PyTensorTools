@@ -323,3 +323,12 @@ class ComponentWisePercentExplained(BaseEvaluator):
             percent_exp = metrics.percent_explained(data_reader.tensor, single_component_tensor)
             componentwise_explained[f'%_exp_component_{component}'] = percent_exp
         return  componentwise_explained
+
+
+class Weights(BaseEvaluator):
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        return {
+            f'weights_component{r}': w
+                for r, w in enumerate(decomposition.weights)
+        }
