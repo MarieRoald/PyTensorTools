@@ -472,7 +472,7 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
         self.mask = plottools.fMRI.base.load_mask(self.mask_path)
         self.template = plottools.fMRI.base.load_template(self.template_path)
 
-    def _get_fmri_factor(self, mode, mask):
+    def _get_fmri_factor(self, h5, mode, mask):
         factor = np.array(self.load_final_checkpoint(h5)[self.mode])
         rank = factor.shape[-1]
 
@@ -498,7 +498,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
         filename = h5.file.filename
         savepath = Path(filename).parent/'../summaries/visualizations/'
 
-        fmri_factor = self._get_fmri_factor(self.mode, self.mask)
+        fmri_factor = self._get_fmri_factor(h5, self.mode, self.mask)
         max_val = np.linalg.norm(fmri_factor.ravel(), np.inf)
         fig = self.create_figure()
         ax = fig.add_subplot(111)
