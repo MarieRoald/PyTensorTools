@@ -505,6 +505,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
         ax = fig.add_subplot(111)
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
+            file_pattern = tmpdir/"temp_*.png"
             for t in range(fmri_factor.shape[-1]):
                 ax.clear()
                 ax = create_fmri_factor_plot(
@@ -522,7 +523,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 fig.savefig(tmpdir/"temp_{t:05d}.png")
                 filename = savepath/f"{self.name}_mode_{self.mode}.gif"
                 subprocess.run(
-                    ["gifski", "-o", str(filename), "--fps", "2"]
+                    ["gifski", str(file_pattern), "-o", str(filename), "--fps", "2"]
                 )
             ax.clear()
             return fig
