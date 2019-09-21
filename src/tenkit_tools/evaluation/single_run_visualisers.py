@@ -483,7 +483,7 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
         )
         
     def _visualise(self, data_reader, h5):
-        fmri_factor = self._get_fmri_factor(self.mode, self.mask)
+        fmri_factor = self._get_fmri_factor(h5, self.mode, self.mask)
         if fmri_factor is None:
             return self.create_figure()
         fig = create_fmri_evolving_factor_plot(
@@ -524,6 +524,8 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 subprocess.run(
                     ["gifski", "-o", str(filename), "--fps", "2"]
                 )
+            ax.clear()
+            return fig
             
 
 class ResidualHistogram(BaseVisualiser):
