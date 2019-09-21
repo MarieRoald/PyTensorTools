@@ -519,7 +519,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                     **self.tile_plot_kwargs
                 )
                 ax.set_title(f"Time: {t}")
-                fmri_factor.savefig(tmpdir/"temp_{t:05d}.png")
+                fig.savefig(tmpdir/"temp_{t:05d}.png")
                 filename = savepath/f"{self.name}_mode_{self.mode}.gif"
                 subprocess.run(
                     ["gifski", "-o", str(filename), "--fps", "2"]
