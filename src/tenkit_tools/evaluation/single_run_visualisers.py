@@ -524,7 +524,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 fig.savefig(filename)
                 filenames.append(filename)
             subprocess.run(
-                ["gifski", *filenames, str(file_pattern), "-o", str(filename), "--fps", "2"]
+                ["gifski", *filenames, "-o", str(filename), "--fps", "2"]
             )
         ax.clear()
         return fig
