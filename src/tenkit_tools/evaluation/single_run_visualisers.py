@@ -2,6 +2,7 @@ import string
 import subprocess
 import tempfile
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
