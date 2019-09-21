@@ -523,6 +523,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 filename = tmpdir/"temp_t{:05d}.png"
                 fig.savefig(filename)
                 filenames.append(filename)
+            print(f'Generating gif in {filename}')
             subprocess.run(
                 ["gifski", *filenames, "-o", str(filename), "--fps", "2"]
             )
