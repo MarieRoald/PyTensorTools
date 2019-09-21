@@ -505,7 +505,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
         ax = fig.add_subplot(111)
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
-            file_pattern = tmpdir/"temp_*.png"
+            filenames = []
             for t in range(fmri_factor.shape[-1]):
                 ax.clear()
                 ax = create_fmri_factor_plot(
@@ -520,13 +520,14 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                     **self.tile_plot_kwargs
                 )
                 ax.set_title(f"Time: {t}")
-                fig.savefig(tmpdir/"temp_{t:05d}.png")
-                filename = savepath/f"{self.name}_mode_{self.mode}.gif"
-                subprocess.run(
-                    ["gifski", str(file_pattern), "-o", str(filename), "--fps", "2"]
-                )
-            ax.clear()
-            return fig
+                filename = tmpdir/"temp_t{:05d}.png"
+                fig.savefig(filename)
+                filenames.append(filename)
+            subprocess.run(
+                ["gifski", *filenames, str(file_pattern), "-o", str(filename), "--fps", "2"]
+            )
+        ax.clear()
+        return fig
             
 
 class ResidualHistogram(BaseVisualiser):
