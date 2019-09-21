@@ -497,7 +497,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
     _name = "evolving_fmri_factor_gif"
     def _visualise(self, data_reader, h5):
         filename = h5.file.filename
-        savepath = Path(filename).parent/'../summaries/visualizations/'
+        savepath = Path(filename).parent/'../summaries/visualizations/'/filename
 
         fmri_factor = self._get_fmri_factor(h5, self.mode, self.mask)
         max_val = np.linalg.norm(fmri_factor.ravel(), np.inf)
@@ -525,7 +525,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 filenames.append(filename)
             print(f'Generating gif in {filename}')
             subprocess.run(
-                ["gifski", *filenames, "-o", str(filename), "--fps", "2"]
+                ["gifski", *filenames, "-o", str(savepath), "--fps", "2"]
             )
         ax.clear()
         return fig
