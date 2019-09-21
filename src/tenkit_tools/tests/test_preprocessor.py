@@ -1,14 +1,7 @@
-from pathlib import Path
-
 import numpy as np
 import pytest
-from scipy.io import savemat
 from tenkit_tools.preprocessor import test_defaults
 from tenkit_tools.datareader import NumpyDataReader
-
-#for cls, kwargs in test_defaults.items():
-#    instans = cls(**kwargs)
-#    print(instans)
 
 @pytest.fixture
 def num_samples():
