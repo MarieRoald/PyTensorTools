@@ -1,4 +1,6 @@
 import string
+import subprocess
+import tempfile
 from abc import ABC, abstractmethod
 
 import matplotlib as mpl
@@ -467,25 +469,61 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
         )
 
         self.component = component
+        self.mask = plottools.fMRI.base.load_mask(self.mask_path)
+        self.template = plottools.fMRI.base.load_template(self.template_path)
 
-    def _visualise(self, data_reader, h5):
+    def _get_fmri_factor(self, mode, mask):
         factor = np.array(self.load_final_checkpoint(h5)[self.mode])
         rank = factor.shape[-1]
 
-        if self.component >= rank:
-            return self.create_figure()
-
-        mask = plottools.fMRI.base.load_mask(self.mask_path)
-        template = plottools.fMRI.base.load_template(self.template_path)
-        fmri_factor = plottools.fMRI.base.get_fMRI_images(
+    
+        return plottools.fMRI.base.get_fMRI_images(
             factor[:, :, self.component].T, mask, axis=0
         )
+        
+    def _visualise(self, data_reader, h5):
+        fmri_factor = self._get_fmri_factor(self.mode, self.mask)
+        if fmri_factor is None:
+            return self.create_figure()
         fig = create_fmri_evolving_factor_plot(
-            fmri_factor, template, cmap="maryland", **self.tile_plot_kwargs
+            fmri_factor, self.template, cmap="maryland", **self.tile_plot_kwargs
         )[0]
 
         return fig
 
+class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
+    figsize = (9, 9)
+    _name = "evolving_fmri_factor_gif"
+    def _visualise(self, data_reader, h5):
+        filename = h5.file.filename
+        savepath = Path(filename).parent/'../summaries/visualizations/'
+
+        fmri_factor = self._get_fmri_factor(self.mode, self.mask)
+        max_val = np.linalg.norm(fmri_factor.ravel(), np.inf)
+        fig = self.create_figure()
+        ax = fig.add_subplot(111)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmpdir = Path(tmpdirname)
+            for t in range(fmri_factor.shape[-1]):
+                ax.clear()
+                ax = create_fmri_factor_plot(
+                    fmri_factor[...,t],
+                    self.template,
+                    zscore=True,
+                    colorbar=False,
+                    vmin=-max_val,
+                    vmax=max_val,
+                    ax=ax,
+                    cmap="maryland",
+                    **self.tile_plot_kwargs
+                )
+                ax.set_title(f"Time: {t}")
+                fmri_factor.savefig(tmpdir/"temp_{t:05d}.png")
+                filename = savepath/f"{self.name}_mode_{self.mode}.gif"
+                subprocess.run(
+                    ["gifski", "-o", str(filename), "--fps", "2"]
+                )
+            
 
 class ResidualHistogram(BaseVisualiser):
     def _visualise(self, data_reader, h5):
