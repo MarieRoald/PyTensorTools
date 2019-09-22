@@ -497,7 +497,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
     _name = "evolving_fmri_factor_gif"
     def _visualise(self, data_reader, h5):
         filename = h5.file.filename
-        savepath = Path(filename).parent/f'../summaries/visualizations/factor{mode}.gif'
+        savepath = Path(filename).parent/f'../summaries/visualizations/factor{self.mode}.gif'
 
         fmri_factor = self._get_fmri_factor(h5, self.mode, self.mask)
         max_val = np.linalg.norm(fmri_factor.ravel(), np.inf)
