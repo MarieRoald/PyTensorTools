@@ -7,7 +7,7 @@ from pathlib import Path
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, zscore
 
 import plottools
 import tenkit
@@ -498,7 +498,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
     def _find_vmin_vmax(self, fmri_factor):
         vmax = -1
         for t in range(fmri_factor.shape[-1]):
-            zscored = st.zscore(fmri_factor[..., t].ravel())
+            zscored = zscore(fmri_factor[..., t].ravel())
             vmax = max(vmax, np.linalg.norm(zscored, np.inf))
         return vmax
 
