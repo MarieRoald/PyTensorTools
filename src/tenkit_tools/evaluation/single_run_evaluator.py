@@ -23,6 +23,7 @@ class BaseSingleRunEvaluator(BaseEvaluator):
         pass
 
 
+@test_defaults.set_default({})
 class FinalLoss(BaseSingleRunEvaluator):
     _name = "Final loss"
 
@@ -340,6 +341,18 @@ class FactorNorms(BaseEvaluator):
         norms = np.ones(decomposition.rank)
         for fm in decomposition.factor_matrices:
             norms *= np.linalg.norm(fm, axis=0)
+        return {
+            f'norm_component{r}': norm
+                for r, norm in enumerate(norms)
+        }
+
+
+class Parafac2FactorNorms(BaseEvaluator):
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        norms = np.linalg.norm(decomposition.A, axis=0)
+        norms *= np.linalg.norm(decomposition.B[0], axis=0)
+        norms *= np.linalg.norm(decomposition.C, axis=0)
         return {
             f'norm_component{r}': norm
                 for r, norm in enumerate(norms)
