@@ -495,17 +495,35 @@ class EvolvingFactorfMRIImage(FactorfMRIImage):
 class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
     figsize = (9, 9)
     _name = "evolving_fmri_factor_gif"
+    def _find_vmin_vmax(self, fmri_factor):
+        vmax = -1
+        for t in range(fmri_factor.shape[-1]):
+            zscored = st.zscore(fmri_factor[..., t].ravel())
+            vmax = max(vmax, np.linalg.norm(zscored, np.inf))
+        return vmax
+
     def _visualise(self, data_reader, h5):
         filename = h5.file.filename
         savepath = Path(filename).parent/f'../summaries/visualizations/factor{self.mode}.gif'
 
         fmri_factor = self._get_fmri_factor(h5, self.mode, self.mask)
-        max_val = np.linalg.norm(fmri_factor.ravel(), np.inf)
+        max_val = self._find_vmin_vmax(fmri_factor)
         fig = self.create_figure()
         ax = fig.add_subplot(111)
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmpdir = Path(tmpdirname)
             filenames = []
+            ax.clear()
+
+            ax = create_fmri_factor_plot(
+                fmri_factor[...,0],
+                self.template,
+                zscore=True,
+                colorbar=False,
+                ax=ax,
+                cmap="maryland",
+                **self.tile_plot_kwargs
+            )
             for t in range(fmri_factor.shape[-1]):
                 ax.clear()
                 ax = create_fmri_factor_plot(
