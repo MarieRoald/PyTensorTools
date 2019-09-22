@@ -52,7 +52,7 @@ class ExperimentEvaluator:
         )
 
         results = []
-        with h5py.File(checkpoint_path) as h5:
+        with h5py.File(checkpoint_path, 'r') as h5:
             for run_evaluator in single_run_evaluators:
                 results.append(run_evaluator._evaluate(data_reader, h5))
         # return the results as dict
@@ -79,7 +79,7 @@ class ExperimentEvaluator:
         if not figure_path.is_dir():
             figure_path.mkdir()
 
-        with h5py.File(checkpoint_path) as h5:
+        with h5py.File(checkpoint_path, 'r') as h5:
             for run_visualiser in single_run_visualisers:
                 results[run_visualiser.name] = run_visualiser._visualise(
                     data_reader, h5

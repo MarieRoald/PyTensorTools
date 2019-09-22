@@ -54,7 +54,7 @@ class MultipleSingleRunEvaluators(BaseMultipleEvaluator):
     def _evaluate(self, data_reader, checkpoint_path):
         results = {"run": [], self.single_run_evaluator.name: []}
         for checkpoint in self.checkpoint_files(checkpoint_path):
-            with h5py.File(checkpoint) as h5:
+            with h5py.File(checkpoint, 'r') as h5:
                 results["run"].append(checkpoint.name)
                 results[self.single_run_evaluator.name].append(
                     self.single_run_evaluator(data_reader, h5)
