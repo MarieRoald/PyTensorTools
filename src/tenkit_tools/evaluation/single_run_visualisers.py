@@ -519,8 +519,10 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                 fmri_factor[...,0],
                 self.template,
                 zscore=True,
-                colorbar=False,
+                colorbar=True,
                 ax=ax,
+                vmin=-max_val,
+                vmax=max_val,
                 cmap="maryland",
                 **self.tile_plot_kwargs
             )
