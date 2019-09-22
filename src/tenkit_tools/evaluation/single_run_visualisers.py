@@ -520,7 +520,7 @@ class EvolvingFactorfMRIGif(EvolvingFactorfMRIImage):
                     **self.tile_plot_kwargs
                 )
                 ax.set_title(f"Time: {t}")
-                filename = tmpdir/f"temp_t{:05d}.png"
+                filename = tmpdir/f"temp_t{t:05d}.png"
                 fig.savefig(filename)
                 filenames.append(filename)
             print(f'Generating gif in {savepath}')
