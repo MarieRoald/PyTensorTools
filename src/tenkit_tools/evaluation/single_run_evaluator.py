@@ -23,7 +23,6 @@ class BaseSingleRunEvaluator(BaseEvaluator):
         pass
 
 
-@test_defaults.set_default({})
 class FinalLoss(BaseSingleRunEvaluator):
     _name = "Final loss"
 
