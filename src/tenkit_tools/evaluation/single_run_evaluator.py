@@ -213,6 +213,16 @@ class Parafac2WorstDegeneracy(BaseSingleRunEvaluator):
         return {self.name: min_score}
 
 
+class WorstDegeneracy2(BaseSingleRunEvaluator):
+    _name = 'WorstDegeneracy2'
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        degeneracy_scores = decomposition.degeneracy()
+    
+        return {self.name: np.min(degeneracy_scores), 
+                'components': np.unravel_index(np.argmin(degeneracy_scores), shape=degeneracy_scores.shape),
+                'TC': degeneracy_scores}                
+
 class CoreConsistency(BaseSingleRunEvaluator):
     # Only works with three modes
 
@@ -250,6 +260,7 @@ class Parafac2CoreConsistency(BaseSingleRunEvaluator):
         )
 
         return {self.name: np.asscalar(cc)}
+
 
 
 class BaseMatlabEvaluator(BaseSingleRunEvaluator):
