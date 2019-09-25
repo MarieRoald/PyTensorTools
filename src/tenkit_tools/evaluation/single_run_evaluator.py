@@ -220,7 +220,7 @@ class WorstDegeneracy2(BaseSingleRunEvaluator):
         degeneracy_scores = decomposition.degeneracy()
     
         return {self.name: np.min(degeneracy_scores), 
-                'components': np.unravel_index(np.argmin(degeneracy_scores), shape=degeneracy_scores.shape),
+                'components': np.unravel_index(np.argmin(degeneracy_scores).to_list(), shape=degeneracy_scores.shape),
                 'TC': degeneracy_scores}                
 
 class CoreConsistency(BaseSingleRunEvaluator):
