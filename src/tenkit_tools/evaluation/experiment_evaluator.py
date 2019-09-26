@@ -106,7 +106,7 @@ class ExperimentEvaluator:
 
         return results
 
-    def evaluate_experiment(self, experiment_path):
+    def evaluate_experiment(self, experiment_path, verbose=True, save=True):
         experiment_path = Path(experiment_path)
 
         # Load info from experiment
@@ -122,24 +122,29 @@ class ExperimentEvaluator:
         best_run_evaluations = self.evaluate_single_run(
             experiment_path, summary, data_reader
         )
-        print(best_run_evaluations)
+        if verbose:
+            print(best_run_evaluations)
 
         best_run_visualisations = self.visualise_single_run(
             experiment_path, summary, data_reader
         )
-        print(best_run_visualisations)
+        if verbose:
+            print(best_run_visualisations)
 
         multi_run_evaluations = self.evaluate_multiple_runs(
             experiment_path, summary, data_reader
         )
-        print(multi_run_evaluations)
+        if verbose:
+            print(multi_run_evaluations)
 
-        with (experiment_path / "summaries" / "evaluations.json").open("w") as f:
-            json.dump(
-                {
-                    "best_run_evaluations": best_run_evaluations,
-                    "multi_run_evaluations": multi_run_evaluations,
-                },
-                f,
-            )
+        if save:
+            with (experiment_path / "summaries" / "evaluations.json").open("w") as f:
+                json.dump(
+                    {
+                        "best_run_evaluations": best_run_evaluations,
+                        "multi_run_evaluations": multi_run_evaluations,
+                    },
+                    f,
+                )
+        return best_run_evaluations, multi_run_evaluations
 
