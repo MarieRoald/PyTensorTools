@@ -384,7 +384,7 @@ class SeparateModeEvolvingFMS(BaseEvaluator):
             ground_truth = EvolvingTensor.load_from_hdf5_group(dataset[self.internal_path])
 
         decomposition = self.load_final_checkpoint(h5)
-        decomposition = EvolvingTensor.from_kruskaltensor(decomposition)
+        decomposition = EvolvingTensor.from_kruskaltensor(decomposition, allow_same_class=True)
         
         scores, permutations = decomposition.separate_mode_factor_match_score(ground_truth) 
 
