@@ -280,6 +280,18 @@ class Transpose(BasePreprocessor):
         classes = [data_reader.classes[idx] for idx in self.permutation]
         return np.transpose(data_reader.tensor, self.permutation), classes
 
+@test_defaults.set_default({'noise_level': 0.33})
+class AddNoise(BasePreprocessor):
+    def __init__(self, data_reader, noise_level):
+        self.noise_level = noise_level
+        super().__init__(data_reader)
+    
+    def preprocess(self, data_reader):
+        tensor = data_reader.tensor
+        noise = np.random.standard_normal(size=data_reader.tensor.shape)
+
+        return tensor + self.noise_level*noise*(np.linalg.norm(tensor)/np.linalg.norm(noise))
+
 @test_defaults.set_default({'mode':0})
 class Derivative(BasePreprocessor):
     """Takes the derivative across one mode of a tensor.
