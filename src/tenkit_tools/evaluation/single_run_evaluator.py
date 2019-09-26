@@ -1,4 +1,4 @@
-import itertools
+    import itertools
 import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -10,6 +10,7 @@ from scipy.stats import ttest_ind
 
 import tenkit
 from tenkit import metrics  
+from tenkit.decomposition.decompositions import EvolvingTensor
 
 from .base_evaluator import BaseEvaluator
 
@@ -367,3 +368,26 @@ class Parafac2FactorNorms(BaseEvaluator):
             f'norm_component{r}': norm
                 for r, norm in enumerate(norms)
         }
+
+
+
+class SeperateModeEvolvingFMS(BaseEvaluator):
+    _name = "FMS"
+    def __init__(self, summary: dict, evolving_tensor: BaseDecomposedTensor):
+        super().__init__(summary)
+        self.evolving_tensor = evolving_tensor
+
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        decomposition = EvolvingTensor.from_kruskaltensor(decomposition)
+        
+        scores, permutations = decomposition.separate_mode_factor_match_score(self.evolving_tensor) 
+
+        scores = {f'fms_mode_{i}': score for i, score in enumerate(scores)}
+        permutations = {f'permutation_mode_{i}': permutation for i, permutation in enumerate(permutations)}
+
+        return {**scores, **permutations}
+
+            
+
+
