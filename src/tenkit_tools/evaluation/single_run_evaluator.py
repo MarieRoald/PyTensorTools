@@ -7,6 +7,7 @@ from subprocess import Popen
 import numpy as np
 from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
+import h5py
 
 import tenkit
 from tenkit import metrics  
