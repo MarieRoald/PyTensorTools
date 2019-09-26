@@ -373,15 +373,19 @@ class Parafac2FactorNorms(BaseEvaluator):
 
 class SeperateModeEvolvingFMS(BaseEvaluator):
     _name = "FMS"
-    def __init__(self, summary: dict, evolving_tensor: BaseDecomposedTensor):
+    def __init__(self, summary: dict, evolving_tensor: Path, internal_path: str):
         super().__init__(summary)
         self.evolving_tensor = evolving_tensor
+        self.internal_path
 
     def _evaluate(self, data_reader, h5):
+        with h5py.File(self.evolving_tensor) as dataset:
+            ground_truth = EvolvingTensor.load_from_hdf5_group(dataset[self.internal_path])
+
         decomposition = self.load_final_checkpoint(h5)
         decomposition = EvolvingTensor.from_kruskaltensor(decomposition)
         
-        scores, permutations = decomposition.separate_mode_factor_match_score(self.evolving_tensor) 
+        scores, permutations = decomposition.separate_mode_factor_match_score(ground_truth) 
 
         scores = {f'fms_mode_{i}': score for i, score in enumerate(scores)}
         permutations = {f'permutation_mode_{i}': permutation for i, permutation in enumerate(permutations)}
