@@ -376,7 +376,7 @@ class SeperateModeEvolvingFMS(BaseEvaluator):
     def __init__(self, summary: dict, evolving_tensor: Path, internal_path: str, **kwargs):
         super().__init__(summary)
         self.evolving_tensor = evolving_tensor
-        self.internal_path
+        self.internal_path = internal_path
 
     def _evaluate(self, data_reader, h5):
         with h5py.File(self.evolving_tensor) as dataset:
