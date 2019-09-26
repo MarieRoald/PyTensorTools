@@ -373,7 +373,7 @@ class Parafac2FactorNorms(BaseEvaluator):
 
 class SeperateModeEvolvingFMS(BaseEvaluator):
     _name = "FMS"
-    def __init__(self, summary: dict, evolving_tensor: Path, internal_path: str):
+    def __init__(self, summary: dict, evolving_tensor: Path, internal_path: str, **kwargs):
         super().__init__(summary)
         self.evolving_tensor = evolving_tensor
         self.internal_path
