@@ -290,7 +290,7 @@ class AddNoise(BasePreprocessor):
         tensor = data_reader.tensor
         noise = np.random.standard_normal(size=data_reader.tensor.shape)
 
-        return tensor + self.noise_level*noise*(np.linalg.norm(tensor)/np.linalg.norm(noise))
+        return tensor + self.noise_level*noise*(np.linalg.norm(tensor)/np.linalg.norm(noise)), data_reader.classes
 
 @test_defaults.set_default({'mode':0})
 class Derivative(BasePreprocessor):
