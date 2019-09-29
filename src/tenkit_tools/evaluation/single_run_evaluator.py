@@ -288,7 +288,6 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
         factor_matrix = decomposition.factor_matrices[self.mode]
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
-
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
 
@@ -321,11 +320,6 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
 
             outdict = loadmat(tmp_outfile)
             acc = outdict["acc"].tolist()[0][0]
-            out_classes = outdict["classes"]
-            acc = max(
-                np.mean(out_classes == classes),
-                np.mean(out_classes != classes)
-            )
 
             return {self.name: acc}
 
