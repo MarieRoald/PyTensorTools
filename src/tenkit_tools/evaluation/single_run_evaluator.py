@@ -291,7 +291,7 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
-        if sklearn:
+        if self.sklearn:
             kmeans = KMeans(n_classes=2)
             predicted_classes = kmeans.fit_predict(factor_matrix).squeeze()
 
@@ -302,6 +302,7 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
                 np.mean(predicted_classes_binary != classes_binary)
             )
             return {self.name: acc}
+
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
 
