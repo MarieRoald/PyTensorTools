@@ -292,7 +292,7 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
 
         if self.sklearn:
-            kmeans = KMeans(n_classes=2)
+            kmeans = KMeans(n_clusters=2)
             predicted_classes = kmeans.fit_predict(factor_matrix).squeeze()
 
             predicted_classes_binary = predicted_classes.astype(bool)
