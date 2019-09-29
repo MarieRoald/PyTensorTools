@@ -8,6 +8,7 @@ import numpy as np
 from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
 import h5py
+from sklearn.cluster import KMeans
 
 import tenkit
 from tenkit import metrics  
@@ -278,9 +279,10 @@ class BaseMatlabEvaluator(BaseSingleRunEvaluator):
 class MaxKMeansAcc(BaseMatlabEvaluator):
     _name = "Max Kmeans clustering accuracy"
 
-    def __init__(self, summary, mode, class_name, matlab_scripts_path=None, **kwargs):
+    def __init__(self, summary, mode, class_name, matlab_scripts_path=None, sklearn=False, **kwargs):
         self.mode = mode
         self.class_name = class_name
+        self.sklearn = sklearn
         super().__init__(summary, matlab_scripts_path)
 
     def _evaluate(self, data_reader, h5):
@@ -288,6 +290,18 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
         factor_matrix = decomposition.factor_matrices[self.mode]
 
         classes = data_reader.classes[self.mode][self.class_name].squeeze()
+
+        if sklearn:
+            kmeans = KMeans(n_classes=2)
+            predicted_classes = kmeans.fit_predict(factor_matrix).squeeze()
+
+            predicted_classes_binary = predicted_classes.astype(bool)
+            classes_binary = classes == np.unique(classes)[0]
+            acc = max(
+                np.mean(predicted_classes_binary == classes_binary),
+                np.mean(predicted_classes_binary != classes_binary)
+            )
+            return {self.name: acc}
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
 
