@@ -321,6 +321,11 @@ class MaxKMeansAcc(BaseMatlabEvaluator):
 
             outdict = loadmat(tmp_outfile)
             acc = outdict["acc"].tolist()[0][0]
+            out_classes = outdict["classes"]
+            acc = max(
+                np.mean(out_classes == classes),
+                np.mean(out_classes != classes)
+            )
 
             return {self.name: acc}
 
