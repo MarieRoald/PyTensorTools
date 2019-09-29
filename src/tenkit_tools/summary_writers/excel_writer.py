@@ -60,7 +60,7 @@ def _create_spreadsheet(
     )
     figure_path = experiment_path / "summaries" / "visualizations"
 
-    book = xlsxwriter.Workbook(experiment_path / "summaries" / "evaluation.xslx")
+    book = xlsxwriter.Workbook(experiment_path / "summaries" / "evaluation.xslx", {'nan_inf_to_errors': True})
     sheet = book.add_worksheet()
     fig_sheet = book.add_worksheet("Figures")
 
