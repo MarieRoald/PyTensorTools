@@ -1,5 +1,6 @@
 import json
 import multiprocessing
+import pickle
 from abc import ABC, abstractmethod, abstractproperty
 from copy import copy
 from functools import partial
@@ -16,6 +17,7 @@ from . import datareader, preprocessor
 
 EXPERIMENT_COMPLETED = 0
 EXPERIMENT_INTERRUPTED = 1
+DEBUG = False
 
 
 def _raise_multiprocessing_error(run_id):
@@ -162,6 +164,34 @@ class Experiment(ABC):
                 path.mkdir(parents=True)
 
     def copy_parameter_files(self):
+        try:
+            json.dumps(self.experiment_params)
+            json.dumps(self.data_reader_params)
+            json.dumps(self.decomposition_params)
+            json.dumps(self.log_params)
+            if self.preprocessor_params is not None:
+                json.dumps(self.preprocessor_params)
+
+        except TypeError:
+            with (self.parameter_path / "experiment_params.pickle").open("wb") as f:
+                pickle.dump(self.experiment_params, f)
+    
+            with (self.parameter_path / "data_reader_params.pickle").open("wb") as f:
+                pickle.dump(self.data_reader_params, f)
+    
+            with (self.parameter_path / "decomposition_params.pickle").open("wb") as f:
+                pickle.dump(self.decomposition_params, f)
+    
+            with (self.parameter_path / "log_params.pickle").open("wb") as f:
+                pickle.dump(self.log_params, f)
+    
+            if self.preprocessor_params is not None:
+                with (self.parameter_path / "preprocessor_params.pickle").open("wb") as f:
+                    pickle.dump(self.preprocessor_params, f)
+
+            return
+
+
         with (self.parameter_path / "experiment_params.json").open("w") as f:
             json.dump(self.experiment_params, f)
 
@@ -235,6 +265,7 @@ class Experiment(ABC):
 
         with summary_path.open("w") as f:
             json.dump(summary, f)
+	
 
     def generate_data_reader(self):
         DataReader = getattr(datareader, self.data_reader_params["type"])
@@ -274,6 +305,10 @@ class Experiment(ABC):
 
     def run_many_experiments(self, num_experiments):
         self.print_experiment_info()
+
+        if DEBUG:
+            results = [run_partial_experiment(run_num=i, decomposition_params=self.decomposition_params, log_params=self.log_params, data_reader_params=self.data_reader_params, preprocessors_params=self.preprocessor_params, checkpoint_path=self.checkpoint_path, load_old=self.load_old) for i in range(num_experiments)]
+            return EXPERIMENT_COMPLETED
 
         with multiprocessing.Pool(self.num_processes) as pool:
             results = []
