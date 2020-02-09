@@ -84,6 +84,26 @@ class Center(BasePreprocessor):
         return tensor, data_reader.classes
 
 
+@test_defaults.set_default({})
+class GlobalScale(BasePreprocessor):
+    """Globally scale the tensor to have unit frobenius norm.
+
+    Attributes
+    ----------
+    data_reader : DataReader
+        DataReader object containing the dataset
+    """
+    def __init__(self, data_reader):
+        super().__init__(data_reader)
+
+    def preprocess(self, data_reader):
+        tensor = data_reader.tensor
+        norm = np.linalg.norm(tensor.ravel())  # Failed with fro for more than two modes.
+        tensor = tensor / norm
+
+        return tensor, data_reader.classes
+
+
 @test_defaults.set_default({'scale_within':1})
 class Scale(BasePreprocessor):
     """Scale data within given mode. 
