@@ -125,6 +125,7 @@ class Experiment(ABC):
 
     @property
     def num_processes(self):
+        # TODO: Skrivefeil her?
         if "num_processess" in self.experiment_params:
             return self.experiment_params["num_processess"]
         else:
@@ -273,8 +274,9 @@ class Experiment(ABC):
         print(f"  * Maximum number of iterations: {max_its}")
         print(f"  * Tolerance: {tol}")
 
-    def run_many_experiments(self, num_experiments):
-        self.print_experiment_info()
+    def run_many_experiments(self, num_experiments, should_print=True):
+        if should_print:
+            self.print_experiment_info()
 
         with multiprocessing.Pool(self.num_processes) as pool:
             results = []
