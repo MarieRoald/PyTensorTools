@@ -94,7 +94,7 @@ def get_decomposition_params(dataset_id, similarity_id, reg, ridge):
 
 def run_experiment(experiment):
     ex = tenkit_tools.experiment.Experiment(**experiment)
-    ex.run_experiments(should_print=False)
+    ex.run_experiments(should_print=False, parallel=False)
 
 
 if __name__ == "__main__":
