@@ -334,6 +334,7 @@ class Experiment(ABC):
                     sleep(0.5)
                     if all(result.ready() for result in results):
                         print("Experiment completed")
+                        [result.get() for result in results]
                         break
             except KeyboardInterrupt:
                 pool.terminate()
