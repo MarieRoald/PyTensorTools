@@ -63,7 +63,7 @@ def load_mask(dataset_id):
 
 
 def load_similarity(similarity_id):
-    with h5py.File(DATA_PATH/similarity_id, "r") as h5:
+    with h5py.File(DATA_PATH/"laplacians"/similarity_id, "r") as h5:
         return h5["laplacian"][:]
 
 
