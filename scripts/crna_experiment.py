@@ -72,7 +72,7 @@ def get_decomposition_params(dataset_id, similarity_id, reg, ridge):
     mask = load_mask(dataset_id)
 
     return {
-        "type": "CP_WOPT", 
+        "type": "CP_OPT", 
         "arguments": {
             "rank": RANK,
             "max_its": MAX_ITS,
@@ -108,7 +108,8 @@ if __name__ == "__main__":
                     "experiment_params": get_experiment_params(dataset_id, similarity_id),
                     "log_params": get_log_params(),
                     "data_reader_params": get_data_reader_params(),
-                    "decomposition_params": get_decomposition_params(dataset_id, similarity_id, reg, RIDGE)
+                    "decomposition_params": get_decomposition_params(dataset_id, similarity_id, reg, RIDGE),
+                    "preprocessor_params": []
                 })
     
     with multiprocessing.Pool(64) as p:
