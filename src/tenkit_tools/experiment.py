@@ -274,7 +274,7 @@ class Experiment(ABC):
         print(f"  * Maximum number of iterations: {max_its}")
         print(f"  * Tolerance: {tol}")
 
-    def run_many_experiments(self, num_experiments, should_print=True):
+    def run_many_experiments(self, num_experiments, should_print):
         if should_print:
             self.print_experiment_info()
 
@@ -308,11 +308,11 @@ class Experiment(ABC):
                 return EXPERIMENT_INTERRUPTED
         return EXPERIMENT_COMPLETED
 
-    def run_experiments(self):
+    def run_experiments(self, should_print=True):
         self.copy_parameter_files()
         # Pass på at init er
         completion_status = self.run_many_experiments(
-            self.experiment_params.get("num_runs", 10)
+            self.experiment_params.get("num_runs", 10), should_print
         )
         self.save_summary(completion_status=completion_status)
         print(f"Stored summaries in {self.experiment_path}")
