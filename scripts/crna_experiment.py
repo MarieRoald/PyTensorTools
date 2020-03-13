@@ -102,7 +102,7 @@ if __name__ == "__main__":
     for similarity_id in ["freq_sigma_0_08_h5",  "freq_sigma_0_10_h5",  "freq_sigma_0_20_h5",]:
         for dataset_id in range(20):
             for reg in [100, 1000, 10_000]:
-                dataset_id = f"missing_060_{dataset_id+1:03d}"
+                dataset_id = f"missing_060_{dataset_id+1:03d}.mat"
 
                 experiments.append({
                     "experiment_params": get_experiment_params(dataset_id, similarity_id),
