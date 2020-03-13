@@ -305,11 +305,11 @@ class Experiment(ABC):
         print(f"  * Maximum number of iterations: {max_its}")
         print(f"  * Tolerance: {tol}")
 
-    def run_many_experiments(self, num_experiments, should_print):
+    def run_many_experiments(self, num_experiments, should_print, parallel):
         if should_print:
             self.print_experiment_info()
 
-        if DEBUG:
+        if DEBUG or not parallel:
             results = [run_partial_experiment(run_num=i, decomposition_params=self.decomposition_params, log_params=self.log_params, data_reader_params=self.data_reader_params, preprocessors_params=self.preprocessor_params, checkpoint_path=self.checkpoint_path, load_old=self.load_old) for i in range(num_experiments)]
             return EXPERIMENT_COMPLETED
 
@@ -344,11 +344,11 @@ class Experiment(ABC):
                 return EXPERIMENT_INTERRUPTED
         return EXPERIMENT_COMPLETED
 
-    def run_experiments(self, should_print=True):
+    def run_experiments(self, should_print=True, parallel=True):
         self.copy_parameter_files()
         # Pass på at init er
         completion_status = self.run_many_experiments(
-            self.experiment_params.get("num_runs", 10), should_print
+            self.experiment_params.get("num_runs", 10), should_print, parallel
         )
         self.save_summary(completion_status=completion_status)
         print(f"Stored summaries in {self.experiment_path}")
