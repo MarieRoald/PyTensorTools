@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 experiment_row = experiment_info.copy()
 
                 # Set rank
-                rank = int(experiment_subfolder.stem.split("rank_")[1].split("_")[0])
+                rank = int(experiment_subfolder.name.split("rank_")[1].split("_")[0])
                 experiment_row[rank] = rank
 
                 # Evaluate the experiment
