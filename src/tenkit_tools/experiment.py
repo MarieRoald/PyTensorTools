@@ -352,7 +352,8 @@ class Experiment(ABC):
             self.experiment_params.get("num_runs", 10), should_print, parallel
         )
         self.save_summary(completion_status=completion_status)
-        print(f"Stored summaries in {self.experiment_path}")
+        if should_print:
+            print(f"Stored summaries in {self.experiment_path}")
 
     def save_raw_dataset(self, label_names, out_file):
         self.generate_data_reader().to_matlab(label_names, out_file)
