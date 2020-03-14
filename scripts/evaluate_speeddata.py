@@ -4,6 +4,8 @@ import json
 from tenkit_tools.evaluation.experiment_evaluator import ExperimentEvaluator
 from csv import DictWriter
 from scipy.io import loadmat
+from tenkit_tools.utils import load_summary
+from tqdm import tqdm
 
 
 DATA_PATH = Path("/home/mariero/datasets/CRNA/missing_060/datasets")
@@ -20,6 +22,11 @@ def evaluate_experiment(
     print(f"Evaluating {experiment_subfolder}")	
     if not (experiment_subfolder / "summaries" / "summary.json").is_file():
         return None
+    
+    summary = load_summary(experiment_subfolder)
+    for summary_entry in ["best_run", "best_fit", "best_loss", "std_loss", "std_fit"]:
+        experiment_info[summary_entry] = summary[summary_entry]
+
     eval_results, _ = evaluator.evaluate_experiment(str(experiment_subfolder),verbose=False)
 
     experiment_info['attempt_num'] = i
@@ -79,10 +86,10 @@ if __name__ == '__main__':
     num_rows = 0
     # The outer loop iterates over the folders corresponding to different similarity matrices
     for single_similarity_experiments_folder in sorted(experiments_folder.iterdir()):
-
+        print(single_similarity_experiments_folder.stem)
         # Within each of these folders we have a series of experiments with different datasets
         # and regularisation strengths. This loop iterates over these experiments.
-        for experiment_folder in sorted(single_similarity_experiments_folder.iterdir()):
+        for experiment_folder in tqdm(sorted(single_similarity_experiments_folder.iterdir())):
             experiment_info = get_experiment_info(experiment_folder)
             print(f'Loading experiment: {experiment_info["experiment_name"]}')
 
@@ -111,7 +118,6 @@ if __name__ == '__main__':
                 if experiment_row is None:
                     print(f"Skipping {experiment_subfolder}")
                     continue
-                print(experiment_row)
 
                 open_mode = 'w' if num_rows == 0 else 'a'
                 # Write summary csv
