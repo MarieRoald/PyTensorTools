@@ -19,7 +19,7 @@ def evaluate_experiment(
     experiment_subfolder: Path,
     evaluator: ExperimentEvaluator
 ):
-    print(f"Evaluating {experiment_subfolder}")	
+    # print(f"Evaluating {experiment_subfolder}")	
     if not (experiment_subfolder / "summaries" / "summary.json").is_file():
         return None
     
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         # and regularisation strengths. This loop iterates over these experiments.
         for experiment_folder in tqdm(sorted(single_similarity_experiments_folder.iterdir())):
             experiment_info = get_experiment_info(experiment_folder)
-            print(f'Loading experiment: {experiment_info["experiment_name"]}')
+            # print(f'Loading experiment: {experiment_info["experiment_name"]}')
 
             evaluator_params['single_run_evaluator_params'].extend(
                 get_extra_evaluators(
