@@ -407,6 +407,24 @@ class SeparateModeEvolvingFMS(BaseEvaluator):
 
         return {**scores, **permutations}
 
+
             
 
+class TensorCompletionScore(BaseSingleRunEvaluator):
+    _name = "TCS"
+
+    def __init__(self, summary, importance_weights, postprocessor_params=None, data_reader=None):
+        super().__init__(summary, postprocessor_params=postprocessor_params, data_reader=data_reader)
+        self.importance_weights = importance_weights
+
+    def _evaluate(self, data_reader, h5):
+        decomposition = self.load_final_checkpoint(h5)
+        datatensor = data_reader.tensor
+        reconstructed_tensor = decomposition.construct_tensor()
+        importance_weights = self.importance_weights
+
+        reconstruction_error = np.linalg.norm((1-importance_weights)*(datatensor-reconstructed_tensor))
+        true_norm = np.linalg.norm((1-importance_weights)*datatensor)
+        tcs = reconstruction_error/true_norm
+        return {self.name: tcs}
 
