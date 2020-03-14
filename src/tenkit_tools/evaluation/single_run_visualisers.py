@@ -18,6 +18,7 @@ from plottools.fMRI.tile_plots import (
 
 from .. import utils
 from ..evaluation.base_evaluator import BaseEvaluator
+import scipy.stats as stats
 
 mpl.rcParams["font.family"] = "PT Sans"
 
@@ -560,9 +561,28 @@ class ResidualHistogram(BaseVisualiser):
         predicted_tensor = self.DecomposerType(factor_matrices).construct_tensor()
 
         residuals = tensor.ravel() - predicted_tensor.ravel()
+        residuals = np.ma.array(residuals).compressed()
 
         ax = fig.add_subplot(111)
         ax.hist(residuals)
+        return fig
+            
+
+class ResidualQQPlot(BaseVisualiser):
+    _name = "Q-Q"
+    def _visualise(self, data_reader, h5):
+        """ Creates a Q-Q plot of the residuals."""
+        fig = self.create_figure()
+        factor_matrices = self.load_final_checkpoint(h5)
+        tensor = data_reader.tensor
+        # TODO: will not work for parafac2
+        predicted_tensor = self.DecomposerType(factor_matrices).construct_tensor()
+
+        residuals = tensor.ravel() - predicted_tensor.ravel()
+        residuals = np.ma.array(residuals).compressed()
+
+        ax = fig.add_subplot(111)
+        stats.probplot(residuals, plot=ax, rvalue=True)
         return fig
 
 
