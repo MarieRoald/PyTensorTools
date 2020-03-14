@@ -222,9 +222,10 @@ class Experiment(ABC):
 
         for file_name in self.checkpoint_path.glob("run*.h5"):
             decomposer = model_type(**self.decomposition_params["arguments"])
+            fit_params = self.decomposition_params.get("fit_params", {})
             decomposer.init = "from_checkpoint"
             decomposer._init_fit(
-                self.data_reader.tensor, max_its=None, initial_decomposition=file_name,
+                self.data_reader.tensor, max_its=None, initial_decomposition=file_name, **fit_params
             )
 
             losses.append(decomposer.loss)
