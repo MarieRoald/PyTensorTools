@@ -36,7 +36,7 @@ def evaluate_experiment(
 
 
 def get_experiment_info(experiment_folder: Path):
-    _, missing_percentage, dataset_id, _, reg = experiment_folder.stem.split("_")
+    _, missing_percentage, dataset_id, _, reg = experiment_folder.name.split("_")
 
     experiment = {}
     experiment['experiment_name'] = f'{experiment_folder.parent.stem}_{experiment_folder.stem}'
@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
                 # Set rank
                 rank = int(experiment_subfolder.name.split("rank_")[1].split("_")[0])
-                experiment_row[rank] = rank
+                experiment_row["rank"] = rank
 
                 # Evaluate the experiment
                 experiment_row = evaluate_experiment(
