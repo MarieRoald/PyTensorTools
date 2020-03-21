@@ -302,12 +302,14 @@ class Transpose(BasePreprocessor):
 
 @test_defaults.set_default({'noise_level': 0.33})
 class AddNoise(BasePreprocessor):
-    def __init__(self, data_reader, noise_level):
+    def __init__(self, data_reader, noise_level, seed= None):
         self.noise_level = noise_level
+        self.seed = seed
         super().__init__(data_reader)
     
     def preprocess(self, data_reader):
         tensor = data_reader.tensor
+        np.random.seed(self.seed)
         noise = np.random.standard_normal(size=data_reader.tensor.shape)
 
         return tensor + self.noise_level*noise*(np.linalg.norm(tensor)/np.linalg.norm(noise)), data_reader.classes

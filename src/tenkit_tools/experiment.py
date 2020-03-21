@@ -104,6 +104,7 @@ class Experiment(ABC):
         log_params,
         preprocessor_params=None,
         load_id=None,
+        extra_summary_fields=None,
     ):
         # Set params dicts
         self.experiment_params = experiment_params
@@ -124,6 +125,9 @@ class Experiment(ABC):
         # Set experiment paths
         self.experiment_path = self.get_experiment_directory()
         self.create_experiment_directories()
+
+        # Add extra summary fields
+        self.extra_summary_fields = extra_summary_fields
 
     @property
     def num_processes(self):
@@ -254,6 +258,7 @@ class Experiment(ABC):
         self.summary["model_rank"] = self.decomposition_params["arguments"]["rank"]
         self.summary["dataset_shape"] = self.generate_data_reader().tensor.shape
         self.summary["experiment_completed"] = completion_status == EXPERIMENT_COMPLETED
+        self.summary["extras"] = self.extra_summary_fields
 
         self.summary = {
             **self.summary,
