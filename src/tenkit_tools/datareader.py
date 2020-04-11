@@ -256,7 +256,7 @@ def load_strref(h5, strref):
     return load_strrefs(h5, strref)[0]
 
 
-class PLSDataset(BaseDataReader):
+class PLSDataReader(BaseDataReader):
     def _get_modenames(self, filename):
         with h5py.File(filename, 'r') as h5:
             refs = h5['data/title'][0]
