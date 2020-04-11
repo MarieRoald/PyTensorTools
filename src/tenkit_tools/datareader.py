@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod, abstractproperty
 import os
+from itertools import product
 from pathlib import Path
 from subprocess import Popen
 from tempfile import TemporaryDirectory
@@ -116,7 +117,6 @@ class BaseDataReader(ABC):
         classes = []
         class_names = []
         class_ids = []
-
         for mode, mode_label_names in enumerate(label_names):
             labels_ = self.classes[mode]
             classes_ = self.class_ids[mode]
@@ -172,7 +172,6 @@ class BaseDataReader(ABC):
 
 
 class NumpyDataReader(BaseDataReader):
-
     def __init__(self, tensor, classes, mode_names=None):
         super().__init__(mode_names=mode_names)
         self._tensor = tensor
@@ -225,6 +224,8 @@ class HDF5DataReader(BaseDataReader):
         mode_names=None,
         transpose=True,
     ):
+        """classes: list of dicts, class name maps to variable name in the h5 file.
+        """
         super().__init__(mode_names=mode_names)
         self.file_path = file_path
 
@@ -240,6 +241,64 @@ class HDF5DataReader(BaseDataReader):
 
         if classes is not None:
             self._classes = self._load_meta_data(self.meta_info_path, classes)
+
+
+def load_strrefs(h5, strref):
+    strdata = h5[strref][:].T
+    if len(strdata.shape) != 2:
+        strdata = strdata[np.newaxis]
+    return [
+        ''.join(chr(c) for c in strdatum) for strdatum in strdata
+    ]
+
+
+def load_strref(h5, strref):
+    return load_strrefs(h5, strref)[0]
+
+
+class PLSDataset(BaseDataReader):
+    def _get_modenames(self, filename):
+        with h5py.File(filename, 'r') as h5:
+            refs = h5['data/title'][0]
+            return [load_strref(h5, ref) for ref in refs]
+    
+    def _load_tensor(self, filename):
+        with h5py.File(filename, 'r') as h5:
+            return h5['data/data'][:]
+
+    def _load_classes(self, filename):
+        with h5py.File(filename, 'r') as h5:
+            label_refs = h5['data/label'][:]
+            labeldata = [
+                [
+                    [None for _ in range(label_refs.shape[2])]
+                    for _ in range(label_refs.shape[1])
+                ] for _ in range(label_refs.shape[0])
+            ]
+
+            # Iterate over all possible indices for label_refs
+            for i, j, k in product(*map(range, label_refs.shape)):
+                labeldata[i][j][k] = load_strrefs(h5, label_refs[i, j, k])
+        
+        labels = [{} for _ in enumerate(labeldata[0][0])]
+        for label in labeldata:
+            for mode, (label_content, label_name) in enumerate(zip(*label)):
+                if label_name[0] == '\x00\x00':
+                    continue
+                labels[mode][label_name[0]] = label_content
+        return labels
+        
+    def __init__(self, filename):
+        self.filename = filename
+
+        mode_names = self._get_modenames(filename)
+        super().__init__(mode_names)
+
+        self._tensor = self._load_tensor(filename)
+        self._classes = self._load_classes(filename)
+
+        
+
 
 
 # Used to convert to MATLAB style dataset.
@@ -298,10 +357,13 @@ for i = 1:length(mode_titles)
         data.classid{{i, 1}} = cellstr(class_ids_);
     elseif size(classes_, 1) > 1
         disp('multiple');
-        for j = 1:size(classes, 1)
-            data.class{{i,j}} = double(classes_{{j, :}});
-            data.classname{{i,j}} = class_names_{{j, :}};
-            data.classid{{i,j}} = cellstr(class_ids_{{j, :}});
+        for j = 1:size(classes_, 1)
+            disp('class');
+            data.class{{i,j}} = double(classes_(j, 1:end));
+            disp('classname');
+            data.classname{{i,j}} = class_names_(j, 1:end);
+            disp('classid');
+            data.classid{{i,j}} = cellstr(class_ids_(j, 1:end));
         end;
     end;
 end;
