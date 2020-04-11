@@ -285,7 +285,7 @@ class PLSDataReader(BaseDataReader):
             for mode, (label_content, label_name) in enumerate(zip(*label)):
                 if label_name[0] == '\x00\x00':
                     continue
-                labels[mode][label_name[0]] = label_content
+                labels[mode][label_name[0]] = bo,arrat(label_content)
         return labels
 
     def _load_classinfo(self, file_path):
@@ -335,7 +335,7 @@ class PLSDataReader(BaseDataReader):
                 class_name = ''.join(chr(c) for c in h5[class_data[1]][:].squeeze())
                 class_values = [class_names[mode][0][d] for d in h5[class_data[0]][:].squeeze()]
 
-                classes[mode][class_name] = class_values
+                classes[mode][class_name] = np.array(class_values)
         
         return classes
 
