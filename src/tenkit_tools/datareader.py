@@ -266,7 +266,7 @@ class PLSDataReader(BaseDataReader):
         with h5py.File(file_path, 'r') as h5:
             return h5['data/data'][:]
 
-    def _load_classes(self, file_path):
+    def _load_labels(self, file_path):
         with h5py.File(file_path, 'r') as h5:
             label_refs = h5['data/label'][:]
             labeldata = [
@@ -287,6 +287,63 @@ class PLSDataReader(BaseDataReader):
                     continue
                 labels[mode][label_name[0]] = label_content
         return labels
+
+    def _load_classinfo(self, file_path):
+        with h5py.File(file_path, 'r') as h5:
+            classname_refs = h5['data/classlookup'][:]
+            
+            if classname_refs.shape[0] != 1:
+                raise ValueError(
+                    "This doesn't work with more than one class per mode yet."
+                    " Getting class lookuptable might work, but extracting the"
+                    " class values does not."
+                )
+            
+            class_names = [[] for _ in range(classname_refs.shape[1])]
+            for class_num, _ in enumerate(classname_refs):
+                for mode_num, name_ref in enumerate(classname_refs[class_num]):
+                    # If all classes for the given mode is iterated over, 
+                    # then the class-matrix is padded by references to all-zero vectors.
+                    if np.all(h5[name_ref][:].ravel() == 0):
+                        continue
+                    
+                    # Otherwise, the reference point to a 2-by-num_class_values matrix
+                    # Where each element is another reference.
+
+                    # The first row in this 2-by-num_class_values matrix is a reference
+                    # to the the class-values (class ids) as they appear in the dataset
+                    class_ids = [h5[d][:].squeeze().tolist() for d in h5[name_ref][0]]
+
+                    # The second row in this 2-by-num_class_values matrix is a reference
+                    # to the class-values as they should be interpreted. This is an array
+                    # of ASCII code points that we convert to a string.
+                    class_values = [''.join(chr(c) for c in h5[d][:].squeeze()) for d in h5[name_ref][1]]
+
+                    # Finally, we create a dictionary that maps the class ids to their
+                    # value 
+                    class_names[mode_num].append(dict(zip(class_ids, class_values)))
+                    
+
+            # TODO: Figure out where the extra dimension appears if there are more than one class
+            classrefs = h5['data/class'][:]
+            
+            classes = [{} for _ in enumerate(classrefs.T)]
+            for mode, class_data in enumerate(classrefs.T):
+                if np.all(h5[class_data[0]][:] == 0):
+                    continue
+
+                class_name = ''.join(chr(c) for c in h5[class_data[1]][:].squeeze())
+                class_values = [class_names[mode][0][d] for d in h5[class_data[0]][:].squeeze()]
+
+                classes[mode][class_name] = class_values
+        
+        return classes
+
+    def _load_classes(self, file_path):
+        labels = self._load_labels(file_path)
+        classes = self._load_classinfo(file_path)
+
+        return [{**l, **c} for l, c in zip(labels, classes)]
         
     def __init__(self, file_path):
         self.file_path = file_path
