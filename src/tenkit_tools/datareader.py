@@ -257,17 +257,17 @@ def load_strref(h5, strref):
 
 
 class PLSDataReader(BaseDataReader):
-    def _get_modenames(self, filename):
-        with h5py.File(filename, 'r') as h5:
+    def _get_modenames(self, file_path):
+        with h5py.File(file_path, 'r') as h5:
             refs = h5['data/title'][0]
             return [load_strref(h5, ref) for ref in refs]
     
-    def _load_tensor(self, filename):
-        with h5py.File(filename, 'r') as h5:
+    def _load_tensor(self, file_path):
+        with h5py.File(file_path, 'r') as h5:
             return h5['data/data'][:]
 
-    def _load_classes(self, filename):
-        with h5py.File(filename, 'r') as h5:
+    def _load_classes(self, file_path):
+        with h5py.File(file_path, 'r') as h5:
             label_refs = h5['data/label'][:]
             labeldata = [
                 [
@@ -288,14 +288,14 @@ class PLSDataReader(BaseDataReader):
                 labels[mode][label_name[0]] = label_content
         return labels
         
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, file_path):
+        self.file_path = file_path
 
-        mode_names = self._get_modenames(filename)
+        mode_names = self._get_modenames(file_path)
         super().__init__(mode_names)
 
-        self._tensor = self._load_tensor(filename)
-        self._classes = self._load_classes(filename)
+        self._tensor = self._load_tensor(file_path)
+        self._classes = self._load_classes(file_path)
 
         
 
