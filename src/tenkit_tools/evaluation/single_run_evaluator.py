@@ -9,6 +9,7 @@ from scipy.io import loadmat, savemat
 from scipy.stats import ttest_ind
 import h5py
 from sklearn.cluster import KMeans
+from sklearn.metrics import roc_auc_score
 
 import tenkit
 from tenkit import metrics  
@@ -432,6 +433,39 @@ class NoisefreeFit(BaseEvaluator):
         est = decomposition.construct_tensor()
 
         return {"noisefree fit": 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2}
+
+
+class EvolvingTensorROCAUC(BaseEvaluator):
+    _name = "noisefree_fit"
+    def __init__(
+        self,
+        summary: dict,
+        evolving_tensor: Path,
+        internal_path: str,
+        threshold=1,
+        **kwargs
+    ):
+        super().__init__(summary)
+        self.evolving_tensor = evolving_tensor
+        self.internal_path = internal_path
+        self.threshold = threshold
+    
+    def _evaluate(self, data_reader, h5):
+        with h5py.File(self.evolving_tensor) as dataset:
+            ground_truth = EvolvingTensor.load_from_hdf5_group(dataset[self.internal_path])
+
+        decomposition = self.load_final_checkpoint(h5)
+        decomposition = EvolvingTensor.from_kruskaltensor(decomposition, allow_same_class=True)
+
+        true_B = np.array(ground_truth.B)
+        est_B = np.array(decomposition.B)
+
+        true_B_threshold = np.array(true_B) > self.threshold
+    
+        auc = roc_auc_score(true_tensor_threshold.ravel(), est_B.ravel())
+        
+        return {"ROCAUC": auc}
+
 
 
 class TensorCompletionScore(BaseSingleRunEvaluator):
