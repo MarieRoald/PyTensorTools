@@ -432,11 +432,11 @@ class NoisefreeFit(BaseEvaluator):
         true = ground_truth.construct_tensor()
         est = decomposition.construct_tensor()
 
-        return {"noisefree fit": 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2}
+        return {"noisefree_fit": 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2}
 
 
 class EvolvingTensorROCAUC(BaseEvaluator):
-    _name = "noisefree_fit"
+    _name = "roc_auc"
     def __init__(
         self,
         summary: dict,
