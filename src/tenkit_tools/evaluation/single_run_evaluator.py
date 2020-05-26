@@ -431,7 +431,7 @@ class NoisefreeFit(BaseEvaluator):
         true = ground_truth.construct_tensor()
         est = decomposition.construct_tensor()
 
-        return 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2
+        return {"noisefree fit": 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2}
 
 
 class TensorCompletionScore(BaseSingleRunEvaluator):
