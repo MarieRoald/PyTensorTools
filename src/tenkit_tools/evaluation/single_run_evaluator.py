@@ -462,7 +462,7 @@ class EvolvingTensorROCAUC(BaseEvaluator):
 
         true_B_threshold = np.array(true_B) > self.threshold
     
-        auc = roc_auc_score(true_tensor_threshold.ravel(), est_B.ravel())
+        auc = roc_auc_score(true_B_threshold.ravel(), est_B.ravel())
         
         return {"ROCAUC": auc}
 
