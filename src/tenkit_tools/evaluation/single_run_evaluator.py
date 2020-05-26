@@ -408,7 +408,31 @@ class SeparateModeEvolvingFMS(BaseEvaluator):
         return {**scores, **permutations}
 
 
-            
+class NoisefreeFit(BaseEvaluator):
+    _name = "noisefree_fit"
+    def __init__(
+        self,
+        summary: dict,
+        evolving_tensor: Path,
+        internal_path: str,
+        **kwargs
+    ):
+        super().__init__(summary)
+        self.evolving_tensor = evolving_tensor
+        self.internal_path = internal_path
+    
+    def _evaluate(self, data_reader, h5):
+        with h5py.File(self.evolving_tensor) as dataset:
+            ground_truth = EvolvingTensor.load_from_hdf5_group(dataset[self.internal_path])
+
+        decomposition = self.load_final_checkpoint(h5)
+        decomposition = EvolvingTensor.from_kruskaltensor(decomposition, allow_same_class=True)
+
+        true = ground_truth.construct_tensor()
+        est = decomposition.construct_tensor()
+
+        return 1 - (np.linalg.norm(true - est)/np.linalg.norm(true))**2
+
 
 class TensorCompletionScore(BaseSingleRunEvaluator):
     _name = "TCS"
