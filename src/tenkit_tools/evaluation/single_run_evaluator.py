@@ -401,12 +401,13 @@ class SeparateModeEvolvingFMS(BaseEvaluator):
         decomposition = self.load_final_checkpoint(h5)
         decomposition = EvolvingTensor.from_kruskaltensor(decomposition, allow_same_class=True)
         
-        scores, permutations = decomposition.separate_mode_factor_match_score(ground_truth) 
+        scores, permutations = decomposition.seperate_mode_factor_match_score(ground_truth) 
+        fms, fms_perm = decomposition.factor_match_score(ground_truth)
 
         scores = {f'fms_mode_{i}': score for i, score in enumerate(scores)}
         permutations = {f'permutation_mode_{i}': permutation for i, permutation in enumerate(permutations)}
 
-        return {**scores, **permutations}
+        return {'fms': fms, 'permutation': fms_perm, **scores, **permutations}
 
 
 class NoisefreeFit(BaseEvaluator):
